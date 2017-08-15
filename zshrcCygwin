@@ -1,0 +1,140 @@
+# moves prompt to the bottom of the window
+tput cup $LINES
+
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.histfile
+HISTSIZE=100000
+SAVEHIST=100000
+bindkey -e
+# End of lines configured by zsh-newuser-install
+# The following lines were added by compinstall
+zstyle :compinstall filename '/home/Bastiaan/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
+echo "Parsing ~/.zshrc"
+
+alias ll='ls --color=auto -la'
+alias ls='ls --color=auto'
+alias ct='cleartool'
+alias cr='dos2unix'
+
+#enki stuff.
+alias cd..='cd ..'
+alias st=/c/SublimeText/sublime_text
+
+eval `dircolors -b`
+
+setopt AUTO_CD
+#setopt CORRECT
+#setopt CORRECT_ALL
+setopt INC_APPEND_HISTORY
+#INC_APPEND_HISTORY
+#setopt AUTO_LIST
+setopt BASH_AUTO_LIST
+setopt AUTO_PUSHD
+unsetopt AUTO_RESUME
+setopt HIST_IGNORE_DUPS
+unsetopt NOMATCH
+#disable interpretation of backslash in echo
+setopt BSD_ECHO
+
+#case insensitive completion with priority on case match (empty string is exact match)
+compctl -M '' 'm:{a-zA-Z}={A-Za-z}'
+autoload -U colors && colors
+#PROMPT="%{$fg[red]%}%n%{$reset_color%}@%{$fg[cyan]%}%m%{$reset_color%}- %{$fg_no_bold[yellow]%}%~%{$reset_color%}% >"
+# PROMPT="%{$fg_no_bold[yellow]%}%~%{$reset_color%}% >"
+PROMPT="%(1j. %j .)%{$fg_no_bold[yellow]%}%~%{$reset_color%}% >"
+
+# If this is an xterm set the title to user@host:dir
+case $TERM in
+    xterm*)
+        precmd () {print -Pn "\e]0;%~\a"}
+        ;;
+esac
+
+
+# key bindings
+bindkey "\e[1~" beginning-of-line
+bindkey "\e[4~" end-of-line
+bindkey "\e[5~" beginning-of-history
+bindkey "\e[6~" end-of-history
+bindkey "\e[3~" delete-char
+bindkey "\e[2~" quoted-insert
+bindkey "\e[5C" forward-word
+bindkey "\eOc" emacs-forward-word
+bindkey "\e[5D" backward-word
+bindkey "\eOd" emacs-backward-word
+bindkey "\e\e[C" forward-word
+bindkey "\e\e[D" backward-word
+bindkey "^H" backward-delete-word
+# for rxvt
+bindkey "\e[8~" end-of-line
+bindkey "\e[7~" beginning-of-line
+# for non RH/Debian xterm, can't hurt for RH/DEbian xterm
+bindkey "\eOH" beginning-of-line
+bindkey "\eOF" end-of-line
+# for freebsd console
+bindkey "\e[H" beginning-of-line
+bindkey "\e[F" end-of-line
+# completion in the middle of a line
+bindkey '^i' expand-or-complete-prefix
+
+
+csdiff () {
+  echo 'csdiff' "$1" "$2";
+  wdiff -n -w $'\033[1;37;41m' -x $'\033[0m' -y $'\033[30;42m' -z $'\033[0m' "$1" "$2" | fgrep -C 2 $'\033'
+}
+
+#source ~/.ssh-find-agent.sh
+#set_ssh_agent_socket
+#. ssh-find-agent.sh
+
+#ssh-find-agent -a
+#if [ -z "$SSH_AUTH_SOCK" ]
+#then
+#   eval $(ssh_agent) > /dev/null
+#   ssh-add -l >/dev/null || alias ssh='ssh-add -l >/dev/null || ssh-add && unalias ssh; ssh'
+#fi
+
+#eval `keychain -q --agents ssh --eval id_rsa`
+export EDITOR=vim
+
+# If no SSH agent is already running, start one now. Re-use sockets so we never
+# have to start more than one session.
+
+export SSH_AUTH_SOCK=/home/bastiaan/.ssh-socket
+
+ssh-add -l >/dev/null 2>&1
+if [ $? = 2 ]; then
+   # No ssh-agent running
+   rm -rf $SSH_AUTH_SOCK
+   # >| allows output redirection to over-write files if no clobber is set
+   ssh-agent -a $SSH_AUTH_SOCK >| /tmp/.ssh-script
+   source /tmp/.ssh-script
+   echo $SSH_AGENT_PID >| ~/.ssh-agent-pid
+   rm /tmp/.ssh-script
+  ssh-add
+fi
+
+# for VIM and TMUX
+if [ "$TERM" = "screen" ]; then
+  export TERM=xterm-256color
+fi
+
+ttdiff () { tortoiseproc /command:diff /path:$* }
+ttst () { tortoiseproc /command:repostatus /path:$* }
+ttlog () { tortoiseproc /command:log /path:$* }
+ttci () { tortoiseproc /command:commit /path:$* }
+ttprop () { tortoiseproc /command:properties /path:$* }
+ttblame () { tortoiseproc /command:blame /path:$* }
+#so as not to be disturbed by Ctrl-S ctrl-Q in terminals:
+stty -ixon
+
+# export CYGWIN="winsymlinks:nativestrict"
+
+export DEFAULT_USER=Bastiaan
+source ~/Dropbox/agnoster.zsh-theme
+
+export PATH=~/bin/:$PATH

@@ -1,0 +1,289 @@
+" Disable highlighting in vimdiff
+" :set hl+=A:none,C:none,D:none,T:none 
+
+" Source the vimrc file after saving it
+if has("autocmd")
+  " autocmd bufwritepost .vimrc source $MYVIMRC
+  augroup VIMRCRELOAD
+    autocmd!
+    autocmd bufwritepost .vimrc source $MYVIMRC
+    autocmd bufwritepost .vimrc hi LineNr ctermfg=248
+  augroup end
+endif
+
+set number
+" set relativenumber
+set nocompatible
+set nowrap
+set showcmd " show partial commands
+ "Set tabs to 2 spaces and auto insert spaces http://vimcasts.org/episodes/tabs-and-spaces/
+set ts=2 sts=2 sw=2 expandtab
+"http://vimcasts.org/episodes/whitespace-preferences-and-filetypes/
+syntax on " syntax highlighting
+
+
+" Also switch on highlighting the last used search pattern.
+set hlsearch
+set incsearch
+
+" set current line highlight on the active window
+set cul
+augroup BgHighlight
+    autocmd!
+    autocmd WinEnter * set cul
+    autocmd WinLeave * set nocul
+augroup END
+
+set autoindent " always set autoindenting on
+
+set backup
+set backupdir=~/.vim/backup//,/tmp//
+set directory=~/.vim/swap//,/tmp//
+set undodir=~/.vim/undo//,/tmp//
+set writebackup
+set autowrite " auto write on most commands
+set autowriteall " auto write on most commands
+set conceallevel=0 " dont hide double quotes in json..
+          
+""" Show whitespaces """
+set list
+" Shortcut to rapidly toggle `set list`, list is whitespace highlighting
+" nmap <leader>l :set list!<CR>
+" Use the same symbols as TextMate for tabstops and EOLs
+set listchars=tab:▸\ ,eol:¬,trail:.
+"""""""""""""""""""""""
+
+" resize window to a third
+nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
+nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
+nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
+nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
+
+" shortcut to toggle paste
+" nmap <leader>p :set paste!<CR>
+" nmap <F8> :set paste!<CR>
+" imap <F8> <C-O>:set paste!<CR>
+set pastetoggle=<F8>
+
+
+" better wildmode for Tab Completion in commands
+set wildmode=list:longest
+set wildmenu
+
+" run vimrc files in project dirs
+set exrc
+set secure
+
+set backspace=2 "allow backspace over eol, indent and start of insert
+
+" In many terminal emulators the mouse works just fine, thus enable it.
+" if has('mouse')
+"   set mouse=a
+" endif
+
+set hidden "http://stackoverflow.com/questions/102384/using-vims-tabs-like-buffers
+
+
+" set clipboard=unnamed " use system clipboard as first register
+
+
+" Use Ag over Grep
+set grepprg=ag\ --nogroup\ --nocolor
+autocmd QuickFixCmdPost *grep* cwindow
+
+" au FileChangedShell * echo "Warning: File changed on disk"
+
+" disable hiding of quotes in json files
+set conceallevel=0
+let g:vim_json_syntax_conceal = 0
+
+if has("autocmd")
+  autocmd FileType * setlocal conceallevel=0
+  " associate jakeFile with javascript filetype
+  " au BufRead,BufNewFile jakefile setfiletype javascript
+  au BufRead,BufNewFile *.vue setfiletype vue
+  autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+endif
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
+		  \ | wincmd p | diffthis
+endif
+
+" Uncomment the following to have Vim jump to the last position when
+" reopening a file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+endif
+
+filetype off
+
+set rtp+=~/.vim/bundle/vundle/
+call vundle#begin()
+
+" let vundle manage vundle
+Plugin 'gmarik/vundle'
+
+" list all plugins that you'd like to install here
+" recursive fuzzy file search and buffer select
+Plugin 'ctrlpvim/ctrlp.vim'
+" do commenting
+Plugin 'tomtom/tcomment_vim'
+
+Plugin 'flazz/vim-colorschemes' " bunch o colors
+" Plugin 'felixhummel/setcolors.vim' " easy theme switching plugin
+
+" Plugin 'vim-syntastic/syntastic' " detect syntax errors before running scripts
+" Plugin 'w0rp/ale'
+
+Plugin 'jelera/vim-javascript-syntax' " better javascript syntax
+Plugin 'Yggdroot/indentLine' "show indent line thingy
+
+Plugin 'posva/vim-vue'
+
+" javascript function textobject [dvc][ai]f or 
+Plugin 'https://github.com/kana/vim-textobj-user'
+Plugin 'https://github.com/kana/vim-textobj-function'
+Plugin 'https://github.com/thinca/vim-textobj-function-javascript'
+
+" zoom a single window to fullscreen
+Plugin 'regedarek/ZoomWin'
+" do context aware completion on tab
+Plugin 'ervandew/supertab'
+
+" print all the colors in a window
+Plugin 'guns/xterm-color-table.vim'
+" extended % matching
+Plugin 'tmhedberg/matchit'
+
+call vundle#end()
+filetype plugin indent on
+
+let g:indentLine_faster = 1
+
+colorscheme Tomorrow-Night-Bright
+hi Normal ctermbg=0
+au BufNewFile,BufRead * hi LineNr ctermfg=248
+
+hi DiffChange ctermfg=NONE ctermbg=18
+hi DiffText ctermfg=NONE ctermbg=26
+" hi DiffAdd ctermfg=NONE ctermbg=26
+" hi DiffDelete ctermfg=NONE ctermbg=26
+
+
+" === STATUSLINE === " Needs to come after colorscheme or colors get reset
+set laststatus=2 " always show statusline
+"define 3 custom highlight groups
+hi User1 ctermbg=27 ctermfg=15
+hi User2 ctermbg=0   ctermfg=blue
+hi User3 ctermbg=blue  ctermfg=green
+
+if version >= 700
+  augroup NrHighlight
+    autocmd!
+    " highlight the status bar when in insert mode
+    au InsertEnter * hi User2 ctermfg=15 ctermbg=2
+    au InsertLeave * hi User2 ctermfg=15 ctermbg=0
+    " au WinEnter * hi User2 ctermfg=15 ctermbg=27
+    " au WinLeave * hi User2 ctermfg=15 ctermbg=0
+  augroup END
+endif
+
+set ruler " uverruled by statusline
+set statusline=
+set statusline+=%1*\ %F\ [%n]%(\ %M%R%)\    "switch to User1 highlight "full filename modified, readonly
+set statusline+=%(%*\ %Y%W%)   "filetype, preview
+
+"Syntastic
+set statusline+=%1*%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+set statusline+=\ %2*%=     "right side
+" set statusline+=%*\ %b\        "char under cursor
+set statusline+=%1*\   " color
+set statusline+=%l:%c\    "column number
+" set statusline+=%1*\ %l/%L  "line number
+" set statusline+=:%c\    "column number
+set statusline+=%*   "switch back to statusline highlight
+set statusline+=\ %P\ %L\    "percentage thru file
+" ================== "
+
+" === syntastic ===
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+let g:syntastic_javascript_checkers = ['eslint']
+" let g:syntastic_javascript_eslint_exec = 'eslint_d'
+let g:syntastic_javascript_eslint_exec = 'eslint'
+" ============
+" === ale ===
+" let g:ale_linters = {
+"       \   'javascript': ['eslint'],
+"       \}
+" ===========
+
+" use custom command for CtrlP
+let g:ctrlp_user_command = 'ag %s -f -l --nocolor -g ""'
+" let g:ctrlp_working_path_mode = 'a'
+let g:ctrlp_working_path_mode = '0'
+
+" === leader commands ===
+" edit files
+nmap <leader>ev :tabedit $MYVIMRC<CR>  
+nmap <leader>et :tabedit ~/.tmux.conf<CR> 
+nmap <leader>ep :tabedit push.sh<CR> 
+nmap <leader>es :tabedit ~/.eslintrc<CR> 
+
+" open buffer list
+nnoremap <leader>b :CtrlPBuffer<CR>
+" \s to save all and run local push.sh
+nmap <leader>s :wa<CR>:!./push.sh<CR><CR>
+nmap <leader>S :wa<CR>:!./push.sh<CR>
+nmap <leader>t :wa<CR>:!./push.sh test<CR>
+" ============
+
+" SVN DIFF
+" http://www.vim.org/scripts/script.php?script_id=1881
+noremap <F3> :call Svndiff("prev")<CR> 
+noremap <F4> :call Svndiff("next")<CR> 
+noremap <F5> :call Svndiff("clear")<CR> 
+let g:svndiff_autoupdate = 1 
+" hi DiffAdd      ctermfg=0 ctermbg=2 guibg='green' 
+" hi DiffDelete   ctermfg=0 ctermbg=1 guibg='red' 
+" hi DiffChange   ctermfg=0 ctermbg=3 guibg='yellow'
+
+" Output shell command in new window
+" http://vim.wikia.com/wiki/Display_output_of_shell_commands_in_new_window
+command! -complete=shellcmd -nargs=+ Shell call s:RunShellCommand(<q-args>)
+function! s:RunShellCommand(cmdline)
+  let isfirst = 1
+  let words = []
+  for word in split(a:cmdline)
+    if isfirst
+      let isfirst = 0  " don't change first word (shell command)
+    else
+      if word[0] =~ '\v[%#<]'
+        let word = expand(word)
+      endif
+      let word = shellescape(word, 1)
+    endif
+    call add(words, word)
+  endfor
+  let expanded_cmdline = join(words)
+  botright new
+  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
+  call setline(1, 'You entered:  ' . a:cmdline)
+  call setline(2, 'Expanded to:  ' . expanded_cmdline)
+  call append(line('$'), substitute(getline(2), '.', '=', 'g'))
+  silent execute '$read !'. expanded_cmdline
+  1
+endfunction
+
+
+
