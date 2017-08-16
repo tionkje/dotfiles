@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/sh
 cd $(dirname $0);
 
 ln -sf $(pwd)/dot_vimrc ~/.vimrc
