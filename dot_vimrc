@@ -7,7 +7,7 @@ if has("autocmd")
   augroup VIMRCRELOAD
     autocmd!
     autocmd bufwritepost .vimrc source $MYVIMRC
-    autocmd bufwritepost .vimrc hi LineNr ctermfg=248
+    autocmd bufwritepost .vimrc hi LineNr guifg=#606060 ctermfg=248
   augroup end
 endif
 
@@ -21,18 +21,21 @@ set ts=2 sts=2 sw=2 expandtab
 "http://vimcasts.org/episodes/whitespace-preferences-and-filetypes/
 syntax on " syntax highlighting
 
+set t_8f=[38;2;%lu;%lu;%lum
+set t_8b=[48;2;%lu;%lu;%lum
+set termguicolors
 
 " Also switch on highlighting the last used search pattern.
 set hlsearch
 set incsearch
 
 " set current line highlight on the active window
-set cul
-augroup BgHighlight
-    autocmd!
-    autocmd WinEnter * set cul
-    autocmd WinLeave * set nocul
-augroup END
+" set cul
+" augroup BgHighlight
+"     autocmd!
+"     autocmd WinEnter * set cul
+"     autocmd WinLeave * set nocul
+" augroup END
 
 set autoindent " always set autoindenting on
 
@@ -59,6 +62,32 @@ nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
 nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
 nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
 
+" alternative CtrlP
+nnoremap <c-p> :find<space>
+set path=.,,$PWD/**
+set wildignore=*.PNG,*.jpg,**/node_modules/**
+
+" === leader commands ===
+" edit files
+nmap <leader>ev :tabedit $MYVIMRC<CR>  
+nmap <leader>et :tabedit ~/.tmux.conf<CR> 
+nmap <leader>ep :tabedit push.sh<CR> 
+nmap <leader>es :tabedit ~/.eslintrc<CR> 
+" \s to save all and run local push.sh
+nmap <leader>s :wa<CR>:!./push.sh<CR><CR>
+nmap <leader>S :wa<CR>:!./push.sh<CR>
+nmap <leader>t :wa<CR>:!./push.sh test<CR>
+" 
+" nnoremap <leader>b :CtrlPBuffer<CR>
+" show buffer list
+nnoremap <leader>b :buffers<CR>:buffer<space>
+" remove current buffer from buffer list and open last buffer
+nnoremap <leader>db :b #<CR>:bd #<CR>
+nnoremap <leader>ddb :b #<CR>:bd! #<CR>
+" switch to last buffer
+nnoremap <leader>n :buffer #<CR>
+" ============
+
 " shortcut to toggle paste
 " nmap <leader>p :set paste!<CR>
 " nmap <F8> :set paste!<CR>
@@ -66,13 +95,24 @@ nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
 set pastetoggle=<F8>
 
 
+" javascript function textobject
+function! TextObjectFunction()
+    normal! ]}%
+    execute "normal ?function\<CR>"
+    normal! vf{%
+endfunction
+vnoremap af :<C-U>silent! :call TextObjectFunction()<CR>
+omap af :normal vaf<CR>
+
+
 " better wildmode for Tab Completion in commands
-set wildmode=list:longest
+" set wildmode=list:longest
+set wildmode=longest:full
 set wildmenu
 
 " run vimrc files in project dirs
-set exrc
-set secure
+" set exrc
+" set secure
 
 set backspace=2 "allow backspace over eol, indent and start of insert
 
@@ -129,7 +169,7 @@ Plugin 'gmarik/vundle'
 
 " list all plugins that you'd like to install here
 " recursive fuzzy file search and buffer select
-Plugin 'ctrlpvim/ctrlp.vim'
+" Plugin 'ctrlpvim/ctrlp.vim'
 " do commenting
 Plugin 'tomtom/tcomment_vim'
 
@@ -145,19 +185,19 @@ Plugin 'Yggdroot/indentLine' "show indent line thingy
 Plugin 'posva/vim-vue'
 
 " javascript function textobject [dvc][ai]f or 
-Plugin 'https://github.com/kana/vim-textobj-user'
-Plugin 'https://github.com/kana/vim-textobj-function'
-Plugin 'https://github.com/thinca/vim-textobj-function-javascript'
+" Plugin 'https://github.com/kana/vim-textobj-user'
+" Plugin 'https://github.com/kana/vim-textobj-function'
+" Plugin 'https://github.com/thinca/vim-textobj-function-javascript'
 
 " zoom a single window to fullscreen
-Plugin 'regedarek/ZoomWin'
+" Plugin 'regedarek/ZoomWin'
 " do context aware completion on tab
 Plugin 'ervandew/supertab'
 
 " print all the colors in a window
-Plugin 'guns/xterm-color-table.vim'
+" Plugin 'guns/xterm-color-table.vim'
 " extended % matching
-Plugin 'tmhedberg/matchit'
+" Plugin 'tmhedberg/matchit'
 
 call vundle#end()
 filetype plugin indent on
@@ -166,7 +206,8 @@ let g:indentLine_faster = 1
 
 colorscheme Tomorrow-Night-Bright
 hi Normal ctermbg=0
-au BufNewFile,BufRead * hi LineNr ctermfg=248
+hi StatusLineNC guifg=#eaeaea guibg=#4d5057 
+au BufNewFile,BufRead * hi LineNr guifg=#606060 ctermfg=248
 
 hi DiffChange ctermfg=NONE ctermbg=18
 hi DiffText ctermfg=NONE ctermbg=26
@@ -177,16 +218,16 @@ hi DiffText ctermfg=NONE ctermbg=26
 " === STATUSLINE === " Needs to come after colorscheme or colors get reset
 set laststatus=2 " always show statusline
 "define 3 custom highlight groups
-hi User1 ctermbg=27 ctermfg=15
-hi User2 ctermbg=0   ctermfg=blue
-hi User3 ctermbg=blue  ctermfg=green
+hi User1 guibg=#268bd2 guifg=#ffffff ctermbg=27 ctermfg=15
+hi User2 guibg=#000000 guifg=#268bd2 ctermbg=0 ctermfg=blue
+hi User3 guibg=#268bd2 guifg=#82b414 ctermbg=blue  ctermfg=green
 
 if version >= 700
   augroup NrHighlight
     autocmd!
     " highlight the status bar when in insert mode
-    au InsertEnter * hi User2 ctermfg=15 ctermbg=2
-    au InsertLeave * hi User2 ctermfg=15 ctermbg=0
+    au InsertEnter * hi User2 guibg=#82b414 ctermfg=15 ctermbg=2
+    au InsertLeave * hi User2 guibg=#000000 ctermfg=15 ctermbg=0
     " au WinEnter * hi User2 ctermfg=15 ctermbg=27
     " au WinLeave * hi User2 ctermfg=15 ctermbg=0
   augroup END
@@ -213,14 +254,14 @@ set statusline+=\ %P\ %L\    "percentage thru file
 " ================== "
 
 " === syntastic ===
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-let g:syntastic_javascript_checkers = ['eslint']
-" let g:syntastic_javascript_eslint_exec = 'eslint_d'
-let g:syntastic_javascript_eslint_exec = 'eslint'
+" let g:syntastic_always_populate_loc_list = 1
+" let g:syntastic_auto_loc_list = 1
+" let g:syntastic_check_on_open = 1
+" let g:syntastic_check_on_wq = 0
+"
+" let g:syntastic_javascript_checkers = ['eslint']
+" " let g:syntastic_javascript_eslint_exec = 'eslint_d'
+" let g:syntastic_javascript_eslint_exec = 'eslint'
 " ============
 " === ale ===
 " let g:ale_linters = {
@@ -229,61 +270,12 @@ let g:syntastic_javascript_eslint_exec = 'eslint'
 " ===========
 
 " use custom command for CtrlP
-let g:ctrlp_user_command = 'ag %s -f -l --nocolor -g ""'
+" let g:ctrlp_user_command = 'ag %s -f -l --nocolor -g ""'
 " let g:ctrlp_working_path_mode = 'a'
-let g:ctrlp_working_path_mode = '0'
+" let g:ctrlp_working_path_mode = '0'
 
-" === leader commands ===
-" edit files
-nmap <leader>ev :tabedit $MYVIMRC<CR>  
-nmap <leader>et :tabedit ~/.tmux.conf<CR> 
-nmap <leader>ep :tabedit push.sh<CR> 
-nmap <leader>es :tabedit ~/.eslintrc<CR> 
-
+" === Plugin leader commands ===
 " open buffer list
-nnoremap <leader>b :CtrlPBuffer<CR>
-" \s to save all and run local push.sh
-nmap <leader>s :wa<CR>:!./push.sh<CR><CR>
-nmap <leader>S :wa<CR>:!./push.sh<CR>
-nmap <leader>t :wa<CR>:!./push.sh test<CR>
+" nnoremap <leader>b :CtrlPBuffer<CR>
 " ============
-
-" SVN DIFF
-" http://www.vim.org/scripts/script.php?script_id=1881
-noremap <F3> :call Svndiff("prev")<CR> 
-noremap <F4> :call Svndiff("next")<CR> 
-noremap <F5> :call Svndiff("clear")<CR> 
-let g:svndiff_autoupdate = 1 
-" hi DiffAdd      ctermfg=0 ctermbg=2 guibg='green' 
-" hi DiffDelete   ctermfg=0 ctermbg=1 guibg='red' 
-" hi DiffChange   ctermfg=0 ctermbg=3 guibg='yellow'
-
-" Output shell command in new window
-" http://vim.wikia.com/wiki/Display_output_of_shell_commands_in_new_window
-command! -complete=shellcmd -nargs=+ Shell call s:RunShellCommand(<q-args>)
-function! s:RunShellCommand(cmdline)
-  let isfirst = 1
-  let words = []
-  for word in split(a:cmdline)
-    if isfirst
-      let isfirst = 0  " don't change first word (shell command)
-    else
-      if word[0] =~ '\v[%#<]'
-        let word = expand(word)
-      endif
-      let word = shellescape(word, 1)
-    endif
-    call add(words, word)
-  endfor
-  let expanded_cmdline = join(words)
-  botright new
-  setlocal buftype=nofile bufhidden=wipe nobuflisted noswapfile nowrap
-  call setline(1, 'You entered:  ' . a:cmdline)
-  call setline(2, 'Expanded to:  ' . expanded_cmdline)
-  call append(line('$'), substitute(getline(2), '.', '=', 'g'))
-  silent execute '$read !'. expanded_cmdline
-  1
-endfunction
-
-
 

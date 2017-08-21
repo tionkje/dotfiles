@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 cd $(dirname $0);
 
+# VIM #
 ln -sf $(pwd)/dot_vimrc ~/.vimrc
 
 mkdir -p ~/.vim/bundle
@@ -14,6 +15,11 @@ mkdir -p ~/.vim/backup
 mkdir -p ~/.vim/undo
 mkdir -p ~/.vim/swap
 
+# TMUX #
 ln -sf $(pwd)/dot_tmux.conf ~/.tmux.conf
 
+# ESLINT #
 ln -sf $(pwd)/dot_eslintrc ~/.eslintrc
+
+# ZSH #
+
