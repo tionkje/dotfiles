@@ -1,3 +1,5 @@
+scriptencoding utf-8
+set encoding=utf-8
 " Disable highlighting in vimdiff
 " :set hl+=A:none,C:none,D:none,T:none 
 
@@ -23,7 +25,9 @@ syntax on " syntax highlighting
 
 set t_8f=[38;2;%lu;%lu;%lum
 set t_8b=[48;2;%lu;%lu;%lum
-set termguicolors
+if has("termguicolors")
+  set termguicolors
+endif
 
 " Also switch on highlighting the last used search pattern.
 set hlsearch
