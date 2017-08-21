@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/sh
 cd $(dirname $0);
 
 # VIM #
