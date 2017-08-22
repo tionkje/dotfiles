@@ -180,13 +180,15 @@ Plugin 'tomtom/tcomment_vim'
 Plugin 'flazz/vim-colorschemes' " bunch o colors
 " Plugin 'felixhummel/setcolors.vim' " easy theme switching plugin
 
+Plugin 'https://github.com/sheerun/vim-polyglot' " curated list of syntax for diffrent languages, including js and vue
 " Plugin 'vim-syntastic/syntastic' " detect syntax errors before running scripts
 " Plugin 'w0rp/ale'
 
-Plugin 'jelera/vim-javascript-syntax' " better javascript syntax
+" Plugin 'jelera/vim-javascript-syntax' " better javascript syntax
 Plugin 'Yggdroot/indentLine' "show indent line thingy
-
-Plugin 'posva/vim-vue'
+Plugin 'https://github.com/lifepillar/vim-mucomplete' " autocomplete
+Plugin 'https://github.com/terryma/vim-multiple-cursors' " multicursor on ctrl+n
+" Plugin 'posva/vim-vue'
 
 " javascript function textobject [dvc][ai]f or 
 " Plugin 'https://github.com/kana/vim-textobj-user'
@@ -196,7 +198,7 @@ Plugin 'posva/vim-vue'
 " zoom a single window to fullscreen
 " Plugin 'regedarek/ZoomWin'
 " do context aware completion on tab
-Plugin 'ervandew/supertab'
+" Plugin 'ervandew/supertab'
 
 " print all the colors in a window
 " Plugin 'guns/xterm-color-table.vim'
@@ -282,4 +284,24 @@ set statusline+=\ %P\ %L\    "percentage thru file
 " open buffer list
 " nnoremap <leader>b :CtrlPBuffer<CR>
 " ============
+" ==== mucomplete ====
+" mandatory
+set completeopt+=menuone
+
+" for autocompleteion
+inoremap <expr> <c-e> mucomplete#popup_exit("\<c-e>")
+inoremap <expr> <c-y> mucomplete#popup_exit("\<c-y>")
+inoremap <expr>  <cr> mucomplete#popup_exit("\<cr>")
+
+" and at least one of the following (choose the combination that best fits your taste):
+set completeopt+=noselect
+set completeopt+=noinsert
+
+" Other recommended settings:
+set shortmess+=c   " Shut off completion messages
+set belloff+=ctrlg " If Vim beeps during completion
+
+" No other configuration is needed. Just start pressing <tab> or <s-tab> to complete a word. If you want to enable automatic completion at startup, put
+let g:mucomplete#enable_auto_at_startup = 1
+" ===================
 
