@@ -50,12 +50,32 @@ set undodir=~/.vim/undo//,/tmp//
 set writebackup
 set autowrite " auto write on most commands
 set autowriteall " auto write on most commands
-set conceallevel=0 " dont hide double quotes in json..
-          
+
+" better wildmode for Tab Completion in commands
+set wildmode=longest:full,full
+set wildmenu
+
+set backspace=2 "allow backspace over eol, indent and start of insert
+
+" In many terminal emulators the mouse works just fine, thus enable it.
+if has('mouse')
+  set mouse=a
+endif
+
+set hidden "http://stackoverflow.com/questions/102384/using-vims-tabs-like-buffers
+
+" disable hiding of quotes in json files
+set conceallevel=0
+let g:vim_json_syntax_conceal = 0
+if has("autocmd")
+  autocmd FileType * setlocal conceallevel=0
+endif
+
+" shortcut to toggle paste
+set pastetoggle=<F8>
+
 """ Show whitespaces """
 set list
-" Shortcut to rapidly toggle `set list`, list is whitespace highlighting
-" nmap <leader>l :set list!<CR>
 " Use the same symbols as TextMate for tabstops and EOLs
 set listchars=tab:▸\ ,eol:¬,trail:.
 """""""""""""""""""""""
@@ -71,7 +91,6 @@ nnoremap <c-p> :find<space>
 set path=.,,$PWD/**
 set wildignore=*.PNG,*.jpg,**/node_modules/**
 
-" === leader commands ===
 " edit files
 nmap <leader>ev :tabedit $MYVIMRC<CR>  
 nmap <leader>et :tabedit ~/.tmux.conf<CR> 
@@ -81,8 +100,7 @@ nmap <leader>es :tabedit ~/.eslintrc<CR>
 nmap <leader>s :wa<CR>:!./push.sh<CR><CR>
 nmap <leader>S :wa<CR>:!./push.sh<CR>
 nmap <leader>t :wa<CR>:!./push.sh test<CR>
-" 
-" nnoremap <leader>b :CtrlPBuffer<CR>
+ 
 " show buffer list
 nnoremap <leader>b :buffers<CR>:buffer<space>
 " remove current buffer from buffer list and open last buffer
@@ -92,11 +110,18 @@ nnoremap <leader>ddb :b #<CR>:bd! #<CR>
 nnoremap <leader>n :buffer #<CR>
 " ============
 
-" shortcut to toggle paste
-" nmap <leader>p :set paste!<CR>
-" nmap <F8> :set paste!<CR>
-" imap <F8> <C-O>:set paste!<CR>
-set pastetoggle=<F8>
+function! SvnBlame()
+  set cursorline
+  set cursorbind
+  set scrollbind
+  vnew | read ! svn blame #
+  set cursorline
+  set cursorbind
+  set scrollbind
+  syncbind
+endfunction
+command! SvnBlame call SvnBlame()
+nnoremap <leader>svn<Space>bl :call SvnBlame()<CR>
 
 
 " javascript function textobject
@@ -109,40 +134,14 @@ vnoremap af :<C-U>silent! :call TextObjectFunction()<CR>
 omap af :normal vaf<CR>
 
 
-" better wildmode for Tab Completion in commands
-" set wildmode=list:longest
-set wildmode=longest:full
-set wildmenu
-
-" run vimrc files in project dirs
-" set exrc
-" set secure
-
-set backspace=2 "allow backspace over eol, indent and start of insert
-
-" In many terminal emulators the mouse works just fine, thus enable it.
-" if has('mouse')
-"   set mouse=a
-" endif
-
-set hidden "http://stackoverflow.com/questions/102384/using-vims-tabs-like-buffers
-
-
-" set clipboard=unnamed " use system clipboard as first register
-
-
 " Use Ag over Grep
 set grepprg=ag\ --nogroup\ --nocolor
 autocmd QuickFixCmdPost *grep* cwindow
 
-" au FileChangedShell * echo "Warning: File changed on disk"
+au FileChangedShell * echo "Warning: File changed on disk"
 
-" disable hiding of quotes in json files
-set conceallevel=0
-let g:vim_json_syntax_conceal = 0
 
 if has("autocmd")
-  autocmd FileType * setlocal conceallevel=0
   " associate jakeFile with javascript filetype
   " au BufRead,BufNewFile jakefile setfiletype javascript
   au BufRead,BufNewFile *.vue setfiletype vue
@@ -164,46 +163,25 @@ if has("autocmd")
 endif
 
 filetype off
-
 set rtp+=~/.vim/bundle/vundle/
 call vundle#begin()
 
 " let vundle manage vundle
 Plugin 'gmarik/vundle'
-
 " list all plugins that you'd like to install here
-" recursive fuzzy file search and buffer select
-" Plugin 'ctrlpvim/ctrlp.vim'
-" do commenting
-Plugin 'tomtom/tcomment_vim'
 
+Plugin 'tomtom/tcomment_vim' " do commenting
 Plugin 'flazz/vim-colorschemes' " bunch o colors
 " Plugin 'felixhummel/setcolors.vim' " easy theme switching plugin
-
 Plugin 'https://github.com/sheerun/vim-polyglot' " curated list of syntax for diffrent languages, including js and vue
-" Plugin 'vim-syntastic/syntastic' " detect syntax errors before running scripts
-" Plugin 'w0rp/ale'
-
 " Plugin 'jelera/vim-javascript-syntax' " better javascript syntax
+" Plugin 'posva/vim-vue'
+Plugin 'w0rp/ale' " syntax checking
 Plugin 'Yggdroot/indentLine' "show indent line thingy
 Plugin 'https://github.com/lifepillar/vim-mucomplete' " autocomplete
 Plugin 'https://github.com/terryma/vim-multiple-cursors' " multicursor on ctrl+n
-" Plugin 'posva/vim-vue'
-
-" javascript function textobject [dvc][ai]f or 
-" Plugin 'https://github.com/kana/vim-textobj-user'
-" Plugin 'https://github.com/kana/vim-textobj-function'
-" Plugin 'https://github.com/thinca/vim-textobj-function-javascript'
-
-" zoom a single window to fullscreen
-" Plugin 'regedarek/ZoomWin'
-" do context aware completion on tab
-" Plugin 'ervandew/supertab'
-
-" print all the colors in a window
-" Plugin 'guns/xterm-color-table.vim'
-" extended % matching
-" Plugin 'tmhedberg/matchit'
+" Plugin 'guns/xterm-color-table.vim' " print all the colors in a window
+" Plugin 'tmhedberg/matchit' " extended % matching
 
 call vundle#end()
 filetype plugin indent on
@@ -259,53 +237,31 @@ set statusline+=%*   "switch back to statusline highlight
 set statusline+=\ %P\ %L\    "percentage thru file
 " ================== "
 
-" === syntastic ===
-" let g:syntastic_always_populate_loc_list = 1
-" let g:syntastic_auto_loc_list = 1
-" let g:syntastic_check_on_open = 1
-" let g:syntastic_check_on_wq = 0
-"
-" let g:syntastic_javascript_checkers = ['eslint']
-" " let g:syntastic_javascript_eslint_exec = 'eslint_d'
-" let g:syntastic_javascript_eslint_exec = 'eslint'
-" ============
 " === ale ===
 " let g:ale_linters = {
 "       \   'javascript': ['eslint'],
 "       \}
 " ===========
 
-" use custom command for CtrlP
-" let g:ctrlp_user_command = 'ag %s -f -l --nocolor -g ""'
-" let g:ctrlp_working_path_mode = 'a'
-" let g:ctrlp_working_path_mode = '0'
-
-" === Plugin leader commands ===
-" open buffer list
-" nnoremap <leader>b :CtrlPBuffer<CR>
-" ============
 " ==== mucomplete ====
 " mandatory
-set completeopt+=menuone
-
+if exists("+completeopt")
+  set completeopt+=menuone,noselect,noinsert
+endif
 " for autocompleteion
 inoremap <expr> <c-e> mucomplete#popup_exit("\<c-e>")
 inoremap <expr> <c-y> mucomplete#popup_exit("\<c-y>")
 inoremap <expr>  <cr> mucomplete#popup_exit("\<cr>")
 
 " and at least one of the following (choose the combination that best fits your taste):
-if has("completeopt")
-  set completeopt+=noselect
-  set completeopt+=noinsert
-endif
 
 " Other recommended settings:
-if has("belloff")
+if exists("+belloff")
   set shortmess+=c   " Shut off completion messages
   set belloff+=ctrlg " If Vim beeps during completion
 endif
 
 " No other configuration is needed. Just start pressing <tab> or <s-tab> to complete a word. If you want to enable automatic completion at startup, put
-" let g:mucomplete#enable_auto_at_startup = 1
+let g:mucomplete#enable_auto_at_startup = 1
 " ===================
 
