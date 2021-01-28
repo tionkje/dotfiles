@@ -2,9 +2,33 @@
   connection: local
   become: true
 
-  tasks:
-    - name: Install htop
+  pre_tasks:
+    - name: Install packages
       apt:
+        update_cache: yes
         name: 
           - tmux
           - vim
+
+  tasks:
+    - name: install dropbox dependecies
+      apt:
+        name:
+          - python3-gpg
+          - libc6
+          - libglapi-mesa
+          - libxdamage1
+          - libxfixes3
+          - libxcb-glx0
+          - libxcb-dri2-0
+          - libxcb-dri3-0
+          - libxcb-present0
+          - libxcb-sync1
+          - libxshmfence1
+          - libxxf86vm1
+    - name: install dropbox script
+        get_url:
+          url: https://www.dropbox.com/download?dl=packages/dropbox.py
+          dest: {{ lookup('env', 'HOME') }}/dropbox.py
+          mode: 0755
+
