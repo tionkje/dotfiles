@@ -50,7 +50,7 @@
     - name: nvm
       shell: |
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash;
-        source ~/.nvm/nvm.zh
+        source ~/.nvm/nvm.sh
         nvm install default
       args:
         warn: false
