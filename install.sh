@@ -19,7 +19,8 @@ mkdir -p ~/.vim/swap
 ln -sf $(pwd)/dot_tmux.conf ~/.tmux.conf
 
 # ESLINT #
-ln -sf $(pwd)/dot_eslintrc ~/.eslintrc
+#ln -sf $(pwd)/dot_eslintrc ~/.eslintrc
+#ln -sf $(pwd)/dot_eslintrc.js ~/.eslintrc.js
 
 # ZSH #
 

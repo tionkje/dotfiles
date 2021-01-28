@@ -13,10 +13,13 @@ if has("autocmd")
   augroup end
 endif
 
+set redrawtime=5000 " redraw syntax for 5 seconds max instead of default 2, needed for pim-min syntax
+set synmaxcol=20000 " max syntax lines form pim-min
+
 set number
 " set relativenumber
 set nocompatible
-set nowrap
+" set nowrap
 set showcmd " show partial commands
  "Set tabs to 2 spaces and auto insert spaces http://vimcasts.org/episodes/tabs-and-spaces/
 set ts=2 sts=2 sw=2 expandtab
@@ -33,6 +36,26 @@ endif
 set hlsearch
 set incsearch
 
+" netrw settings for preview
+let g:netrw_preview   = 1
+let g:netrw_liststyle = 3
+let g:netrw_winsize   = 30
+" split vertically to the right
+let g:netrw_altv   = 1
+
+
+
+" Copy yank buffer to system clipboard
+" use OSC52 to put things into the system clipboard, works over SSH!
+function! Osc52Yank()
+  let buffer=system('base64 -w0', @0) " -w0 to disable 76 char line wrapping
+  " let buffer='\e\e]52;c;'.buffer.'\x07\e\\'
+  let buffer='\ePtmux;\e\e]52;c;'.buffer.'\x07\e\\'
+  silent exe "!echo -ne ".shellescape(buffer)." > ".shellescape(g:tty)
+endfunction
+nnoremap <leader>y :call Osc52Yank()<CR>
+
+
 " set current line highlight on the active window
 " set cul
 " augroup BgHighlight
@@ -47,9 +70,14 @@ set backup
 set backupdir=~/.vim/backup//,/tmp//
 set directory=~/.vim/swap//,/tmp//
 set undodir=~/.vim/undo//,/tmp//
+set undofile
 set writebackup
+
+au TextChanged,InsertLeave * silent! wa
 set autowrite " auto write on most commands
 set autowriteall " auto write on most commands
+" auto load file changed on disk
+"set autoread
 
 " better wildmode for Tab Completion in commands
 set wildmode=longest:full,full
@@ -64,12 +92,10 @@ endif
 
 set hidden "http://stackoverflow.com/questions/102384/using-vims-tabs-like-buffers
 
-" disable hiding of quotes in json files
-set conceallevel=0
-let g:vim_json_syntax_conceal = 0
-if has("autocmd")
-  autocmd FileType * setlocal conceallevel=0
-endif
+
+" fix brace matching with braces in comments
+filetype plugin on
+runtime macros/matchit.vim
 
 " shortcut to toggle paste
 set pastetoggle=<F8>
@@ -79,6 +105,8 @@ set list
 " Use the same symbols as TextMate for tabstops and EOLs
 set listchars=tab:▸\ ,eol:¬,trail:.
 """""""""""""""""""""""
+" move to beginning of commandline using Ctrl+A
+cnoremap <C-A> <Home>
 
 " resize window to a third
 nnoremap <silent> <Leader>+ :exe "resize " . (winheight(0) * 3/2)<CR>
@@ -87,7 +115,9 @@ nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
 nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
 
 " alternative CtrlP
-nnoremap <c-p> :find<space>
+" nnoremap <c-p> :find<space>
+nnoremap <c-p> :Files<CR>
+nnoremap <leader>p :Ag<CR>
 set path=.,,$PWD/**
 set wildignore=*.PNG,*.jpg,**/node_modules/**
 
@@ -102,12 +132,18 @@ nmap <leader>S :wa<CR>:!./push.sh<CR>
 nmap <leader>t :wa<CR>:!./push.sh test<CR>
  
 " show buffer list
+nnoremap <leader>b<cr> :buffer<space>#<cr>
 nnoremap <leader>b :buffers<CR>:buffer<space>
 " remove current buffer from buffer list and open last buffer
 nnoremap <leader>db :b #<CR>:bd #<CR>
 nnoremap <leader>ddb :b #<CR>:bd! #<CR>
 " switch to last buffer
 nnoremap <leader>n :buffer #<CR>
+" navigate quickfix
+nnoremap ]q :cn<cr>zz
+nnoremap [q :cp<cr>zz
+nnoremap ]Q :cnf<cr>zz
+nnoremap [Q :cpf<cr>zz
 " ============
 
 function! SvnBlame()
@@ -121,7 +157,22 @@ function! SvnBlame()
   syncbind
 endfunction
 command! SvnBlame call SvnBlame()
-nnoremap <leader>svn<Space>bl :call SvnBlame()<CR>
+function! SvnBlameOff()
+  set nocursorline
+  set nocursorbind
+  set noscrollbind
+endfunction
+command! SvnBlameOff call SvnBlameOff()
+
+" removes crap to easy copy stuff
+function! CopyMode()
+  set number!
+  set list!
+  IndentLinesToggle
+  " !IndentLine
+  echo "use :only to close other panes"
+endfunction
+command! CopyMode call CopyMode()
 
 
 " javascript function textobject
@@ -141,10 +192,16 @@ autocmd QuickFixCmdPost *grep* cwindow
 au FileChangedShell * echo "Warning: File changed on disk"
 
 
+
 if has("autocmd")
   " associate jakeFile with javascript filetype
   " au BufRead,BufNewFile jakefile setfiletype javascript
-  au BufRead,BufNewFile *.vue setfiletype vue
+  au BufRead,BufNewFile *.ejs set filetype=html
+  au BufRead,BufNewFile *.vue set filetype=html
+  au BufRead,BufNewFile *.svelte set filetype=html
+  au BufRead,BufNewFile *.ts set filetype=typescript
+  au BufRead,BufNewFile *.njk set filetype=jinja
+  " au BufRead,BufNewFile *.vue setfiletype vue
   autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 endif
 
@@ -162,7 +219,7 @@ if has("autocmd")
   au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
 
-filetype off
+" filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#begin()
 
@@ -173,25 +230,60 @@ Plugin 'gmarik/vundle'
 Plugin 'tomtom/tcomment_vim' " do commenting
 Plugin 'flazz/vim-colorschemes' " bunch o colors
 " Plugin 'felixhummel/setcolors.vim' " easy theme switching plugin
-Plugin 'https://github.com/sheerun/vim-polyglot' " curated list of syntax for diffrent languages, including js and vue
+" Plugin 'https://github.com/sheerun/vim-polyglot' " curated list of syntax for diffrent languages, including js and vue
+" Plugin 'othree/html5-syntax.vim'
+Plugin 'othree/html5.vim'
 " Plugin 'jelera/vim-javascript-syntax' " better javascript syntax
+" Plugin 'othree/yajs.vim' " better javascript syntax
 " Plugin 'posva/vim-vue'
-Plugin 'w0rp/ale' " syntax checking
+" Plugin 'w0rp/ale' " syntax checking, does not work on cygwin...
 Plugin 'Yggdroot/indentLine' "show indent line thingy
-Plugin 'https://github.com/lifepillar/vim-mucomplete' " autocomplete
-Plugin 'https://github.com/terryma/vim-multiple-cursors' " multicursor on ctrl+n
+" Plugin 'https://github.com/lifepillar/vim-mucomplete' " autocomplete
+" Plugin 'https://github.com/terryma/vim-multiple-cursors' " multicursor on ctrl+n
 " Plugin 'guns/xterm-color-table.vim' " print all the colors in a window
 " Plugin 'tmhedberg/matchit' " extended % matching
+" Plugin 'elzr/vim-json'
+
+Plugin 'lepture/vim-jinja'
+
+Plugin 'pangloss/vim-javascript' " better javascript syntax
+
+Plugin 'djoshea/vim-autoread' " auto read from disk
+Plugin 'qpkorr/vim-renamer' " rename files
+
+" Plugin 'burner/vim-svelte'
+
+Plugin 'junegunn/fzf'
+Plugin 'junegunn/fzf.vim'
+
+Plugin 'Quramy/vim-js-pretty-template' " diff syntax highlight in template literal strings javascript
+Plugin 'leafgarland/typescript-vim' " typescript syngax
+Plugin 'tionkje/vim-tionkje' " my stuff
 
 call vundle#end()
-filetype plugin indent on
+" filetype plugin indent on " disabled for autocomplete in python files
+filetype indent on
 
-let g:indentLine_faster = 1
+
+" autocmd FileType javascript JsPreTmpl
+" autocmd FileType javascript.jsx JsPreTmpl
+" autocmd FileType typescript JsPreTmpl
+" autocmd FileType typescript syn clear foldBraces " For leafgarland/typescript-vim users only. Please see #1 for details.
+
+" let g:polyglot_disabled = [ 'javascript' ]
+let g:jsx_ext_required = 1
+
 
 colorscheme Tomorrow-Night-Bright
 hi Normal ctermbg=0
 hi StatusLineNC guifg=#eaeaea guibg=#4d5057 
+hi QuickFixLine guifg=#000000 guibg=#70c0b1 " QuickFixLine is a new highlight not yet used in Tomorrow-Night-Bright
 au BufNewFile,BufRead * hi LineNr guifg=#606060 ctermfg=248
+
+set nomodeline
+set modelines=0
+
+autocmd BufEnter * :syntax sync fromstart
 
 hi DiffChange ctermfg=NONE ctermbg=18
 hi DiffText ctermfg=NONE ctermbg=26
@@ -241,27 +333,74 @@ set statusline+=\ %P\ %L\    "percentage thru file
 " let g:ale_linters = {
 "       \   'javascript': ['eslint'],
 "       \}
+let g:ale_sign_column_always = 1
 " ===========
 
 " ==== mucomplete ====
-" mandatory
-if exists("+completeopt")
-  set completeopt+=menuone,noselect,noinsert
-endif
-" for autocompleteion
-inoremap <expr> <c-e> mucomplete#popup_exit("\<c-e>")
-inoremap <expr> <c-y> mucomplete#popup_exit("\<c-y>")
-inoremap <expr>  <cr> mucomplete#popup_exit("\<cr>")
-
-" and at least one of the following (choose the combination that best fits your taste):
-
-" Other recommended settings:
-if exists("+belloff")
-  set shortmess+=c   " Shut off completion messages
-  set belloff+=ctrlg " If Vim beeps during completion
-endif
-
+" " mandatory
+" if exists("+completeopt") && has("patch-7.4.784")
+"   set completeopt=menu,menuone,noselect,noinsert,preview
+" endif
+" " for autocompleteion
+" inoremap <expr> <c-e> mucomplete#popup_exit("\<c-e>")
+" inoremap <expr> <c-y> mucomplete#popup_exit("\<c-y>")
+" inoremap <expr>  <cr> mucomplete#popup_exit("\<cr>")
+"
+" " and at least one of the following (choose the combination that best fits your taste):
+"
+" " Other recommended settings:
+" if exists("+belloff")
+"   set shortmess+=c   " Shut off completion messages
+"   set belloff+=ctrlg " If Vim beeps during completion
+" endif
+"
 " No other configuration is needed. Just start pressing <tab> or <s-tab> to complete a word. If you want to enable automatic completion at startup, put
-let g:mucomplete#enable_auto_at_startup = 1
+" let g:mucomplete#enable_auto_at_startup = 0
 " ===================
 
+" disable hiding of quotes in json files
+" set conceallevel=0
+" set concealcursor=
+" let g:vim_json_syntax_conceal = 0
+" if has("autocmd")
+"   autocmd FileType * set conceallevel=0
+" endif
+" if has("autocmd")
+"   autocmd FileType * set concealcursor=
+" endif
+" let g:indentLine_noConcealCursor=""
+" let g:vim_json_conceal=0
+
+" Conceal issues json/indenline.....
+" https://github.com/elzr/vim-json/issues/23?ts=2
+
+let g:indentLine_faster = 1
+" let g:indentLine_setConceal = 0
+" let g:indentLine_noConcealCursor=""
+let g:indentLine_concealcursor=""
+
+" profile start vim-slow.log
+" profile file *
+" profile func *
+
+" show region under cursor
+nnoremap zS :echo join(reverse(map(synstack(line('.'), col('.')), 'synIDattr(v:val,"name")')),' ')<cr>
+
+augroup remember_folds
+  autocmd!
+  autocmd BufWinLeave * mkview
+  autocmd BufWinEnter * silent! loadview
+augroup END
+
+
+if &term =~ '^xterm'
+  " solid underscore
+  let &t_SI .= "\<Esc>[6 q"
+  " solid block
+  let &t_EI .= "\<Esc>[2 q"
+  " 1 or 0 -> blinking block
+  " 3 -> blinking underscore
+  " Recent versions of xterm (282 or above) also support
+  " 5 -> blinking vertical bar
+  " 6 -> solid vertical bar
+endif
