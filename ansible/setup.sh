@@ -9,8 +9,5 @@ function go () {
   echo run these commands to get dropbox running
   echo "~/dropbox.py start -i"
   echo "~/dropbox.py status"
-
-  # start zsh
-  zsh
 }
 go

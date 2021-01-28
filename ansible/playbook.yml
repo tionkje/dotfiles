@@ -48,10 +48,8 @@
         dest: "{{ ansible_env.HOME }}/.zshrc"
 
     - name: nvm
-      shell: |
+      shell: >
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash;
-        source ~/.nvm/nvm.sh
-        nvm install default
       args:
         warn: false
         creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
