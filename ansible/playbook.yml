@@ -1,9 +1,9 @@
 - hosts: localhost
   connection: local
-  become: true
 
   pre_tasks:
     - name: Install packages
+      become: true
       apt:
         update_cache: yes
         name: 
@@ -14,6 +14,7 @@
 
   tasks:
     - name: install dropbox dependecies
+      become: true
       apt:
         name:
           - python3-gpg
@@ -31,7 +32,7 @@
     - name: install dropbox script
       get_url:
         url: "https://www.dropbox.com/download?dl=packages/dropbox.py"
-        dest: "{{ lookup('env', 'HOME') }}/dropbox.py"
+        dest: "{{ ansible_env.HOME }}/dropbox.py"
         mode: 0755
 
     - name: Set zsh 
@@ -43,7 +44,7 @@
     - name: copy zshrc
       copy: 
         src: ./files/zshrc
-        dest: "{{ lookup('env', 'HOME') }}/.zshrc"
+        dest: "{{ ansible_env.HOME }}/.zshrc"
 
     - name: nvm
       shell: |
