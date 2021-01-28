@@ -6,7 +6,8 @@ function go () {
 
   ansible-pull -U https://github.com/tionkje/dotfiles.git -d ~/dotfiles ansible/playbook.yml;
 
-  ~/dropbox.py start -i
-  ~/dropbox.py status
+  echo run these commands to get dropbox running
+  echo "~/dropbox.py start -i"
+  echo "~/dropbox.py status"
 }
 go
