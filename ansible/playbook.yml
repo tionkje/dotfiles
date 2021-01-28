@@ -28,7 +28,7 @@
           - libxxf86vm1
     - name: install dropbox script
       get_url:
-        url: https://www.dropbox.com/download?dl=packages/dropbox.py
-        dest: {{ lookup('env', 'HOME') }}/dropbox.py
+        url: "https://www.dropbox.com/download?dl=packages/dropbox.py"
+        dest: "{{ lookup('env', 'HOME') }}/dropbox.py"
         mode: 0755
 
