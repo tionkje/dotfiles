@@ -9,6 +9,8 @@
         name: 
           - tmux
           - vim
+          - zsh
+          - dwdiff
 
   tasks:
     - name: install dropbox dependecies
@@ -31,4 +33,21 @@
         url: "https://www.dropbox.com/download?dl=packages/dropbox.py"
         dest: "{{ lookup('env', 'HOME') }}/dropbox.py"
         mode: 0755
+
+    - name: Set zsh 
+      user:
+        name: "{{ lookup('env', 'USER') }}"
+        shell: /bin/zsh
+        append: yes
+
+    - name: copy zshrc
+      copy: 
+        src: ./files/zshrc
+        dest: "{{ lookup('env', 'HOME') }}/.zshrc"
+
+    - name: nvm
+      shell: >
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+      args:
+        creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
 

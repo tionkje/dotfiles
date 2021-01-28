@@ -79,7 +79,7 @@ bindkey '^i' expand-or-complete-prefix
 
 csdiff () {
   echo 'csdiff' "$1" "$2";
-  wdiff -n -w $'\033[1;37;41m' -x $'\033[0m' -y $'\033[30;42m' -z $'\033[0m' "$1" "$2" | fgrep -C 2 $'\033'
+  dwdiff --algorithm=best --context=4 --punctuation --color --aggregate-changes $*
 }
 
 #source ~/.ssh-find-agent.sh
