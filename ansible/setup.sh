@@ -10,6 +10,7 @@ function go () {
   echo "~/dropbox.py start -i"
   echo "~/dropbox.py status"
 
+  vim +PlugInstall "+CocInstall coc-json coc-html coc-css coc-highlight coc-tsserver" +qall
   
 }
 go

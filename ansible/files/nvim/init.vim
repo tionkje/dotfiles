@@ -1,3 +1,21 @@
+" Specify a directory for plugins
+" - For Neovim: stdpath('data') . '/plugged'
+" - Avoid using standard Vim directory names like 'plugin'
+call plug#begin(stdpath('data') . '/plugged')
+
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+
+Plug 'Yggdroot/indentLine' "show indent line thingy
+
+Plug 'tomtom/tcomment_vim' " do commenting
+
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+" Initialize plugin system
+call plug#end()
+
+
 
 set number
 set nocompatible
@@ -187,22 +205,6 @@ endif
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 
-" Specify a directory for plugins
-" - For Neovim: stdpath('data') . '/plugged'
-" - Avoid using standard Vim directory names like 'plugin'
-call plug#begin(stdpath('data') . '/plugged')
-
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
-
-Plug 'Yggdroot/indentLine' "show indent line thingy
-
-Plug 'tomtom/tcomment_vim' " do commenting
-
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" Initialize plugin system
-call plug#end()
 
 
 let g:indentLine_faster = 1

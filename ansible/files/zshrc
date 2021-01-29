@@ -196,3 +196,4 @@ alias v='vim'
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
