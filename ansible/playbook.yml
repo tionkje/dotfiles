@@ -29,6 +29,7 @@
           - libxcb-sync1
           - libxshmfence1
           - libxxf86vm1
+
     - name: install dropbox script
       get_url:
         url: "https://www.dropbox.com/download?dl=packages/dropbox.py"
@@ -54,3 +55,25 @@
         warn: false
         creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
 
+    - name: install neovim
+      become: true
+      get_url:
+        url: "https://github.com/neovim/neovim/releases/latest/download/nvim.appimage"
+        # dest: "{{ ansible_env.HOME }}/bin/nvim.appimage"
+        dest: /usr/local/bin/nvim.appimage
+        mode: 0755
+
+    - name: install neovim alternatives
+      alternatives:
+        name: vim
+        path: /usr/local/bin/nvim.appimage
+    - alternatives:
+        name: vimdiff
+        path: /usr/local/bin/nvim.appimage
+    - alternatives:
+        name: vi
+        path: /usr/local/bin/nvim.appimage
+    - name: copy nvim config
+      copy: 
+        src: ./files/nvim
+        dest: "{{ ansible_env.HOME }}/.config/nvim"

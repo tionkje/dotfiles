@@ -192,6 +192,7 @@ add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
 
+alias v='vim'
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
