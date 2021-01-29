@@ -78,7 +78,8 @@
       alternatives:
         name: vimdiff
         path: /usr/local/bin/nvim.appimage
+
     - name: copy nvim config
       copy: 
         src: ./files/nvim
-        dest: "{{ ansible_env.HOME }}/.config/nvim"
+        dest: "{{ ansible_env.HOME }}/.config/"
