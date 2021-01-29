@@ -64,14 +64,19 @@
         mode: 0755
 
     - name: install neovim alternatives
+      become: true
       alternatives:
         name: vim
         path: /usr/local/bin/nvim.appimage
-    - alternatives:
-        name: vimdiff
-        path: /usr/local/bin/nvim.appimage
-    - alternatives:
+    - name: install vi 
+      become: true
+      alternatives:
         name: vi
+        path: /usr/local/bin/nvim.appimage
+    - name: install vimdiff
+      become: true
+      alternatives:
+        name: vimdiff
         path: /usr/local/bin/nvim.appimage
     - name: copy nvim config
       copy: 
