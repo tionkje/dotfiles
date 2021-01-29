@@ -103,11 +103,8 @@ if !exists(":DiffOrig")
 endif
 
 
-" Uncomment the following to have Vim jump to the last position when
-" reopening a file
-if has("autocmd")
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-endif
+" have Vim jump to the last position when reopening a file
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
 
 " Specify a directory for plugins
@@ -120,7 +117,6 @@ Plug 'junegunn/fzf.vim'
 
 Plug 'Yggdroot/indentLine' "show indent line thingy
 
-Plug 'chriskempson/base16-vim'
 Plug 'tomtom/tcomment_vim' " do commenting
 
 " Initialize plugin system
@@ -133,6 +129,7 @@ let g:indentLine_faster = 1
 let g:indentLine_concealcursor=""
 
 
+colorscheme Tomorrow-Night-Bright
 
 " === STATUSLINE === " Needs to come after colorscheme or colors get reset
 set laststatus=2 " always show statusline
