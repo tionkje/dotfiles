@@ -14,7 +14,7 @@ function go () {
   source ~/.nvm/nvm.sh
   nvm install node
   
-  vim +PlugInstall "+CocInstall coc-json coc-html coc-css coc-highlight coc-tsserver" +qall
+  vim +PlugInstall +qall
 
   zsh
 }

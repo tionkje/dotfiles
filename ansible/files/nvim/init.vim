@@ -3,14 +3,74 @@
 " - Avoid using standard Vim directory names like 'plugin'
 call plug#begin(stdpath('data') . '/plugged')
 
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
-
 Plug 'Yggdroot/indentLine' "show indent line thingy
 
 Plug 'tomtom/tcomment_vim' " do commenting
 
+" FZF {{{
+  Plug 'junegunn/fzf'
+  Plug 'junegunn/fzf.vim'
+  if isdirectory(".git")
+    " if in a git project, use :GFiles
+    nmap <silent> <c-p> :GitFiles --cached --others --exclude-standard<cr>
+  else
+    " otherwise, use :FZF
+    nmap <silent> <c-p>t :FZF<cr>
+  endif
+
+  " " alternative CtrlP
+  " nnoremap <c-p> :Files<CR>
+  " nnoremap <leader>p :Ag<CR>
+" }}}
+
+
+" vim-fugitive {{{
+    Plug 'tpope/vim-fugitive'
+    nmap <silent> <leader>gs :Gstatus<cr>
+    nmap <leader>ge :Gedit<cr>
+    nmap <silent><leader>gr :Gread<cr>
+    nmap <silent><leader>gb :Gblame<cr>
+
+    Plug 'tpope/vim-rhubarb' " hub extension for fugitive
+    Plug 'sodapopcan/vim-twiggy'
+    Plug 'rbong/vim-flog'
+" }}}
+
+" https://github.com/nicknisi/dotfiles/blob/master/config/nvim/init.vim
+    " coc {{{
+
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+ let g:coc_global_extensions = [
+        \ 'coc-css',
+        \ 'coc-json',
+        \ 'coc-tsserver',
+        \ 'coc-git',
+        \ 'coc-eslint',
+        " \ 'coc-tslint-plugin',
+        " \ 'coc-pairs',
+        \ 'coc-sh',
+        \ 'coc-vimlsp',
+        " \ 'coc-emmet',
+        \ 'coc-prettier',
+        " \ 'coc-ultisnips',
+        " \ 'coc-explorer',
+        " \ 'coc-diagnostic'
+        \ ]
+
+   " JavaScript {{{
+        Plug 'othree/yajs.vim', { 'for': [ 'javascript', 'javascript.jsx', 'html' ] }
+        " Plug 'pangloss/vim-javascript', { 'for': ['javascript', 'javascript.jsx', 'html'] }
+        Plug 'moll/vim-node', { 'for': 'javascript' }
+        Plug 'ternjs/tern_for_vim', { 'for': ['javascript', 'javascript.jsx'], 'do': 'npm install' }
+        Plug 'MaxMEllon/vim-jsx-pretty'
+        let g:vim_jsx_pretty_highlight_close_tag = 1
+    " }}}
+
+    " TypeScript {{{
+        Plug 'leafgarland/typescript-vim', { 'for': ['typescript', 'typescript.tsx'] }
+        " Plug 'Shougo/vimproc.vim', { 'do': 'make' } TODO what still needs this?
+    " }}}
 
 " Initialize plugin system
 call plug#end()
@@ -154,9 +214,6 @@ nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
 nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
 nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
 
-" alternative CtrlP
-nnoremap <c-p> :Files<CR>
-nnoremap <leader>p :Ag<CR>
 
 " edit files
 nmap <leader>ev :tabedit $MYVIMRC<CR>  
