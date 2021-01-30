@@ -47,16 +47,16 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
         \ 'coc-tsserver',
         \ 'coc-git',
         \ 'coc-eslint',
-        " \ 'coc-tslint-plugin',
-        " \ 'coc-pairs',
         \ 'coc-sh',
         \ 'coc-vimlsp',
-        " \ 'coc-emmet',
         \ 'coc-prettier',
+        \ ]
+        " \ 'coc-tslint-plugin',
+        " \ 'coc-pairs',
+        " \ 'coc-emmet',
         " \ 'coc-ultisnips',
         " \ 'coc-explorer',
         " \ 'coc-diagnostic'
-        \ ]
 
    " JavaScript {{{
         Plug 'othree/yajs.vim', { 'for': [ 'javascript', 'javascript.jsx', 'html' ] }
