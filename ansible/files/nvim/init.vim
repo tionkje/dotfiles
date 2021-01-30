@@ -154,6 +154,10 @@ nnoremap <silent> <Leader>- :exe "resize " . (winheight(0) * 2/3)<CR>
 nnoremap <silent> <Leader>> :exe "vertical resize " . (winwidth(0) * 3/2)<CR>
 nnoremap <silent> <Leader>< :exe "vertical resize " . (winwidth(0) * 2/3)<CR>
 
+" alternative CtrlP
+nnoremap <c-p> :Files<CR>
+nnoremap <leader>p :Ag<CR>
+
 " edit files
 nmap <leader>ev :tabedit $MYVIMRC<CR>  
 nmap <leader>et :tabedit ~/.tmux.conf<CR> 
