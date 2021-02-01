@@ -4,7 +4,7 @@ function go () {
   sudo apt update
   sudo apt install ansible git -y;
 
-  ansible-pull -U https://github.com/tionkje/dotfiles.git -d ~/dotfiles ansible/playbook.yml;
+  ansible-pull -U git@github.com:tionkje/dotfiles.git -d ~/dotfiles ansible/playbook.yml;
 
   echo run these commands to get dropbox running
   echo "~/dropbox.py start -i"
