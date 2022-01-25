@@ -8,9 +8,9 @@
 
 - link:
     ~/.tmux.conf: tmux.conf
+    ~/.zshrc: zshrc
     ~/.config/nvim: nvim
     ~/.config/alacritty: alacritty
-
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
