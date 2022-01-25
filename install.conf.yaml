@@ -8,11 +8,23 @@
 
 - link:
     ~/.dotfiles: ""
-    ~/.tmux.conf: tmux.conf
-    ~/.zshrc: zshrc
+    ~/.tmux.conf:
+    ~/.zshrc:
+    ~/.zsh_plugins.txt: 
     ~/.config/nvim: nvim
     ~/.config/alacritty: alacritty
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
-  - ["vim +PlugUpdate +PlugClean! +qa", Installing and updating plugins]
+  - 'nix-env -iA
+      nixpkgs.neovim
+      nixpkgs.tmux
+      nixpkgs.zsh
+      nixpkgs.antibody
+      nixpkgs.fzf
+      nixpkgs.ripgrep
+      nixpkgs.silver-searcher
+      nixpkgs.diff-so-fancy
+      '
+  - antibody bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.sh
+  - ["nvim +PlugUpdate +PlugClean! +qa", Installing and updating plugins]
