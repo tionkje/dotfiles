@@ -127,9 +127,9 @@ nmap <leader>et :tabedit ~/.tmux.conf<CR>
 nmap <leader>ep :tabedit push.sh<CR> 
 nmap <leader>es :tabedit ~/.eslintrc<CR> 
 " \s to save all and run local push.sh
-nmap <leader>s :wa<CR>:!./push.sh<CR><CR>
-nmap <leader>S :wa<CR>:!./push.sh<CR>
-nmap <leader>t :wa<CR>:!./push.sh test<CR>
+nmap <leader>s :wa<CR>:!$SHELL ./push.sh<CR><CR>
+nmap <leader>S :wa<CR>:!$SHELL ./push.sh<CR>
+nmap <leader>t :wa<CR>:!$SHELL ./push.sh test<CR>
  
 " show buffer list
 nnoremap <leader>b<cr> :buffer<space>#<cr>
