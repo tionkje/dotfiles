@@ -13,7 +13,6 @@ alias ll='ls --color=auto -la'
 alias ls='ls --color=auto -lA'
 alias ct='cleartool'
 alias cr='dos2unix'
-alias v='vim'
 alias cd..='cd ..'
 
 eval `dircolors -b`
@@ -129,3 +128,10 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 # tabtab source for packages
 # uninstall by removing these lines
 [[ -f ~/.config/tabtab/__tabtab.zsh ]] && . ~/.config/tabtab/__tabtab.zsh || true
+
+
+# nix alts
+# alias tmux="nix run nixpkgs#tmux --"
+alias nvim="nix run nixpkgs#neovim --"
+alias vim="nix run nixpkgs#neovim --"
+alias v="nix run nixpkgs#neovim --"

@@ -7,6 +7,7 @@
   - ~/.vim/backup
 
 - link:
+    ~/.dotfiles: ""
     ~/.tmux.conf: tmux.conf
     ~/.zshrc: zshrc
     ~/.config/nvim: nvim
