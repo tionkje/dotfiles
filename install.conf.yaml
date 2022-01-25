@@ -1,0 +1,15 @@
+- clean: ['~', '~/.config']
+
+- link:
+  ~/.tmux.conf: tmux.conf
+  ~/.config/nvim: nvim
+  ~/.config/alacritty: alacritty
+
+- create:
+  - ~/.config
+  - ~/.vim/undo
+  - ~/.vim/swap
+  - ~/.vim/backup
+
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
