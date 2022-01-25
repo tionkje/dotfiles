@@ -6,6 +6,8 @@ setopt HIST_IGNORE_DUPS
 
 setopt AUTO_PUSHD
 
+bindkey -e
+
 # source <(antibody init)
 # antibody bundle < ~/.zsh_plugins.txt
 source ~/.zsh_plugins.sh
@@ -27,6 +29,8 @@ csdiff () {
   # dwdiff --algorithm=best --context=4 --punctuation --color --aggregate-changes $*
   diff -u "$1" "$2" | diff-so-fancy
 }
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 
 alias ls='ls --color=auto -lA'
