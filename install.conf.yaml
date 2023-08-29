@@ -24,7 +24,7 @@
       nixpkgs.fzf
       nixpkgs.ripgrep
       nixpkgs.silver-searcher
-      nixpkgs.diff-so-fancy
+      nixpkgs.git
       '
   - antibody bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.sh
   - ["nvim +PlugUpdate +PlugClean! +qa", Installing and updating plugins]
