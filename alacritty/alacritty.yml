@@ -112,7 +112,8 @@ font:
     #   - (Linux/BSD) monospace
     #   - (Windows) Consolas
     # family: monospace
-    family: "Ubuntu Mono derivative Powerline"
+    #    family: "Ubuntu Mono derivative Powerline"
+    family: "MesloLGS NF"
 
     # The `style` can be specified to pick a specific face.
     style: Regular
@@ -124,7 +125,8 @@ font:
     # If the bold family is not specified, it will fall back to the
     # value specified for the normal font.
     #family: monospace
-    family: "Ubuntu Mono derivative Powerline"
+    # family: "Ubuntu Mono derivative Powerline"
+    family: "MesloLGS NF"
 
     # The `style` can be specified to pick a specific face.
     style: Bold
@@ -136,7 +138,8 @@ font:
     # If the italic family is not specified, it will fall back to the
     # value specified for the normal font.
     #family: monospace
-    family: "Ubuntu Mono derivative Powerline"
+    # family: "Ubuntu Mono derivative Powerline"
+    family: "MesloLGS NF"
 
     # The `style` can be specified to pick a specific face.
     style: Italic
@@ -148,7 +151,8 @@ font:
     # If the bold italic family is not specified, it will fall back to the
     # value specified for the normal font.
     #family: monospace
-    family: "Ubuntu Mono derivative Powerline"
+    # family: "Ubuntu Mono derivative Powerline"
+    family: "MesloLGS NF"
 
     # The `style` can be specified to pick a specific face.
     style: Bold Italic
@@ -472,7 +476,7 @@ mouse:
   #triple_click: { threshold: 300 }
 
   # If this is `true`, the cursor is temporarily hidden when typing.
-  hide_when_typing: false
+  hide_when_typing: true
 
   #url:
     # URL launcher

@@ -9,22 +9,32 @@
 - link:
     ~/.dotfiles: ""
     ~/.tmux.conf:
-    ~/.zshrc:
+      #~/.zshrc:
     ~/.zsh_plugins.txt: 
     ~/.config/nvim: nvim
     ~/.config/alacritty: alacritty
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
-  - 'nix-env -iA
-      nixpkgs.neovim
-      nixpkgs.tmux
-      nixpkgs.zsh
-      nixpkgs.antibody
-      nixpkgs.fzf
-      nixpkgs.ripgrep
-      nixpkgs.silver-searcher
-      nixpkgs.git
-      '
-  - antibody bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.sh
+  - 'sudo pacman -Syu --noconfirm neovim tmux fzf ripgrep the_silver_searcher code alacritty'
+
+  # - 
+  #   command: 'sudo nix-channel --update'
+  #   stdout: true
+  #   stderr: true
+  #
+  # - 
+  #   stdout: true
+  #   stderr: true
+  #   command: 'sudo nix-env -iA
+  #     nixpkgs.neovim
+  #     nixpkgs.tmux
+  #     nixpkgs.zsh
+  #     nixpkgs.antibody
+  #     nixpkgs.fzf
+  #     nixpkgs.ripgrep
+  #     nixpkgs.silver-searcher
+  #     nixpkgs.git
+  #     '
+  # - antibody bundle < ~/.zsh_plugins.txt > ~/.zsh_plugins.sh
   - ["nvim +PlugUpdate +PlugClean! +qa", Installing and updating plugins]
