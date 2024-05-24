@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =1
+let g:netrw_dirhist_1='/home/bastiaan/dev/dlserv'
+let g:netrw_dirhist_0='/home/bastiaan/Dropbox/dev/bacnettest/datalogger'
+let g:netrw_dirhist_9='/home/bastiaan/dev/dlserv'
+let g:netrw_dirhist_8='/home/bastiaan/AGL/views/Art/Casino/Games/LocalSvr'
+let g:netrw_dirhist_7='/home/bastiaan/AGL/views/Art/Casino/Games'
+let g:netrw_dirhist_6='/home/bastiaan/AGL/views/Art/Casino'
+let g:netrw_dirhist_5='/home/bastiaan/AGL/views/Art'
+let g:netrw_dirhist_4='/home/bastiaan/hwdev/hoogwerpen'
+let g:netrw_dirhist_3='/home/bastiaan/hwdev/hoogwerpen/scripts'
+let g:netrw_dirhist_2='/home/bastiaan/hwdev/hoogwerpen/wedstrijdData'

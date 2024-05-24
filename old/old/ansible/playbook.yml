@@ -1,0 +1,99 @@
+- hosts: localhost
+  connection: local
+
+  pre_tasks:
+    - name: Install packages
+      become: true
+      apt:
+        update_cache: yes
+        name: 
+          - tmux
+          - vim
+          - zsh
+          - dwdiff
+          - silversearcher-ag
+
+  tasks:
+    - name: install dropbox dependecies
+      become: true
+      apt:
+        name:
+          - python3-gpg
+          - libc6
+          - libglapi-mesa
+          - libxdamage1
+          - libxfixes3
+          - libxcb-glx0
+          - libxcb-dri2-0
+          - libxcb-dri3-0
+          - libxcb-present0
+          - libxcb-sync1
+          - libxshmfence1
+          - libxxf86vm1
+
+    - name: install dropbox script
+      get_url:
+        url: "https://www.dropbox.com/download?dl=packages/dropbox.py"
+        dest: "{{ ansible_env.HOME }}/dropbox.py"
+        mode: 0755
+
+    - name: Set zsh 
+      become: true
+      user:
+        name: "{{ lookup('env', 'USER') }}"
+        shell: /bin/zsh
+        append: yes
+
+    - name: copy zshrc
+      copy: 
+        src: ./files/zshrc
+        dest: "{{ ansible_env.HOME }}/.zshrc"
+
+    - name: nvm
+      shell: >
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash;
+      args:
+        warn: false
+        creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+
+    - name: install neovim
+      become: true
+      get_url:
+        url: "https://github.com/neovim/neovim/releases/latest/download/nvim.appimage"
+        # dest: "{{ ansible_env.HOME }}/bin/nvim.appimage"
+        dest: /usr/local/bin/nvim.appimage
+        mode: 0755
+    - name: Ensures {{ ansible_env.HOME }}/.local/share/nvim/site/autoload dir exists
+      file: path={{ ansible_env.HOME }}/.local/share/nvim/site/autoload state=directory
+    - name: install neovim plugins
+      get_url:
+        url: "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+        dest: "{{ ansible_env.HOME }}/.local/share/nvim/site/autoload/plug.vim"
+        mode: 0644
+
+    - name: install neovim alternatives
+      become: true
+      alternatives:
+        name: vim
+        path: /usr/local/bin/nvim.appimage
+    - name: install vi 
+      become: true
+      alternatives:
+        name: vi
+        path: /usr/local/bin/nvim.appimage
+    - name: install vimdiff
+      become: true
+      alternatives:
+        name: vimdiff
+        path: /usr/local/bin/nvim.appimage
+
+    - name: copy nvim config
+      copy: 
+        src: ./files/nvim
+        dest: "{{ ansible_env.HOME }}/.config/"
+
+    - name: install fzf
+      git:
+        repo: 'https://github.com/junegunn/fzf.git'
+        dest: "{{ ansible_env.HOME }}/.fzf"
+        depth: 1
