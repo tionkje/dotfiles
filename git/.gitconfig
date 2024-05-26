@@ -1,0 +1,52 @@
+[init]
+	templatedir = ~/.git_template
+	defaultBranch = main
+[user]
+	email = deknudtb@gmail.com
+	name = Bastiaan Deknudt
+[push]
+	default = simple
+[color "diff"]
+  # meta = yellow bold
+  # frag = magenta bold
+  # old = red
+  # new = magenta green
+	commit = yellow bold
+	meta = 11
+	frag = magenta bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
+[color "status"]
+  # added = yellow
+  # changed = green
+  # untracked = cyan
+  # added = cyan
+  # changed = red reverse
+  # untracked = yellow reverse
+  
+[core]
+	excludesFile = ~/.gitignore
+	autocrlf = input
+	eol = lf
+	editor = vim
+	#pager = diff-so-fancy | less --tabs=4 -RFX
+[color]
+	ui = true
+[color "diff-highlight"]
+	oldNormal = red bold
+	oldHighlight = red bold 52
+	newNormal = green bold
+	newHighlight = green bold 22
+[log]
+	# date = relative
+[format]
+	pretty = format:%C(auto,yellow)%h%C(auto,magenta)% G? %C(auto,blue)%>(22,trunc)%ad %C(auto,green)%<(8,trunc)%aN%C(auto)%gD% D% C(auto,reset)%s
+[pull]
+	ff = only
+# [url "https://bitbucket.org/"]
+# 	insteadOf = git@bitbucket.org:
+# [url "https://"]
+# 	insteadOf = git://
+[url "git@bitbucket.org:"]
+	insteadOf = https://bitbucket.org/
