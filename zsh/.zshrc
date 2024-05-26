@@ -437,6 +437,9 @@ complete -o nospace -C /usr/bin/terraform terraform
 
 
 alias lg=lazygit
+alias vim=nvim
+alias vi=nvim
+alias v=nvim
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
