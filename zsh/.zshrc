@@ -136,7 +136,7 @@ bindkey '^H' backward-kill-word                                 # delete previou
 bindkey '^[[Z' undo                                             # Shift+tab undo last action
 
 # tmux session for 
-bindkey -s ^f "ses.sh\n"
+bindkey -s "^f" "ses.sh\n"
 
 ## Alias section
 alias cp="cp -i"                                                # Confirm before overwriting something
