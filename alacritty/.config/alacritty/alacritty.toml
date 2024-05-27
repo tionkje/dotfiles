@@ -4,6 +4,8 @@ live_config_reload = true
 
 # Default colors
 [colors.primary]
+# background = '#0f0f0f'
+# foreground = '#d8d8d8'
 background = '#000000'
 foreground = '#eaeaea'
 
@@ -59,7 +61,7 @@ white   = '#2a2a2a'
 # white=   '0x2a2a2a'
 
 [colors]
-draw_bold_text_with_bright_colors = false
+draw_bold_text_with_bright_colors = true
 
 # [colors.bright]
 # black = "0x787878"
@@ -95,21 +97,23 @@ draw_bold_text_with_bright_colors = false
 
 [font]
 size = 16.0
+#builtin_box_drawing = false
+glyph_offset.x = 0
 
 [font.bold]
-family = "MesloLGS NF"
+family = "MesloLGS Nerd Font"
 style = "Bold"
 
 [font.bold_italic]
-family = "MesloLGS NF"
+family = "MesloLGS Nerd Font"
 style = "Bold Italic"
 
 [font.italic]
-family = "MesloLGS NF"
+family = "MesloLGS Nerd Font"
 style = "Italic"
-
+#
 [font.normal]
-family = "MesloLGS NF"
+family = "MesloLGS Nerd Font"
 style = "Regular"
 
 [mouse]
