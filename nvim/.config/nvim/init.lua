@@ -336,6 +336,7 @@ vim.keymap.set("c", "<C-E>", "<End>", { desc = "end of line" })
 -- " forward one word
 -- :cnoremap <Esc><C-F> <S-Right>
 
+vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww ses.sh<CR>")
 
 -- " Don't touch unnamed register when pasting over visual selection
 -- vim.cmd('xnoremap <expr> p \'pgv"\' . v:register . \'y\'')
