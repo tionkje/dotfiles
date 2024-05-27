@@ -389,8 +389,9 @@ csdiff () {
   diff -u "$1" "$2" | diff-so-fancy
 }
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
+#[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+source /usr/share/fzf/key-bindings.zsh
+source /usr/share/fzf/completion.zsh
 
 alias ls='ls --color=auto -lA'
 alias -g dfif='diff'
