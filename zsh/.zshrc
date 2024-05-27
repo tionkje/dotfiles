@@ -470,3 +470,4 @@ function work_in_progress() {
   command git -c log.showSignature=false log -n 1 2>/dev/null | grep -q -- "--wip--" && echo "WIP!!"
 }
 
+export PATH="$PATH:$HOME/.local/bin"
