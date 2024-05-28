@@ -1,3 +1,8 @@
+
+TODO: install manually
+- media controls https://extensions.gnome.org/extension/4928/mpris-label/
+- system monitor https://extensions.gnome.org/extension/3010/system-monitor-next/
+
 Backup:
 ```sh
 dconf dump / > dconf-$(date -I).conf
@@ -7,6 +12,7 @@ Dump:
 ```sh
 dconf dump /org/gnome/ > gnome-dconf.conf
 ```
+
 Load:
 ```sh
 dconf load /org/gnome/ < gnome-dconf.conf
