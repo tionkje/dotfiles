@@ -96,7 +96,7 @@ draw_bold_text_with_bright_colors = true
 # foreground = "0xd8d8d8"
 
 [font]
-size = 16.0
+size = 11.0
 #builtin_box_drawing = false
 glyph_offset.x = 0
 
