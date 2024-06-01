@@ -12,11 +12,12 @@ export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/
 # Setting this, so the repo does not need to be given on the commandline:
 #export BORG_REPO=ssh://username@example.com:2022/~/backup/main
 export BORG_REPO=ssh://u402432@u402432.your-storagebox.de:23/./borg-repository
-export BORG_RSH='ssh -oBatchMode=yes -i /home/bastiaan/.ssh/hetzner_borgbackup_2024'
+# export BORG_RSH='ssh -oBatchMode=yes'
+export BORG_RSH='ssh -oBatchMode=yes -i /home/bastiaan/.ssh/id_rsa'
 
 
 # See the section "Passphrase notes" for more infos.
-export BORG_PASSPHRASE=$(.ssh/.ssh/borg_backup_passphrase)
+export BORG_PASSPHRASE=$(cat /home/bastiaan/.ssh/borg_backup_passphrase)
 
 if [ ! -z "$BORG_LIST" ]; then
 borg list
@@ -40,7 +41,7 @@ borg create                         \
     --show-rc                       \
     --compression lz4               \
     --exclude-caches                \
-    --exclude 'home/*/.cache/*'     \
+    --exclude 'home/*/*.cache/*'     \
     --exclude 'var/tmp/*'           \
     --exclude '*/.local/share/pnpm/*'           \
     --exclude '*/AGL/*'           \
@@ -53,10 +54,13 @@ borg create                         \
     --exclude '*/volumes/'           \
     --exclude '*/.nx/'           \
     --exclude '*/.npm/'           \
+    --exclude '*/.nvm/'           \
     --exclude '*/.java/'           \
     --exclude '*/.mongodb/'           \
     --exclude '/var/lib'           \
     --exclude '/var/log'           \
+    --exclude '/var/cache'           \
+    --exclude '/home/bastiaan/yay/*'           \
                                     \
     ::'{hostname}-{now}'            \
     /etc                            \
