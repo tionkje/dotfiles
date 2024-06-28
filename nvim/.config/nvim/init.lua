@@ -154,6 +154,11 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 5
 
+-- enable auto creatinf folds for indents but unfold by default
+vim.opt.foldmethod = "indent"
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -193,7 +198,12 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagn
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
-vim.keymap.set("n", "<leader>*\"", "yi\"/<C-r>\"", { desc = "Search in quotes" })
+vim.keymap.set("n", '<leader>*"', 'yi"/<C-r>"', { desc = "Search in quotes" })
+
+vim.keymap.set("n", '<leader>s"', function()
+	vim.cmd('normal! yi"')
+	require("telescope.builtin").live_grep({ default_text = vim.fn.getreg('"') })
+end, { desc = "Search grep whats in quotes" })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -232,6 +242,12 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+-- Set filetype for .env files to sh
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+	pattern = ".env.*",
+	command = "setfiletype sh",
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -264,9 +280,6 @@ require("lazy").setup({
 	--  This is equivalent to:
 	--    require('Comment').setup({})
 
-
-
-
 	-- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
 	-- init.lua. If you want these files, they are in the repository, so you can just download them and
 	-- place them in the correct locations.
@@ -289,7 +302,7 @@ require("lazy").setup({
 	--  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
 	--    For additional information, see `:help lazy.nvim-lazy.nvim-structuring-your-plugins`
 	-- { import = 'custom.plugins' },
-	{ import = 'plugins' },
+	{ import = "plugins" },
 }, {
 	ui = {
 		-- If you are using a Nerd Font: set icons to an empty table which will use the
@@ -309,6 +322,11 @@ require("lazy").setup({
 			task = "📌",
 			lazy = "💤 ",
 		},
+	},
+	change_detection = {
+		-- automatically check for config file changes and reload the ui
+		enabled = true,
+		notify = false, -- get a notification when changes are found
 	},
 })
 
@@ -341,8 +359,7 @@ vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww ses.sh<CR>")
 -- " Don't touch unnamed register when pasting over visual selection
 -- vim.cmd('xnoremap <expr> p \'pgv"\' . v:register . \'y\'')
 -- vim.api.nvim_set_keymap('x', 'p', "pgv", {expr = true})
-vim.api.nvim_set_keymap('x', 'p', "'pgv\"'.v:register.'y'", {expr = true})
-
+vim.api.nvim_set_keymap("x", "p", "'pgv\"'.v:register.'y'", { expr = true })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
