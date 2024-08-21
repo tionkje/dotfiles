@@ -2,3 +2,4 @@ lukechilds/zsh-nvm
 zsh-users/zsh-syntax-highlighting
 romkatv/powerlevel10k
 zsh-users/zsh-autosuggestions
+sunlei/zsh-ssh
