@@ -471,3 +471,10 @@ function work_in_progress() {
 }
 
 export PATH="$PATH:$HOME/.local/bin"
+
+# bun completions
+[ -s "/home/bastiaan/.bun/_bun" ] && source "/home/bastiaan/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

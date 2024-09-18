@@ -51,3 +51,6 @@
 # 	insteadOf = git://
 [url "git@bitbucket.org:"]
 	insteadOf = https://bitbucket.org/
+[merge]
+	conflictstyle = diff3
+	tool = nvimdiff

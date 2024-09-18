@@ -198,6 +198,10 @@ vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next [D]iagn
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
+vim.keymap.set("n", "<leader>gr", ":diffget RE<CR>", { desc = "Diff [G]et remote " })
+vim.keymap.set("n", "<leader>gl", ":diffget LO<CR>", { desc = "Diff [G]et local " })
+vim.keymap.set("n", "<leader>gb", ":diffget BA<CR>", { desc = "Diff [G]et base " })
+
 vim.keymap.set("n", '<leader>*"', 'yi"/<C-r>"', { desc = "Search in quotes" })
 
 vim.keymap.set("n", '<leader>s"', function()
@@ -247,6 +251,9 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 	pattern = ".env.*",
 	command = "setfiletype sh",
 })
+
+-- Import the diff_blocks module
+require('diff_blocks')
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
