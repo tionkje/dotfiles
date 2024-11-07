@@ -90,6 +90,9 @@ P.S. You can delete this when you're done too. It's your config now! :)
 vim.g.mapleader = "\\"
 vim.g.maplocalleader = "\\"
 
+-- vim.keymap.set("n", " ", "<leader>", { desc = "second leader" })
+vim.api.nvim_set_keymap('n', '<Space>', '\\', {noremap = false})
+
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
@@ -201,6 +204,12 @@ vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagn
 vim.keymap.set("n", "<leader>gr", ":diffget RE<CR>", { desc = "Diff [G]et remote " })
 vim.keymap.set("n", "<leader>gl", ":diffget LO<CR>", { desc = "Diff [G]et local " })
 vim.keymap.set("n", "<leader>gb", ":diffget BA<CR>", { desc = "Diff [G]et base " })
+
+vim.keymap.set("n", "<leader>tc", ":vsp|lcd %:h|term<CR>", { desc = "Open [T]erminal in vertical split. cd to [C]urrent file locaiont" })
+vim.keymap.set("n", "<leader>tv", ":vsp|term<CR>", { desc = "Open [T]erminal in [V]ertical split. Dont CD" })
+
+vim.keymap.set("n", "<leader>j", "<cmd>cnext<cr>zz", { desc = "Quickfix next" })
+vim.keymap.set("n", "<leader>k", "<cmd>cprev<cr>zz", { desc = "Quickfix previous" })
 
 vim.keymap.set("n", '<leader>*"', 'yi"/<C-r>"', { desc = "Search in quotes" })
 

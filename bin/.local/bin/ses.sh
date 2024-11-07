@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+export TERM=xterm-256color
+
+
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
@@ -23,24 +26,20 @@ if [[ "${selected%% *}" = "ssh" ]]; then
   eval `loadKeys.sh`;
 
   temp="${selected#* }"
-  # cmd="keepassxc-cli show -s -a password ~/Dropbox/mykeys.kdbx /VIRTO/virto_ecdsa | tr -d '\n' | xclip -i && ssh ${temp%% *}"
   cmd="ssh ${temp%% *}"
   selected_name=${selected//./_}
-  # echo cmd: $cmd
-  # exit 1;
-  # echo BLA
-  echo "ssh -q ${temp%% *} exit"
-  if ssh -q ${temp%% *} exit; then
+  echo "ssh -o ConnectTimeout=5 -q ${temp%% *} exit"
+  if ssh -o ConnectTimeout=5 -q ${temp%% *} exit; then
 
     if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-        tmux new-session -s "$selected_name" zsh -c "$cmd"
+        tmux -2 new-session -s "$selected_name" zsh -c "export TERM=xterm-256color; $cmd"
         # tmux send-keys -t $selected_name "vim ." C-m
         exit 0
     fi
 
     echo selected_name: $selected_name
     if ! tmux has-session -t="$selected_name" 2> /dev/null; then
-        tmux new-session -ds "$selected_name" zsh -c "$cmd"
+        tmux -2 new-session -ds "$selected_name" zsh -c "export TERM=xterm-256color; $cmd"
         # tmux send-keys -t $selected_name "vim ." C-m
     fi
   else
