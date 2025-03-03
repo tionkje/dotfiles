@@ -481,3 +481,8 @@ export PATH="$PATH:$HOME/.local/bin"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 . "/home/bastiaan/.deno/env"
+# add Pulumi to the PATH
+export PATH=$PATH:/home/bastiaan/.pulumi/bin
+
+eval "$(direnv hook zsh)"
+alias lzd='lazydocker'

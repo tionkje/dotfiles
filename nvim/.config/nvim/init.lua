@@ -205,8 +205,8 @@ vim.keymap.set("n", "<leader>gr", ":diffget RE<CR>", { desc = "Diff [G]et remote
 vim.keymap.set("n", "<leader>gl", ":diffget LO<CR>", { desc = "Diff [G]et local " })
 vim.keymap.set("n", "<leader>gb", ":diffget BA<CR>", { desc = "Diff [G]et base " })
 
-vim.keymap.set("n", "<leader>tc", ":vsp|lcd %:h|term<CR>", { desc = "Open [T]erminal in vertical split. cd to [C]urrent file locaiont" })
-vim.keymap.set("n", "<leader>tv", ":vsp|term<CR>", { desc = "Open [T]erminal in [V]ertical split. Dont CD" })
+vim.keymap.set("n", "<leader>t", ":vsp|lcd %:h|term<CR>", { desc = "Open [T]erminal in vertical split. cd to [C]urrent file locaiont" })
+-- vim.keymap.set("n", "<leader>tv", ":vsp|term<CR>", { desc = "Open [T]erminal in [V]ertical split. Dont CD" })
 
 vim.keymap.set("n", "<leader>j", "<cmd>cnext<cr>zz", { desc = "Quickfix next" })
 vim.keymap.set("n", "<leader>k", "<cmd>cprev<cr>zz", { desc = "Quickfix previous" })

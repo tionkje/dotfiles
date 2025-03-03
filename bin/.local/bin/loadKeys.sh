@@ -75,4 +75,5 @@ echo "Keys loaded:"
 echo ""
 ssh-add -l
 
+echo "Exporting SSH_AUTH_SOCK and SSH_AGENT_PID"
 echo "export SSH_AUTH_SOCK=\"$SSH_AUTH_SOCK\"; export SSH_AGENT_PID=\"$SSH_AGENT_PID\"; " >&3

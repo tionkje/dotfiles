@@ -10,7 +10,7 @@ else
     selected=$( ( 
       ssh-hosts.sh | sed 's/^/ssh /';
       echo ~/.dotfiles; 
-      find ~/VIRTO ~/VIRTO/vs360_monorepo*/packages/ ~/dev/ ~/dev/basmonre/{apps,packages}/ -mindepth 1 -maxdepth 1 -type d; 
+      find ~/VIRTO ~/VIRTO/experiments  ~/dev/ -mindepth 1 -maxdepth 1 -type d; 
     ) | fzf)
     #selected=$(echo ~/VIRTO/vs360_monorepo* $(find ~/VIRTO/vs360_monorepo*/packages/ ~/ ~/dev/ ~/dev/basmonre/{apps,packages}/ -mindepth 1 -maxdepth 1 -type d | tr '\n' ' ') | tr ' ' '\n' | fzf)
 fi
