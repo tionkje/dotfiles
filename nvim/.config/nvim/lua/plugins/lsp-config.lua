@@ -134,7 +134,9 @@ return { -- LSP Configuration & Plugins
 			group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
 			callback = function(event)
 				vim.lsp.buf.clear_references()
-				vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event.buf })
+				if vim.fn.exists("#kickstart-lsp-highlight") == 1 then
+					vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event.buf })
+				end
 			end,
 		})
 
@@ -207,7 +209,7 @@ return { -- LSP Configuration & Plugins
 			"rnix",
 			"stylua",
 			"svelte",
-			"tailwindcss",
+			-- "tailwindcss",
 			"ts_ls",
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })

@@ -91,7 +91,7 @@ vim.g.mapleader = "\\"
 vim.g.maplocalleader = "\\"
 
 -- vim.keymap.set("n", " ", "<leader>", { desc = "second leader" })
-vim.api.nvim_set_keymap('n', '<Space>', '\\', {noremap = false})
+vim.api.nvim_set_keymap("n", "<Space>", "\\", { noremap = false })
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -205,7 +205,12 @@ vim.keymap.set("n", "<leader>gr", ":diffget RE<CR>", { desc = "Diff [G]et remote
 vim.keymap.set("n", "<leader>gl", ":diffget LO<CR>", { desc = "Diff [G]et local " })
 vim.keymap.set("n", "<leader>gb", ":diffget BA<CR>", { desc = "Diff [G]et base " })
 
-vim.keymap.set("n", "<leader>t", ":vsp|lcd %:h|term<CR>", { desc = "Open [T]erminal in vertical split. cd to [C]urrent file locaiont" })
+vim.keymap.set(
+	"n",
+	"<leader>t",
+	":vsp|lcd %:h|term<CR>",
+	{ desc = "Open [T]erminal in vertical split. cd to [C]urrent file locaiont" }
+)
 -- vim.keymap.set("n", "<leader>tv", ":vsp|term<CR>", { desc = "Open [T]erminal in [V]ertical split. Dont CD" })
 
 vim.keymap.set("n", "<leader>j", "<cmd>cnext<cr>zz", { desc = "Quickfix next" })
@@ -261,8 +266,18 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 	command = "setfiletype sh",
 })
 
+vim.api.nvim_create_autocmd("TermOpen", {
+	desc = "Hide line numbers in terminal buffers",
+	group = vim.api.nvim_create_augroup("bastiaan-term-nonumber", { clear = true }),
+	callback = function()
+    vim.opt_local.number = false;
+    vim.opt_local.relativenumber = false;
+    -- vim.opt_local.listchars.re
+	end,
+})
+
 -- Import the diff_blocks module
-require('diff_blocks')
+require("diff_blocks")
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
