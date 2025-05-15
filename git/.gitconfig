@@ -62,3 +62,5 @@
 [difftool "bcompare"]
     #use cygpath to transform cygwin path $LOCAL (something like /tmp/U5VvP1_abc) to windows path, because bc3 is a windows software
     cmd = bcompare "$LOCAL" "$REMOTE"
+[remote "origin"]
+	prune = true

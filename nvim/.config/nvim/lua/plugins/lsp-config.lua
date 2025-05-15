@@ -13,6 +13,8 @@ return { -- LSP Configuration & Plugins
 		-- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
 		-- used for completion, annotations and signatures of Neovim apis
 		{ "folke/neodev.nvim", opts = {} },
+
+		"jose-elias-alvarez/typescript.nvim",
 	},
 	config = function()
 		-- Brief aside: **What is LSP?**
@@ -126,6 +128,8 @@ return { -- LSP Configuration & Plugins
 					map("<leader>th", function()
 						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 					end, "[T]oggle Inlay [H]ints")
+					-- start enabled
+					-- vim.lsp.inlay_hint.enable(true)
 				end
 			end,
 		})
@@ -167,7 +171,35 @@ return { -- LSP Configuration & Plugins
 			--    https://github.com/pmizio/typescript-tools.nvim
 			--
 			-- But for many setups, the LSP (`tsserver`) will work just fine
-			ts_ls = {},
+			ts_ls = {
+				settings = {
+					typescript = {
+						inlayHints = {
+							includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
+							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+							includeInlayVariableTypeHints = true,
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+							includeInlayPropertyDeclarationTypeHints = true,
+							includeInlayFunctionLikeReturnTypeHints = true,
+							includeInlayEnumMemberValueHints = true,
+						},
+					},
+					javascript = {
+						inlayHints = {
+							includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
+							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+							includeInlayVariableTypeHints = true,
+
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+							includeInlayPropertyDeclarationTypeHints = true,
+							includeInlayFunctionLikeReturnTypeHints = true,
+							includeInlayEnumMemberValueHints = true,
+						},
+					},
+				},
+			},
 			--
 
 			lua_ls = {
@@ -181,6 +213,59 @@ return { -- LSP Configuration & Plugins
 						},
 						-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
 						-- diagnostics = { disable = { 'missing-fields' } },
+					},
+				},
+			},
+
+			stylua = { },
+
+			jsonls = {
+				filetypes = { "json", "jsonc" },
+				settings = {
+					json = {
+						-- Schemas https://www.schemastore.org
+						schemas = {
+							{
+								fileMatch = { "package.json" },
+								url = "https://json.schemastore.org/package.json",
+							},
+							{
+								fileMatch = { "tsconfig*.json" },
+								url = "https://json.schemastore.org/tsconfig.json",
+							},
+							{
+								fileMatch = {
+									".prettierrc",
+									".prettierrc.json",
+									"prettier.config.json",
+								},
+								url = "https://json.schemastore.org/prettierrc.json",
+							},
+							{
+								fileMatch = { ".eslintrc", ".eslintrc.json" },
+								url = "https://json.schemastore.org/eslintrc.json",
+							},
+							{
+								fileMatch = { ".babelrc", ".babelrc.json", "babel.config.json" },
+								url = "https://json.schemastore.org/babelrc.json",
+							},
+							{
+								fileMatch = { "lerna.json" },
+								url = "https://json.schemastore.org/lerna.json",
+							},
+							{
+								fileMatch = { "now.json", "vercel.json" },
+								url = "https://json.schemastore.org/now.json",
+							},
+							{
+								fileMatch = {
+									".stylelintrc",
+									".stylelintrc.json",
+									"stylelint.config.json",
+								},
+								url = "http://json.schemastore.org/stylelintrc.json",
+							},
+						},
 					},
 				},
 			},
@@ -210,11 +295,13 @@ return { -- LSP Configuration & Plugins
 			"stylua",
 			"svelte",
 			-- "tailwindcss",
-			"ts_ls",
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
 		require("mason-lspconfig").setup({
+			-- ensure_installed = ensure_installed,
+			ensure_installed = {},
+			automatic_installation = true, -- Automatically install missing servers when you start editing a file
 			handlers = {
 				function(server_name)
 					local server = servers[server_name] or {}

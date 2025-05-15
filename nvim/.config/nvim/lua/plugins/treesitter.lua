@@ -1,4 +1,5 @@
 return { -- Highlight, edit, and navigate code
+	{
 	"nvim-treesitter/nvim-treesitter",
 	build = ":TSUpdate",
 	opts = {
@@ -29,4 +30,6 @@ return { -- Highlight, edit, and navigate code
 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	end,
+	},
+	"nvim-treesitter/nvim-treesitter-context"
 }

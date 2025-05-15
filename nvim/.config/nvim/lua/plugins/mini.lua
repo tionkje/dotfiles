@@ -79,9 +79,9 @@ return { -- Collection of various small independent plugins/modules
 
 					return MiniStatusline.combine_groups({
 						{ hl = mode_hl, strings = { mode } },
-						{ hl = "MiniStatuslineDevinfo", strings = { git, 
+						{ hl = "MiniStatuslineDevinfo", strings = { -- git, 
 							-- diff, 
-							diagnostics,
+							-- diagnostics,
 							-- lsp 
 						} },
 						"%<", -- Mark general truncate point

@@ -1,3 +1,6 @@
+-- formatters to run on javascript like files
+local shared_js_formatters = { "prettierd", "eslint_d" }
+
 return { -- Autoformat
 	"stevearc/conform.nvim",
 	lazy = false,
@@ -30,7 +33,10 @@ return { -- Autoformat
 			--
 			-- You can use a sub-list to tell conform to run *until* a formatter
 			-- is found.
-			javascript = { { "prettierd", "prettier" } },
+
+			typescript = shared_js_formatters,
+			javascript = shared_js_formatters,
+			typescriptreact = shared_js_formatters,
 		},
 	},
 }

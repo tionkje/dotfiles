@@ -486,3 +486,5 @@ export PATH=$PATH:/home/bastiaan/.pulumi/bin
 
 eval "$(direnv hook zsh)"
 alias lzd='lazydocker'
+
+export ANTHROPIC_API_KEY=$(cat ~/.ssh/anthropic_key)
