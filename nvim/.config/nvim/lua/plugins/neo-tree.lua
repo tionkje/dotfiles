@@ -39,17 +39,22 @@ return {
 						--               -- the current file is changed while the tree is open.
 						-- leave_dirs_open = false, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
 					},
-          window = {
-            mappings = {
-              --disable fuzzy finder
-              -- ["/"] = "noop"
-            }
-          }
+					window = {
+						mappings = {
+							--disable fuzzy finder
+							-- ["/"] = "noop"
+						},
+					},
 				},
 			})
 			vim.keymap.set("n", "<leader>n", ":Neotree filesystem reveal left<CR>", { desc = "Show [N]eo-tree filesystem" })
 			vim.keymap.set("n", "<leader>b", ":Neotree buffers reveal left<CR>", { desc = "Show neo-tree [B]uffers" })
-			vim.keymap.set("n", "<leader>gn", ":Neotree git_status reveal left<CR>", { desc = "Show [G]it status [N]eo-tree" })
+			vim.keymap.set(
+				"n",
+				"<leader>gn",
+				":Neotree git_status reveal left<CR>",
+				{ desc = "Show [G]it status [N]eo-tree" }
+			)
 		end,
 	},
 	{
@@ -61,16 +66,5 @@ return {
 		config = function()
 			require("lsp-file-operations").setup()
 		end,
-	},
-	{
-		"stevearc/oil.nvim",
-		opts = {
-			default_file_explorer = false,
-		},
-		-- Optional dependencies
-		-- dependencies = { "nvim-tree/nvim-web-devicons" },
-		-- config = function()
-		-- require("oil").setup()
-		-- end,
 	},
 }

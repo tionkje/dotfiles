@@ -269,6 +269,9 @@ return { -- LSP Configuration & Plugins
 					},
 				},
 			},
+
+			-- "sonarlint-language-server" = {}
+			-- https://github.com/SonarSource/sonarlint-vscode
 		}
 
 		-- Ensure the servers and tools above are installed
@@ -295,6 +298,7 @@ return { -- LSP Configuration & Plugins
 			"stylua",
 			"svelte",
 			-- "tailwindcss",
+			"sonarlint-language-server"
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

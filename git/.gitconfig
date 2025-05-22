@@ -64,3 +64,5 @@
     cmd = bcompare "$LOCAL" "$REMOTE"
 [remote "origin"]
 	prune = true
+[rebase]
+	updateRefs = true
