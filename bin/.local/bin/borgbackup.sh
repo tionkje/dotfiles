@@ -61,6 +61,8 @@ borg create                         \
     --exclude '/var/log'           \
     --exclude '/var/cache'           \
     --exclude '/home/bastiaan/yay/*'           \
+    --exclude '/home/bastiaan/NOBACKUP/*'           \
+    --remote-rate-limit 10000        \
                                     \
     ::'{hostname}-{now}'            \
     /etc                            \

@@ -9,8 +9,12 @@ return {
 			"3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
 		},
 		config = function()
+			-- vim.g.neo_tree_remove_legacy_commands = true
+
 			require("neo-tree").setup({
+				-- auto_open = false,  -- Do not auto open when opening a directory
 				filesystem = {
+						hijack_netrw_behavior = "disabled",
 					filtered_items = {
 						visible = true, -- when true, they will just be displayed differently than normal items
 						hide_dotfiles = false,
@@ -40,12 +44,15 @@ return {
 						-- leave_dirs_open = false, -- `false` closes auto expanded dirs, such as with `:Neotree reveal`
 					},
 					window = {
+						-- pos
 						mappings = {
 							--disable fuzzy finder
 							-- ["/"] = "noop"
 						},
 					},
 				},
+
+				close_if_last_window = true, -- Close Neo-tree if it is the last window left in the tab
 			})
 			vim.keymap.set("n", "<leader>n", ":Neotree filesystem reveal left<CR>", { desc = "Show [N]eo-tree filesystem" })
 			vim.keymap.set("n", "<leader>b", ":Neotree buffers reveal left<CR>", { desc = "Show neo-tree [B]uffers" })

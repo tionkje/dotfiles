@@ -70,6 +70,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
 					"node_modules/",
 					"build/",
 					"dist/",
+					"changelogs/",
 					"yarn.lock",
 					".git",
 					"^bitbucket-pipelines.yml$",
@@ -83,6 +84,9 @@ return { -- Fuzzy Finder (files, lsp, etc)
 					"--column",
 					"--smart-case",
 					"--hidden",
+					"--glob=!bitbucket-pipelines.yml",
+					"--glob=!pnpm-lock.yml",
+					"--glob=!changelogs/",
 				},
 			},
 			extensions = {
@@ -132,5 +136,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
 		vim.keymap.set("n", "<leader>sn", function()
 			builtin.find_files({ cwd = vim.fn.stdpath("config") })
 		end, { desc = "[S]earch [N]eovim files" })
+
+		require("config.telescope.multigrep").setup()
 	end,
 }

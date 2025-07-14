@@ -196,8 +196,12 @@ vim.api.nvim_set_keymap(
 )
 
 -- Diagnostic keymaps
-vim.keymap.set("n", "[d", function() vim.diagnostic.jump({count=-1, float=true}) end, { desc = "Go to previous [D]iagnostic message" })
-vim.keymap.set("n", "]d", function() vim.diagnostic.jump({count=1, float=true}) end, { desc = "Go to next [D]iagnostic message" })
+vim.keymap.set("n", "[d", function()
+	vim.diagnostic.jump({ count = -1, float = true })
+end, { desc = "Go to previous [D]iagnostic message" })
+vim.keymap.set("n", "]d", function()
+	vim.diagnostic.jump({ count = 1, float = true })
+end, { desc = "Go to next [D]iagnostic message" })
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic [E]rror messages" })
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
@@ -208,7 +212,21 @@ vim.keymap.set("n", "<leader>gb", ":diffget BA<CR>", { desc = "Diff [G]et base "
 vim.keymap.set(
 	"n",
 	"<leader>t",
-	":vsp|lcd %:h|term<CR>",
+	-- ":vsp|lcd %:h|term<CR>",
+	function()
+		vim.cmd("vert split")
+		if vim.bo.filetype == "oil" then
+			vim.cmd("lcd " .. require("oil").get_current_dir())
+		else
+			vim.cmd("lcd %:h")
+		end
+		vim.cmd("terminal")
+
+		-- -- Get the channel id for the terminal
+		-- local chan_id = vim.b.terminal_job_id
+		-- -- Send a command (e.g., 'ls\n') to the terminal
+		-- vim.api.nvim_chan_send(chan_id, "ls\n")
+	end,
 	{ desc = "Open [T]erminal in vertical split. cd to [C]urrent file locaiont" }
 )
 -- vim.keymap.set("n", "<leader>tv", ":vsp|term<CR>", { desc = "Open [T]erminal in [V]ertical split. Dont CD" })
@@ -270,9 +288,9 @@ vim.api.nvim_create_autocmd("TermOpen", {
 	desc = "Hide line numbers in terminal buffers",
 	group = vim.api.nvim_create_augroup("bastiaan-term-nonumber", { clear = true }),
 	callback = function()
-    vim.opt_local.number = false;
-    vim.opt_local.relativenumber = false;
-    -- vim.opt_local.listchars.re
+		vim.opt_local.number = false
+		vim.opt_local.relativenumber = false
+		-- vim.opt_local.listchars.re
 	end,
 })
 

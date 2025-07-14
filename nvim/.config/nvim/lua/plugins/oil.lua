@@ -8,7 +8,7 @@ return {
 		-- dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
 			require("oil").setup({
-				default_file_explorer = false,
+				default_file_explorer = true,
 				lsp_file_methods = {
 					-- Enable or disable LSP file operations
 					-- enabled = true,
@@ -34,8 +34,8 @@ return {
 					["g?"] = { "actions.show_help", mode = "n" },
 					["<CR>"] = "actions.select",
 					["<C-s>"] = { "actions.select", opts = { vertical = true } },
-					["<C-v>"] = { "actions.select", opts = { vertical = true } },
-					["<C-h>"] = { "actions.select", opts = { horizontal = true } },
+					-- ["<C-v>"] = { "actions.select", opts = { vertical = true } },
+					-- ["<C-h>"] = { "actions.select", opts = { horizontal = true } },
 					["<C-x>"] = { "actions.select", opts = { horizontal = true } },
 					["<C-t>"] = { "actions.select", opts = { tab = true } },
 					["<C-p>"] = "actions.preview",
@@ -44,7 +44,7 @@ return {
 					["R"] = "actions.refresh",
 					["-"] = { "actions.parent", mode = "n" },
 					["_"] = { "actions.open_cwd", mode = "n" },
-					["`"] = { "actions.cd", mode = "n" },
+					["`"] = { "actions.cd", opts = { scope = "win" }, mode = "n" },
 					["~"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
 					["gs"] = { "actions.change_sort", mode = "n" },
 					["gx"] = "actions.open_external",
@@ -125,13 +125,13 @@ return {
 				},
 			})
 
-			for _, hl_group in pairs(require("oil-git-status").highlight_groups) do
-				if hl_group.index then
-					vim.api.nvim_set_hl(0, hl_group.hl_group, { fg = "#ff0000" })
-				else
-					vim.api.nvim_set_hl(0, hl_group.hl_group, { fg = "#00ff00" })
-				end
-			end
+			-- for _, hl_group in pairs(require("oil-git-status").highlight_groups) do
+			-- 	if hl_group.index then
+			-- 		vim.api.nvim_set_hl(0, hl_group.hl_group, { fg = "#ff0000" })
+			-- 	else
+			-- 		vim.api.nvim_set_hl(0, hl_group.hl_group, { fg = "#00ff00" })
+			-- 	end
+			-- end
 		end,
 	},
 }

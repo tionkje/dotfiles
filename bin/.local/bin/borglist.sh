@@ -5,11 +5,12 @@ set -x
 export BORG_REPO=ssh://u402432@u402432.your-storagebox.de:23/./borg-repository
 export BORG_PASSPHRASE=$(cat /home/bastiaan/.ssh/borg_backup_passphrase)
 
-# borg list
+borg list
+exit 0
 
 # hardcode option for speed
-# LAST_ARCHIVE=$(borg list --last 1 -a bastiaan-XPS-13-9300* | awk '{print $1}')
-LAST_ARCHIVE="bastiaan-thinkpad-2025-03-01T15:22:00"
+#LAST_ARCHIVE=$(borg list --last 1 -a bastiaan-XPS-13-9300* | awk '{print $1}')
+#LAST_ARCHIVE="bastiaan-thinkpad-2025-03-01T15:22:00"
 
 
 ARCHIVE=$BORG_REPO::$LAST_ARCHIVE

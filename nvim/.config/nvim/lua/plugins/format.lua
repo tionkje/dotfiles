@@ -1,5 +1,8 @@
 -- formatters to run on javascript like files
-local shared_js_formatters = { "prettierd", "eslint_d" }
+local shared_js_formatters = {
+	"eslint_d",
+	"prettierd",
+}
 
 return { -- Autoformat
 	"stevearc/conform.nvim",

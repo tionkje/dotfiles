@@ -217,7 +217,7 @@ return { -- LSP Configuration & Plugins
 				},
 			},
 
-			stylua = { },
+			stylua = {},
 
 			jsonls = {
 				filetypes = { "json", "jsonc" },
@@ -272,6 +272,51 @@ return { -- LSP Configuration & Plugins
 
 			-- "sonarlint-language-server" = {}
 			-- https://github.com/SonarSource/sonarlint-vscode
+
+			eslint = {
+				{
+					filetypes = {
+						"javascript",
+						"javascriptreact",
+						"javascript.jsx",
+						"typescript",
+						"typescriptreact",
+						"typescript.tsx",
+						"vue",
+						"html",
+						"markdown",
+						"json",
+						"jsonc",
+						"yaml",
+						"toml",
+						"xml",
+						"gql",
+						"graphql",
+						"astro",
+						"svelte",
+						"css",
+						"less",
+						"scss",
+						"pcss",
+						"postcss",
+					},
+					settings = {
+						-- Silent the stylistic rules in you IDE, but still auto fix them
+						rulesCustomizations = {
+							{ rule = "style/*", severity = "off", fixable = true },
+							{ rule = "format/*", severity = "off", fixable = true },
+							{ rule = "*-indent", severity = "off", fixable = true },
+							{ rule = "*-spacing", severity = "off", fixable = true },
+							{ rule = "*-spaces", severity = "off", fixable = true },
+							{ rule = "*-order", severity = "off", fixable = true },
+							{ rule = "*-dangle", severity = "off", fixable = true },
+							{ rule = "*-newline", severity = "off", fixable = true },
+							{ rule = "*quotes", severity = "off", fixable = true },
+							{ rule = "*semi", severity = "off", fixable = true },
+						},
+					},
+				},
+			},
 		}
 
 		-- Ensure the servers and tools above are installed
@@ -288,17 +333,17 @@ return { -- LSP Configuration & Plugins
 		vim.list_extend(ensure_installed, {
 			"ansiblels",
 			"eslint",
-			"eslint_d",
+			-- "eslint_d",
 			"lua_ls",
 			-- "nil_ls",
 			-- "nixpkgs-fmt",
 			"prettier",
-			"prettierd",
+			-- "prettierd",
 			"rnix",
 			"stylua",
 			"svelte",
 			-- "tailwindcss",
-			"sonarlint-language-server"
+			"sonarlint-language-server",
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
