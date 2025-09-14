@@ -2,6 +2,8 @@
 
 export TERM=xterm-256color
 
+# tmux list-sessions -F '#{session_name}'  -f "#{!=:#{session_name},$(tmux display-message -p '#S')}"
+
 
 if [[ $# -eq 1 ]]; then
     selected=$1

@@ -26,7 +26,7 @@
   # untracked = yellow reverse
   
 [core]
-	excludesFile = ~/.gitignore
+	excludesfile = /home/bastiaan/.gitignore_global
 	autocrlf = input
 	eol = lf
 	editor = vim

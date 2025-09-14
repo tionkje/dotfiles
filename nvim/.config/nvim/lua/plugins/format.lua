@@ -1,6 +1,6 @@
 -- formatters to run on javascript like files
 local shared_js_formatters = {
-	"eslint_d",
+	"eslint-lsp",
 	"prettierd",
 }
 

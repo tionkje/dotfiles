@@ -26,4 +26,8 @@ Watch changes:
 dconf watch /
 ```
 
-
+Load and dump window management keybindingd
+```sh
+dconf dump /org/gnome/desktop/wm/keybindings/ > gnome-wm-keybindings.conf
+dconf load /org/gnome/desktop/wm/keybindings/ < gnome-wm-keybindings.conf
+```

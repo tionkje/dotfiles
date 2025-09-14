@@ -1,9 +1,11 @@
 return { -- LSP Configuration & Plugins
 	"neovim/nvim-lspconfig",
 	dependencies = {
+		{ "mason-org/mason.nvim", opts = {} },
+		"mason-org/mason-lspconfig.nvim",
 		-- Automatically install LSPs and related tools to stdpath for Neovim
-		{ "williamboman/mason.nvim", config = true }, -- NOTE: Must be loaded before dependants
-		"williamboman/mason-lspconfig.nvim",
+		-- { "williamboman/mason.nvim", config = true }, -- NOTE: Must be loaded before dependants
+		-- "williamboman/mason-lspconfig.nvim",
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 
 		-- Useful status updates for LSP.
@@ -12,11 +14,14 @@ return { -- LSP Configuration & Plugins
 
 		-- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
 		-- used for completion, annotations and signatures of Neovim apis
-		{ "folke/neodev.nvim", opts = {} },
+		-- { "folke/neodev.nvim", opts = {} },
 
-		"jose-elias-alvarez/typescript.nvim",
+		-- "jose-elias-alvarez/typescript.nvim",
+		-- Allows extra capabilities provided by blink.cmp
+		"saghen/blink.cmp",
 	},
 	config = function()
+		vim.lsp.set_log_level("debug")
 		-- Brief aside: **What is LSP?**
 		--
 		-- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -161,120 +166,140 @@ return { -- LSP Configuration & Plugins
 		--  - settings (table): Override the default settings passed when initializing the server.
 		--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 		local servers = {
-			-- clangd = {},
-			-- gopls = {},
-			-- pyright = {},
-			-- rust_analyzer = {},
-			-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-			--
-			-- Some languages (like typescript) have entire language plugins that can be useful:
-			--    https://github.com/pmizio/typescript-tools.nvim
-			--
-			-- But for many setups, the LSP (`tsserver`) will work just fine
-			ts_ls = {
-				settings = {
-					typescript = {
-						inlayHints = {
-							includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
-							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-							includeInlayVariableTypeHints = true,
-							includeInlayFunctionParameterTypeHints = true,
-							includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-							includeInlayPropertyDeclarationTypeHints = true,
-							includeInlayFunctionLikeReturnTypeHints = true,
-							includeInlayEnumMemberValueHints = true,
+			mason = {
+				-- clangd = {},
+				-- gopls = {},
+				-- pyright = {},
+				-- rust_analyzer = {},
+				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
+				--
+				-- Some languages (like typescript) have entire language plugins that can be useful:
+				--    https://github.com/pmizio/typescript-tools.nvim
+				--
+				-- But for many setups, the LSP (`tsserver`) will work just fine
+				ts_ls = {
+					settings = {
+						typescript = {
+							inlayHints = {
+								includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
+								includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+								includeInlayVariableTypeHints = true,
+								includeInlayFunctionParameterTypeHints = true,
+								includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+								includeInlayPropertyDeclarationTypeHints = true,
+								includeInlayFunctionLikeReturnTypeHints = true,
+								includeInlayEnumMemberValueHints = true,
+							},
 						},
-					},
-					javascript = {
-						inlayHints = {
-							includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
-							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-							includeInlayVariableTypeHints = true,
+						javascript = {
+							inlayHints = {
+								includeInlayParameterNameHints = "all", -- 'none' | 'literals' | 'all'
+								includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+								includeInlayVariableTypeHints = true,
 
-							includeInlayFunctionParameterTypeHints = true,
-							includeInlayVariableTypeHintsWhenTypeMatchesName = true,
-							includeInlayPropertyDeclarationTypeHints = true,
-							includeInlayFunctionLikeReturnTypeHints = true,
-							includeInlayEnumMemberValueHints = true,
+								includeInlayFunctionParameterTypeHints = true,
+								includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+								includeInlayPropertyDeclarationTypeHints = true,
+								includeInlayFunctionLikeReturnTypeHints = true,
+								includeInlayEnumMemberValueHints = true,
+							},
 						},
 					},
 				},
-			},
-			--
+				--
 
-			lua_ls = {
-				-- cmd = {...},
-				-- filetypes = { ...},
-				-- capabilities = {},
-				settings = {
-					Lua = {
-						completion = {
-							callSnippet = "Replace",
+				lua_ls = {
+					-- cmd = {...},
+					-- filetypes = { ...},
+					-- capabilities = {},
+					settings = {
+						Lua = {
+							completion = {
+								callSnippet = "Replace",
+							},
+							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+							-- diagnostics = { disable = { 'missing-fields' } },
 						},
-						-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-						-- diagnostics = { disable = { 'missing-fields' } },
 					},
 				},
-			},
 
-			stylua = {},
+				stylua = {},
 
-			jsonls = {
-				filetypes = { "json", "jsonc" },
-				settings = {
-					json = {
-						-- Schemas https://www.schemastore.org
-						schemas = {
-							{
-								fileMatch = { "package.json" },
-								url = "https://json.schemastore.org/package.json",
-							},
-							{
-								fileMatch = { "tsconfig*.json" },
-								url = "https://json.schemastore.org/tsconfig.json",
-							},
-							{
-								fileMatch = {
-									".prettierrc",
-									".prettierrc.json",
-									"prettier.config.json",
+				jsonls = {
+					filetypes = { "json", "jsonc" },
+					settings = {
+						json = {
+							-- Schemas https://www.schemastore.org
+							schemas = {
+								{
+									fileMatch = { "package.json" },
+									url = "https://json.schemastore.org/package.json",
 								},
-								url = "https://json.schemastore.org/prettierrc.json",
-							},
-							{
-								fileMatch = { ".eslintrc", ".eslintrc.json" },
-								url = "https://json.schemastore.org/eslintrc.json",
-							},
-							{
-								fileMatch = { ".babelrc", ".babelrc.json", "babel.config.json" },
-								url = "https://json.schemastore.org/babelrc.json",
-							},
-							{
-								fileMatch = { "lerna.json" },
-								url = "https://json.schemastore.org/lerna.json",
-							},
-							{
-								fileMatch = { "now.json", "vercel.json" },
-								url = "https://json.schemastore.org/now.json",
-							},
-							{
-								fileMatch = {
-									".stylelintrc",
-									".stylelintrc.json",
-									"stylelint.config.json",
+								{
+									fileMatch = { "tsconfig*.json" },
+									url = "https://json.schemastore.org/tsconfig.json",
 								},
-								url = "http://json.schemastore.org/stylelintrc.json",
+								{
+									fileMatch = {
+										".prettierrc",
+										".prettierrc.json",
+										"prettier.config.json",
+									},
+									url = "https://json.schemastore.org/prettierrc.json",
+								},
+								{
+									fileMatch = { ".eslintrc", ".eslintrc.json" },
+									url = "https://json.schemastore.org/eslintrc.json",
+								},
+								{
+									fileMatch = { ".babelrc", ".babelrc.json", "babel.config.json" },
+									url = "https://json.schemastore.org/babelrc.json",
+								},
+								{
+									fileMatch = { "lerna.json" },
+									url = "https://json.schemastore.org/lerna.json",
+								},
+								{
+									fileMatch = { "now.json", "vercel.json" },
+									url = "https://json.schemastore.org/now.json",
+								},
+								{
+									fileMatch = {
+										".stylelintrc",
+										".stylelintrc.json",
+										"stylelint.config.json",
+									},
+									url = "http://json.schemastore.org/stylelintrc.json",
+								},
 							},
 						},
 					},
 				},
-			},
 
-			-- "sonarlint-language-server" = {}
-			-- https://github.com/SonarSource/sonarlint-vscode
+				-- "sonarlint-language-server" = {}
+				-- https://github.com/SonarSource/sonarlint-vscode
 
-			eslint = {
-				{
+				eslint = {
+
+					-- settings = {
+					--   eslint = {
+					--     format = { enable = true }
+					--   }
+					-- },
+					-- settings = {
+					--   eslint = {
+					--     options = {
+					--       flags = { "unstable_native_nodejs_ts_config" }
+					--     }
+					--   }
+					-- },
+					-- {
+					-- 	options = { flags = { "unstable_native_nodejs_ts_config" } },
+					-- 	}
+					-- cmd = { "vscode-eslint-language-server", "--stdio", "--flag", "unstable_native_nodejs_ts_config" },
+
+					-- {
+
 					filetypes = {
 						"javascript",
 						"javascriptreact",
@@ -301,6 +326,28 @@ return { -- LSP Configuration & Plugins
 						"postcss",
 					},
 					settings = {
+
+						-- ["eslint.options"] = {
+						-- 	flags = {
+						-- 		-- ["unstable_native_nodejs_ts_config"] = true,
+						-- 		"--unstable_native_nodejs_ts_config"
+						-- 	},
+						-- },
+						-- eslint = {
+						-- 	options = {
+						-- 		flags = {
+						-- 			-- ["unstable_native_nodejs_ts_config"] = true,
+						-- 			"--unstable_native_nodejs_ts_config"
+						-- 		},
+						-- 	},
+						-- },
+						-- format = { enable = true },
+
+						-- eslint = {
+						-- 	options = {
+						-- 		flags = { "unstable_native_nodejs_ts_config" }
+						-- 	},
+						-- },
 						-- Silent the stylistic rules in you IDE, but still auto fix them
 						rulesCustomizations = {
 							{ rule = "style/*", severity = "off", fixable = true },
@@ -313,10 +360,19 @@ return { -- LSP Configuration & Plugins
 							{ rule = "*-newline", severity = "off", fixable = true },
 							{ rule = "*quotes", severity = "off", fixable = true },
 							{ rule = "*semi", severity = "off", fixable = true },
+							{ rule = "perfectionist/*", severity = "off", fixable = true },
+						},
+						-- helps eslint find the eslintrc when it's placed in a subfolder instead of the cwd root
+						workingDirectories = { mode = "auto" },
+						experimental = {
+							-- allows to use flat config format
+							useFlatConfig = true,
 						},
 					},
+					-- },
 				},
 			},
+			others = {},
 		}
 
 		-- Ensure the servers and tools above are installed
@@ -325,14 +381,15 @@ return { -- LSP Configuration & Plugins
 		--    :Mason
 		--
 		--  You can press `g?` for help in this menu.
-		require("mason").setup()
+		-- require("mason").setup()
 
 		-- You can add other tools here that you want Mason to install
 		-- for you, so that they are available from within Neovim.
-		local ensure_installed = vim.tbl_keys(servers or {})
+		local ensure_installed = vim.tbl_keys(servers.mason or {})
 		vim.list_extend(ensure_installed, {
 			"ansiblels",
-			"eslint",
+			-- "eslint",
+			-- "eslint-lsp",
 			-- "eslint_d",
 			"lua_ls",
 			-- "nil_ls",
@@ -347,20 +404,32 @@ return { -- LSP Configuration & Plugins
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
+		-- Either merge all additional server configs from the `servers.mason` and `servers.others` tables
+		-- to the default language server configs as provided by nvim-lspconfig or
+		-- define a custom server config that's unavailable on nvim-lspconfig.
+		for server, config in pairs(vim.tbl_extend("keep", servers.mason, servers.others)) do
+			if not vim.tbl_isempty(config) then
+				vim.lsp.config(server, config)
+			end
+		end
+
 		require("mason-lspconfig").setup({
 			-- ensure_installed = ensure_installed,
 			ensure_installed = {},
-			automatic_installation = true, -- Automatically install missing servers when you start editing a file
-			handlers = {
-				function(server_name)
-					local server = servers[server_name] or {}
-					-- This handles overriding only values explicitly passed
-					-- by the server configuration above. Useful when disabling
-					-- certain features of an LSP (for example, turning off formatting for tsserver)
-					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					require("lspconfig")[server_name].setup(server)
-				end,
-			},
+			-- automatic_installation = true, -- Automatically install missing servers when you start editing a file
+			automatic_enable = true, -- automatically run vim.lsp.enable() for all servers that are installed via Mason
+			-- handlers = {
+			-- 	function(server_name)
+			-- 		print("Setting up LSP server: " .. server_name)
+			--
+			-- 		local server = servers[server_name] or {}
+			-- 		-- This handles overriding only values explicitly passed
+			-- 		-- by the server configuration above. Useful when disabling
+			-- 		-- certain features of an LSP (for example, turning off formatting for tsserver)
+			-- 		server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+			-- 		require("lspconfig")[server_name].setup(server)
+			-- 	end,
+			-- },
 		})
 	end,
 }

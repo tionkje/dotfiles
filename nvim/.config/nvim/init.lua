@@ -107,6 +107,8 @@ vim.opt.number = true
 --  Experiment for yourself to see if you like it!
 -- vim.opt.relativenumber = true
 
+vim.opt.winborder = "rounded"
+
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = "a"
 
@@ -165,6 +167,9 @@ vim.opt.foldlevelstart = 99
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
+-- Add a keymap to insert the current file path and line number in the buffer
+vim.keymap.set('n', '<leader>l', ":put =expand('%:p') . ':' . line('.')<CR>", { desc = 'Insert current [L]ocation' })
+
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
@@ -174,25 +179,25 @@ vim.api.nvim_set_keymap(
 	"n",
 	"<Leader>+",
 	'<Cmd>lua vim.cmd("resize " .. math.floor(vim.api.nvim_win_get_height(0) * 3 / 2))<CR>',
-	{ silent = true }
+	{ silent = true, desc = "Resize window larger" }
 )
 vim.api.nvim_set_keymap(
 	"n",
 	"<Leader>-",
 	'<Cmd>lua vim.cmd("resize " .. math.floor(vim.api.nvim_win_get_height(0) * 2 / 3))<CR>',
-	{ silent = true }
+	{ silent = true, desc = "Resize window smaller" }
 )
 vim.api.nvim_set_keymap(
 	"n",
 	"<Leader>>",
 	'<Cmd>lua vim.cmd("vertical resize " .. math.floor(vim.api.nvim_win_get_width(0) * 3 / 2))<CR>',
-	{ silent = true }
+	{ silent = true, desc = "Resize window wider" }
 )
 vim.api.nvim_set_keymap(
 	"n",
 	"<Leader><",
 	'<Cmd>lua vim.cmd("vertical resize " .. math.floor(vim.api.nvim_win_get_width(0) * 2 / 3))<CR>',
-	{ silent = true }
+	{ silent = true, desc = "Resize window narrower" }
 )
 
 -- Diagnostic keymaps
