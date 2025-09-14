@@ -446,6 +446,8 @@ alias lg=lazygit
 alias vim=nvim
 alias vi=nvim
 alias v=nvim
+alias lzd='lazydocker'
+alias claude='~/.claude/local/claude'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -485,8 +487,6 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH=$PATH:/home/bastiaan/.pulumi/bin
 
 eval "$(direnv hook zsh)"
-alias lzd='lazydocker'
-alias claude='~/.claude/local/claude'
 
 export ANTHROPIC_API_KEY=$(cat ~/.ssh/anthropic_key)
 
