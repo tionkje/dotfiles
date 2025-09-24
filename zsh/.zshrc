@@ -490,3 +490,8 @@ eval "$(direnv hook zsh)"
 
 export ANTHROPIC_API_KEY=$(cat ~/.ssh/anthropic_key)
 
+
+# opencode
+export PATH=/home/bastiaan/.opencode/bin:$PATH
+
+eval "$(zoxide init zsh)"

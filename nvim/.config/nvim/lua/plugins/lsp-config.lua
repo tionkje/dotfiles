@@ -401,6 +401,7 @@ return { -- LSP Configuration & Plugins
 			"svelte",
 			-- "tailwindcss",
 			"sonarlint-language-server",
+			"beautysh",
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 

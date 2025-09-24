@@ -72,7 +72,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
 					"dist/",
 					"changelogs/",
 					"yarn.lock",
-					".git",
+					".git/",
 					"^bitbucket-pipelines.yml$",
 				},
 				vimgrep_arguments = {

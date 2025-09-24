@@ -1,0 +1,10 @@
+{
+  "uuid": "custom-dropdown@yourdomain.com",
+  "name": "Custom Dropdown",
+  "description": "Adds a customizable dropdown button to the top bar",
+  "shell-version": [
+    "45",
+    "46"
+  ],
+  "version": 1
+}

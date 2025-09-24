@@ -1,0 +1,15 @@
+/* Optional styling for your extension */
+.panel-status-menu-box {
+    spacing: 4px;
+}
+
+/* Style the dropdown menu if needed */
+.popup-menu-item {
+    /* Custom styling for menu items */
+}
+
+/* Style the button when hovered */
+.panel-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
