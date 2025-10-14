@@ -372,7 +372,6 @@ return { -- LSP Configuration & Plugins
 					-- },
 				},
 			},
-			others = {},
 		}
 
 		-- Ensure the servers and tools above are installed
@@ -405,10 +404,42 @@ return { -- LSP Configuration & Plugins
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
-		-- Either merge all additional server configs from the `servers.mason` and `servers.others` tables
-		-- to the default language server configs as provided by nvim-lspconfig or
-		-- define a custom server config that's unavailable on nvim-lspconfig.
-		for server, config in pairs(vim.tbl_extend("keep", servers.mason, servers.others)) do
+		-- Register and setup custom LSP servers that aren't in Mason
+		local lspconfig = require('lspconfig')
+		local configs = require('lspconfig.configs')
+
+		-- Register custom_ts_lsp if it doesn't exist
+		if not configs.custom_ts_lsp then
+			configs.custom_ts_lsp = {
+				default_config = {
+					cmd = { 'tsx', vim.fn.expand('~/.dotfiles/nvim/.config/nvim/custom-lsp/server.ts') },
+					filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' },
+					root_dir = function(fname)
+						local util = require("lspconfig.util")
+						local root = util.root_pattern('package.json', '.git')(fname) or vim.fn.getcwd()
+						vim.notify('Custom LSP root: ' .. root)
+						return root
+					end,
+				},
+			}
+		end
+
+		-- Setup the custom LSP with capabilities and custom handlers
+		lspconfig.custom_ts_lsp.setup({
+			capabilities = capabilities,
+			-- on_attach = function(client, bufnr)
+			-- 	vim.notify('Custom LSP attached to ' .. vim.api.nvim_buf_get_name(bufnr))
+			-- end,
+			-- on_error = function(code, err)
+			-- 	vim.notify('Custom LSP error: ' .. tostring(code) .. ' - ' .. tostring(err), vim.log.levels.ERROR)
+			-- end,
+			-- on_exit = function(code, signal)
+			-- 	vim.notify('Custom LSP exited: code=' .. tostring(code) .. ', signal=' .. tostring(signal), vim.log.levels.WARN)
+			-- end,
+		})
+
+		-- Setup Mason servers using vim.lsp.config (for Neovim 0.11+)
+		for server, config in pairs(servers.mason) do
 			if not vim.tbl_isempty(config) then
 				vim.lsp.config(server, config)
 			end

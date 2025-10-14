@@ -18,9 +18,9 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
 				-- 	changedelete = { text = "~" },
 				-- },
 				current_line_blame_formatter = "<author>, <author_time:%Y-%m-%d> - <abbrev_sha> - <summary>",
-				current_line_blame_formatter_opts = {
-					relative_time = true,
-				},
+				-- current_line_blame_formatter_opts = {
+				-- 	relative_time = true,
+				-- },
 				-- status_formatter = function(status)
 				-- 	local added, changed, removed = status.added, status.changed, status.removed
 				-- 	local status_txt = {}
