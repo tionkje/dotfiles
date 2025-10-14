@@ -17,7 +17,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import * as fs from 'fs';
 import * as path from 'path';
-import { isInsideIfStatement } from './ast-helpers';
+import { isInsideIfStatement, getIfStatementAtPosition, invertCondition } from './ast-helpers';
 
 const logFile = '/tmp/custom-lsp.log';
 
@@ -61,89 +61,141 @@ connection.onCodeAction((params: CodeActionParams): CodeAction[] => {
   log(`Code action requested for ${params.textDocument.uri} at line ${params.range.start.line + 1}`);
 
   // Get the current line
-  const line = document.getText({
-    start: { line: params.range.start.line, character: 0 },
-    end: { line: params.range.start.line + 1, character: 0 }
-  });
+  // const line = document.getText({
+  //   start: { line: params.range.start.line, character: 0 },
+  //   end: { line: params.range.start.line + 1, character: 0 }
+  // });
 
   // Find the end of the line (before newline)
-  const lineEndPos = line.length > 0 && line[line.length - 1] === '\n' ? line.length - 1 : line.length;
+  // const lineEndPos = line.length > 0 && line[line.length - 1] === '\n' ? line.length - 1 : line.length;
 
   const actions: CodeAction[] = [
-    {
-      title: '💬 Add Comment at End of Line',
-      kind: CodeActionKind.QuickFix,
-      edit: {
-        changes: {
-          [params.textDocument.uri]: [
-            {
-              range: {
-                start: { line: params.range.start.line, character: lineEndPos },
-                end: { line: params.range.start.line, character: lineEndPos }
-              },
-              newText: ' // TODO: Add comment here'
-            }
-          ]
-        }
-      }
-    },
-    {
-      title: '🚀 Custom LSP: Test Action',
-      kind: CodeActionKind.QuickFix,
-      command: {
-        title: 'Run Test Action',
-        command: 'custom.testAction',
-        arguments: [params.textDocument.uri, params.range.start.line]
-      }
-    },
-    {
-      title: '📊 Custom LSP: Show File Info',
-      kind: CodeActionKind.RefactorExtract,
-      command: {
-        title: 'Show Info',
-        command: 'custom.showInfo',
-        arguments: [params.textDocument.uri]
-      }
-    }
+    // {
+    //   title: '💬 Add Comment at End of Line',
+    //   kind: CodeActionKind.QuickFix,
+    //   edit: {
+    //     changes: {
+    //       [params.textDocument.uri]: [
+    //         {
+    //           range: {
+    //             start: { line: params.range.start.line, character: lineEndPos },
+    //             end: { line: params.range.start.line, character: lineEndPos }
+    //           },
+    //           newText: ' // TODO: Add comment here'
+    //         }
+    //       ]
+    //     }
+    //   }
+    // },
+    // {
+    //   title: '🚀 Custom LSP: Test Action',
+    //   kind: CodeActionKind.QuickFix,
+    //   command: {
+    //     title: 'Run Test Action',
+    //     command: 'custom.testAction',
+    //     arguments: [params.textDocument.uri, params.range.start.line]
+    //   }
+    // },
+    // {
+    //   title: '📊 Custom LSP: Show File Info',
+    //   kind: CodeActionKind.RefactorExtract,
+    //   command: {
+    //     title: 'Show Info',
+    //     command: 'custom.showInfo',
+    //     arguments: [params.textDocument.uri]
+    //   }
+    // }
   ];
 
   // Add context-aware action if inside an if statement
   if (isInsideIfStatement(document, params.range.start)) {
-    actions.push({
-      title: '🔄 Add else block',
-      kind: CodeActionKind.RefactorRewrite,
-      edit: {
-        changes: {
-          [params.textDocument.uri]: [
-            {
-              range: {
-                start: { line: params.range.start.line + 1, character: 0 },
-                end: { line: params.range.start.line + 1, character: 0 }
-              },
-              newText: '} else {\n  // TODO: handle else case\n'
-            }
-          ]
-        }
-      }
-    });
+    // actions.push({
+    //   title: '🔄 Add else block',
+    //   kind: CodeActionKind.RefactorRewrite,
+    //   edit: {
+    //     changes: {
+    //       [params.textDocument.uri]: [
+    //         {
+    //           range: {
+    //             start: { line: params.range.start.line + 1, character: 0 },
+    //             end: { line: params.range.start.line + 1, character: 0 }
+    //           },
+    //           newText: '} else {\n  // TODO: handle else case\n'
+    //         }
+    //       ]
+    //     }
+    //   }
+    // });
+    //
+    // actions.push({
+    //   title: '📝 Add console.log inside if',
+    //   kind: CodeActionKind.QuickFix,
+    //   edit: {
+    //     changes: {
+    //       [params.textDocument.uri]: [
+    //         {
+    //           range: {
+    //             start: { line: params.range.start.line + 1, character: 0 },
+    //             end: { line: params.range.start.line + 1, character: 0 }
+    //           },
+    //           newText: '  console.log("Inside if statement");\n'
+    //         }
+    //       ]
+    //     }
+    //   }
+    // });
 
-    actions.push({
-      title: '📝 Add console.log inside if',
-      kind: CodeActionKind.QuickFix,
-      edit: {
-        changes: {
-          [params.textDocument.uri]: [
-            {
-              range: {
-                start: { line: params.range.start.line + 1, character: 0 },
-                end: { line: params.range.start.line + 1, character: 0 }
-              },
-              newText: '  console.log("Inside if statement");\n'
-            }
-          ]
+    // Add invert condition action
+    const ifInfo = getIfStatementAtPosition(document, params.range.start);
+    if (ifInfo) {
+      const invertedCondition = invertCondition(ifInfo.condition);
+
+      // Build the edits for inverting condition and swapping branches
+      const edits = [
+        // Replace the condition
+        {
+          range: ifInfo.conditionRange,
+          newText: invertedCondition
         }
+      ];
+
+      // If there's an else branch, swap then and else
+      if (ifInfo.elseBranch) {
+        edits.push(
+          // Replace then branch with else branch content
+          {
+            range: ifInfo.thenBranch.range,
+            newText: ifInfo.elseBranch.text
+          },
+          // Replace else branch with then branch content
+          {
+            range: ifInfo.elseBranch.range,
+            newText: ifInfo.thenBranch.text
+          }
+        );
+
+        actions.push({
+          title: `⚡ Invert condition & swap branches`,
+          kind: CodeActionKind.RefactorRewrite,
+          edit: {
+            changes: {
+              [params.textDocument.uri]: edits
+            }
+          }
+        });
+      } else {
+        // No else branch, just invert the condition
+        actions.push({
+          title: `⚡ Invert condition: ${ifInfo.condition} → ${invertedCondition}`,
+          kind: CodeActionKind.RefactorRewrite,
+          edit: {
+            changes: {
+              [params.textDocument.uri]: edits
+            }
+          }
+        });
       }
-    });
+    }
   }
 
   return actions;

@@ -417,7 +417,7 @@ return { -- LSP Configuration & Plugins
 					root_dir = function(fname)
 						local util = require("lspconfig.util")
 						local root = util.root_pattern('package.json', '.git')(fname) or vim.fn.getcwd()
-						vim.notify('Custom LSP root: ' .. root)
+						-- vim.notify('Custom LSP root: ' .. root)
 						return root
 					end,
 				},

@@ -219,7 +219,7 @@ vim.keymap.set(
 	"<leader>t",
 	-- ":vsp|lcd %:h|term<CR>",
 	function()
-		vim.cmd("vert split")
+		-- vim.cmd("vert split")
 		if vim.bo.filetype == "oil" then
 			vim.cmd("lcd " .. require("oil").get_current_dir())
 		else
@@ -232,7 +232,7 @@ vim.keymap.set(
 		-- -- Send a command (e.g., 'ls\n') to the terminal
 		-- vim.api.nvim_chan_send(chan_id, "ls\n")
 	end,
-	{ desc = "Open [T]erminal in vertical split. cd to [C]urrent file locaiont" }
+	{ desc = "Open [T]erminal cd to current file locaion" }
 )
 -- vim.keymap.set("n", "<leader>tv", ":vsp|term<CR>", { desc = "Open [T]erminal in [V]ertical split. Dont CD" })
 

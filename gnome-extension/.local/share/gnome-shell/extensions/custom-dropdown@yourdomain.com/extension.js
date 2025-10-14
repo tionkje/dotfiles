@@ -26,7 +26,7 @@ class CustomDropdownIndicator extends PanelMenu.Button {
 
         // Optional: Add text label
         this._label = new St.Label({
-            text: 'Custom',
+            // text: 'Custom',
             y_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
