@@ -9,3 +9,14 @@ os:
   # Command for editing a file at a given line number. Should contain
   # "{{filename}}", and may optionally contain "{{line}}".
   editAtLine: "/usr/bin/nvim {{filename}} +{{line}}"
+customCommands:
+  - key: '<c-x>'
+    description: 'Trigger CI/CD pipeline (highlighted branch)'
+    command: 'tmux popup -E -w 90% -h 90% bash -c "export BRANCH={{.SelectedLocalBranch.Name}} && $HOME/.local/bin/trigger-pipeline.sh; echo; read -p \"Press Enter to close...\" -n 1"'
+    context: 'localBranches'
+    output: none
+  - key: '<c-x>'
+    description: 'Trigger CI/CD pipeline (current branch)'
+    command: 'tmux popup -E -w 90% -h 90% bash -c "export BRANCH={{.CheckedOutBranch.Name}} && $HOME/.local/bin/trigger-pipeline.sh; echo; read -p \"Press Enter to close...\" -n 1"'
+    context: 'global'
+    output: none
