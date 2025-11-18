@@ -29,21 +29,24 @@ trigger_github() {
         exit 1
     fi
 
-    # List workflows and select with fzf
-    WORKFLOW=$(gh workflow list --json name,path,state | \
+    # List workflows and select with fzf (multi-select enabled)
+    mapfile -t WORKFLOWS < <(gh workflow list --json name,path,state | \
         jq -r '.[] | select(.state == "active") | .name' | \
-        fzf --prompt="Select GitHub workflow: " --height=40% --reverse)
+        fzf --multi --prompt="Select GitHub workflow(s): " --height=40% --reverse)
 
-    if [[ -z "$WORKFLOW" ]]; then
+    if [[ ${#WORKFLOWS[@]} -eq 0 ]]; then
         echo "No workflow selected" >&2
         exit 1
     fi
 
-    # Trigger the workflow on the current or specified branch
+    # Trigger the workflow(s) on the current or specified branch
     BRANCH="${BRANCH:-$(git branch --show-current)}"
-    echo "Triggering workflow '$WORKFLOW' on branch '$BRANCH'..."
-    gh workflow run "$WORKFLOW" --ref "$BRANCH"
-    echo "✓ Workflow triggered successfully"
+
+    for WORKFLOW in "${WORKFLOWS[@]}"; do
+        echo "Triggering workflow '$WORKFLOW' on branch '$BRANCH'..."
+        gh workflow run "$WORKFLOW" --ref "$BRANCH"
+        echo "✓ Workflow '$WORKFLOW' triggered successfully"
+    done
 }
 
 # Bitbucket implementation
@@ -80,18 +83,18 @@ trigger_bitbucket() {
         exit 1
     fi
 
-    # Extract custom pipeline names
-    PIPELINES=$(yq -r '.pipelines.custom | keys | .[]' bitbucket-pipelines.yml 2>/dev/null || echo "")
+    # Extract custom pipeline names and filter out _prod_ pipelines (except _stats_service)
+    PIPELINES=$(yq -r '.pipelines.custom | keys | .[]' bitbucket-pipelines.yml 2>/dev/null | awk '/_stats_service/ || !/_prod_/' || echo "")
 
     if [[ -z "$PIPELINES" ]]; then
         echo "Error: No custom pipelines found in bitbucket-pipelines.yml" >&2
         exit 1
     fi
 
-    # Select pipeline with fzf
-    PIPELINE=$(echo "$PIPELINES" | fzf --prompt="Select Bitbucket pipeline: " --height=40% --reverse)
+    # Select pipeline(s) with fzf (multi-select enabled)
+    mapfile -t SELECTED_PIPELINES < <(echo "$PIPELINES" | fzf --multi --prompt="Select Bitbucket pipeline(s): ")
 
-    if [[ -z "$PIPELINE" ]]; then
+    if [[ ${#SELECTED_PIPELINES[@]} -eq 0 ]]; then
         echo "No pipeline selected" >&2
         exit 1
     fi
@@ -109,42 +112,46 @@ trigger_bitbucket() {
     # Get branch
     BRANCH="${BRANCH:-$(git branch --show-current)}"
 
-    echo "Triggering pipeline '$PIPELINE' on branch '$BRANCH' for $WORKSPACE/$REPO..."
+    # Trigger each selected pipeline
+    for PIPELINE in "${SELECTED_PIPELINES[@]}"; do
+        echo "Triggering pipeline '$PIPELINE' on branch '$BRANCH' for $WORKSPACE/$REPO..."
 
-    # Trigger pipeline via Bitbucket API
-    RESPONSE=$(curl -s -X POST \
-        -H "Authorization: Bearer $BB_ACCESS_TOKEN" \
-        -H "Content-Type: application/json" \
-        "https://api.bitbucket.org/2.0/repositories/$WORKSPACE/$REPO/pipelines/" \
-        -d "{
-            \"target\": {
-                \"ref_type\": \"branch\",
-                \"type\": \"pipeline_ref_target\",
-                \"ref_name\": \"$BRANCH\",
-                \"selector\": {
-                    \"type\": \"custom\",
-                    \"pattern\": \"$PIPELINE\"
+        # Trigger pipeline via Bitbucket API
+        RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer $BB_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            "https://api.bitbucket.org/2.0/repositories/$WORKSPACE/$REPO/pipelines/" \
+            -d "{
+                \"target\": {
+                    \"ref_type\": \"branch\",
+                    \"type\": \"pipeline_ref_target\",
+                    \"ref_name\": \"$BRANCH\",
+                    \"selector\": {
+                        \"type\": \"custom\",
+                        \"pattern\": \"$PIPELINE\"
+                    }
                 }
-            }
-        }")
+            }")
 
-    # Check for errors
-    if echo "$RESPONSE" | jq -e '.error' &>/dev/null; then
-        echo "Error: $(echo "$RESPONSE" | jq '.error.message')" >&2
-        echo "$RESPONSE" | jq .;
-        exit 1
-    fi
+        # Check for errors
+        if echo "$RESPONSE" | jq -e '.error' &>/dev/null; then
+            echo "Error: $(echo "$RESPONSE" | jq '.error.message')" >&2
+            echo "$RESPONSE" | jq .;
+            exit 1
+        fi
 
-    PIPELINE_UUID=$(echo "$RESPONSE" | jq -r '.uuid // empty')
-    BUILD_NUMBER=$(echo "$RESPONSE" | jq -r '.build_number // empty')
+        PIPELINE_UUID=$(echo "$RESPONSE" | jq -r '.uuid // empty')
+        BUILD_NUMBER=$(echo "$RESPONSE" | jq -r '.build_number // empty')
 
-    if [[ -n "$PIPELINE_UUID" ]]; then
-        echo "✓ Pipeline triggered successfully"
-        [[ -n "$BUILD_NUMBER" ]] && echo "  Build number: $BUILD_NUMBER"
-        echo "  View at: https://bitbucket.org/$WORKSPACE/$REPO/pipelines"
-    else
-        echo "Pipeline triggered (no confirmation received)"
-    fi
+        if [[ -n "$PIPELINE_UUID" ]]; then
+            echo "✓ Pipeline '$PIPELINE' triggered successfully"
+            [[ -n "$BUILD_NUMBER" ]] && echo "  Build number: $BUILD_NUMBER"
+            echo "  View at: https://bitbucket.org/$WORKSPACE/$REPO/pipelines"
+        else
+            echo "Pipeline '$PIPELINE' triggered (no confirmation received)"
+        fi
+        echo ""
+    done
 }
 
 # Execute based on platform
