@@ -57,7 +57,56 @@ return {
 				view_options = {
 					-- Show files and directories that start with "."
 					show_hidden = true,
-					-- -- This function defines what is considered a "hidden" file
+					-- This function defines what is considered a "hidden" file
+					-- Return false to prevent dotfiles from being dimmed
+					is_hidden_file = function(name, bufnr)
+						local oil = require("oil")
+						local dir = oil.get_current_dir()
+						if not dir then
+							return false
+						end
+						local exit_code = os.execute(
+							"git -C " .. vim.fn.shellescape(dir) .. " check-ignore -q " .. vim.fn.shellescape(name) .. " 2>/dev/null"
+						)
+						-- os.execute returns 0 for success (file is ignored), non-zero otherwise
+						return exit_code == 0
+					end,
+					-- Customize the highlight group for the file name based on git status
+					highlight_filename = function(entry, is_hidden, is_link_target, is_link_orphan)
+						if entry.type ~= "file" and entry.type ~= "directory" then
+							return nil
+						end
+
+						local oil = require("oil")
+						local dir = oil.get_current_dir()
+						if not dir then
+							return nil
+						end
+
+						-- Check git status for this file
+						local handle = io.popen("git -C " .. vim.fn.shellescape(dir) .. " status --porcelain " .. vim.fn.shellescape(entry.name) .. " 2>/dev/null")
+						if not handle then
+							return nil
+						end
+
+						local result = handle:read("*a")
+						handle:close()
+
+						if result and result ~= "" then
+							local status = result:sub(1, 2)
+							-- Modified files (M in working tree or index)
+							if status:match("M") or status:match("MM") then
+								return entry.type == "directory" and "OilDirModified" or "OilFileModified"
+							end
+							-- Untracked files (??)
+							if status:match("?") then
+								return entry.type == "directory" and "OilDirUntracked" or "OilFileUntracked"
+							end
+						end
+
+						return nil
+					end,
+					-- -- Original dotfile detection (commented out):
 					-- is_hidden_file = function(name, bufnr)
 					-- 	local m = name:match("^%.")
 					-- 	return m ~= nil
@@ -83,6 +132,20 @@ return {
 					-- end,
 				},
 			})
+
+			-- No need to override OilHidden since is_hidden_file returns false for dotfiles
+
+			-- Create custom highlight groups for git-ignored files (dimmed like Comment)
+			vim.api.nvim_set_hl(0, "OilFileIgnored", { link = "Comment" })
+			vim.api.nvim_set_hl(0, "OilDirIgnored", { link = "Comment" })
+
+			-- Create custom highlight groups for modified files (use DiagnosticWarn color)
+			vim.api.nvim_set_hl(0, "OilFileModified", { link = "DiagnosticWarn" })
+			vim.api.nvim_set_hl(0, "OilDirModified", { link = "DiagnosticWarn" })
+
+			-- Create custom highlight groups for untracked files (use DiagnosticInfo color)
+			vim.api.nvim_set_hl(0, "OilFileUntracked", { link = "DiagnosticInfo" })
+			vim.api.nvim_set_hl(0, "OilDirUntracked", { link = "DiagnosticInfo" })
 
 			vim.keymap.set("n", "-", ":Oil<CR>", { desc = "Open Oil" })
 		end,
@@ -124,6 +187,8 @@ return {
 					},
 				},
 			})
+
+			-- Keep git status symbols at normal brightness (reverted)
 
 			-- for _, hl_group in pairs(require("oil-git-status").highlight_groups) do
 			-- 	if hl_group.index then

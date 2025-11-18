@@ -1,13 +1,11 @@
 git:
-  paging:
-    colorArg: always
-    pager: diff-so-fancy
-
+  pagers:
+    - colorArg: always
+      pager: diff-so-fancy
 # Config relating to things outside of Lazygit like how files are opened, copying to clipboard, etc
 os:
   # Command for editing a file. Should contain "{{filename}}".
   edit: "/usr/bin/nvim {{filename}}"
-
   # Command for editing a file at a given line number. Should contain
   # "{{filename}}", and may optionally contain "{{line}}".
   editAtLine: "/usr/bin/nvim {{filename}} +{{line}}"
