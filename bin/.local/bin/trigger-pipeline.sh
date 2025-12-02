@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Configuration
 CONFIG_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/pipeline-trigger/config"
+FZF_OPTS="--multi --cycle --bind tab:toggle+up,ctrl-a:select-all,ctrl-d:deselect-all"
 
 # Get git remote URL
 REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
@@ -29,23 +30,36 @@ trigger_github() {
         exit 1
     fi
 
+    # Extract owner and repo from remote URL
+    if [[ "$REMOTE_URL" =~ github\.com[:/]([^/]+)/([^/.]+) ]]; then
+        OWNER="${BASH_REMATCH[1]}"
+        REPO="${BASH_REMATCH[2]}"
+    else
+        echo "Error: Could not parse owner and repo from remote URL: $REMOTE_URL" >&2
+        exit 1
+    fi
+
+    # Get the branch that will be used
+    BRANCH="${BRANCH:-$(git branch --show-current)}"
+
     # List workflows and select with fzf (multi-select enabled)
     mapfile -t WORKFLOWS < <(gh workflow list --json name,path,state | \
         jq -r '.[] | select(.state == "active") | .name' | \
-        fzf --multi --prompt="Select GitHub workflow(s): " --height=40% --reverse)
+        fzf $FZF_OPTS --prompt="Select GitHub workflow(s) [$BRANCH]: ")
 
     if [[ ${#WORKFLOWS[@]} -eq 0 ]]; then
         echo "No workflow selected" >&2
         exit 1
     fi
 
-    # Trigger the workflow(s) on the current or specified branch
-    BRANCH="${BRANCH:-$(git branch --show-current)}"
-
     for WORKFLOW in "${WORKFLOWS[@]}"; do
         echo "Triggering workflow '$WORKFLOW' on branch '$BRANCH'..."
         gh workflow run "$WORKFLOW" --ref "$BRANCH"
         echo "✓ Workflow '$WORKFLOW' triggered successfully"
+
+        # Open workflow in browser
+        WORKFLOW_URL="https://github.com/$OWNER/$REPO/actions?query=workflow%3A$(echo "$WORKFLOW" | jq -sRr @uri)"
+        xdg-open "$WORKFLOW_URL" 2>/dev/null || true
     done
 }
 
@@ -91,8 +105,11 @@ trigger_bitbucket() {
         exit 1
     fi
 
+    # Get the branch that will be used
+    BRANCH="${BRANCH:-$(git branch --show-current)}"
+
     # Select pipeline(s) with fzf (multi-select enabled)
-    mapfile -t SELECTED_PIPELINES < <(echo "$PIPELINES" | fzf --multi --prompt="Select Bitbucket pipeline(s): ")
+    mapfile -t SELECTED_PIPELINES < <(echo "$PIPELINES" | fzf $FZF_OPTS --prompt="Select Bitbucket pipeline(s) [$BRANCH]: ")
 
     if [[ ${#SELECTED_PIPELINES[@]} -eq 0 ]]; then
         echo "No pipeline selected" >&2
@@ -108,9 +125,6 @@ trigger_bitbucket() {
         echo "Error: Could not parse workspace and repo from remote URL: $REMOTE_URL" >&2
         exit 1
     fi
-
-    # Get branch
-    BRANCH="${BRANCH:-$(git branch --show-current)}"
 
     # Trigger each selected pipeline
     for PIPELINE in "${SELECTED_PIPELINES[@]}"; do
@@ -146,7 +160,17 @@ trigger_bitbucket() {
         if [[ -n "$PIPELINE_UUID" ]]; then
             echo "✓ Pipeline '$PIPELINE' triggered successfully"
             [[ -n "$BUILD_NUMBER" ]] && echo "  Build number: $BUILD_NUMBER"
-            echo "  View at: https://bitbucket.org/$WORKSPACE/$REPO/pipelines"
+
+            # Construct specific pipeline URL if we have build number
+            if [[ -n "$BUILD_NUMBER" ]]; then
+                PIPELINE_URL="https://bitbucket.org/$WORKSPACE/$REPO/pipelines/results/$BUILD_NUMBER"
+            else
+                PIPELINE_URL="https://bitbucket.org/$WORKSPACE/$REPO/pipelines"
+            fi
+            echo "  View at: $PIPELINE_URL"
+
+            # Open pipeline in browser
+            xdg-open "$PIPELINE_URL" 2>/dev/null || true
         else
             echo "Pipeline '$PIPELINE' triggered (no confirmation received)"
         fi
