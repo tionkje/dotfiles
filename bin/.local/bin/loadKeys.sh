@@ -8,23 +8,50 @@ exec 3>&1 1>&2
 # apt-get install expect
 # pacman -S expect
 
+# Function to start a new ssh-agent and save its settings
+start_new_agent() {
+    echo "Starting ssh-agent"
+    (umask 066; ssh-agent > ~/.ssh-agent)
+    eval "$(<~/.ssh-agent)" >/dev/null
+}
+
+# Function to check if current env matches stored agent
+env_matches_stored() {
+    if [ ! -r ~/.ssh-agent ]; then
+        return 1
+    fi
+    local stored_sock=$(grep -oP 'SSH_AUTH_SOCK=\K[^;]+' ~/.ssh-agent)
+    [ "$SSH_AUTH_SOCK" = "$stored_sock" ]
+}
+
+# Function to check if stored agent is still running
+stored_agent_is_running() {
+    if [ ! -r ~/.ssh-agent ]; then
+        return 1
+    fi
+    eval "$(<~/.ssh-agent)" >/dev/null
+    ssh-add -l &>/dev/null
+    [ "$?" != 2 ]
+}
+
 # Ensure agent is running
 ssh-add -l &>/dev/null
-if [ "$?" == 2 ]; then
-    # Could not open a connection to your authentication agent.
+agent_status=$?
 
-    # Load stored agent connection info.
-    if [ -r ~/.ssh-agent ]; then 
-      echo "Loading ssh-agent"
-        eval "$(<~/.ssh-agent)" >/dev/null
+if [ "$agent_status" == 2 ]; then
+    # No connection to agent - try loading stored one
+    if stored_agent_is_running; then
+        echo "Loading ssh-agent from ~/.ssh-agent"
+    else
+        start_new_agent
     fi
-
-    ssh-add -l &>/dev/null
-    if [ "$?" == 2 ]; then
-      echo "Starting ssh-agent"
-        # Start agent and store agent connection info.
-        (umask 066; ssh-agent > ~/.ssh-agent)
-        eval "$(<~/.ssh-agent)" >/dev/null
+elif ! env_matches_stored; then
+    # Agent running but doesn't match stored settings
+    echo "Current agent doesn't match ~/.ssh-agent"
+    if stored_agent_is_running; then
+        echo "Loading ssh-agent from ~/.ssh-agent"
+    else
+        start_new_agent
     fi
 fi
 
