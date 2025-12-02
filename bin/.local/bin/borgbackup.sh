@@ -62,7 +62,7 @@ borg create                         \
     --exclude '/var/cache'           \
     --exclude '/home/bastiaan/yay/*'           \
     --exclude '/home/bastiaan/NOBACKUP/*'           \
-    --remote-rate-limit 10000        \
+    --exclude '/home/bastiaan/Downloads/tixati/*'           \
                                     \
     ::'{hostname}-{now}'            \
     /etc                            \
