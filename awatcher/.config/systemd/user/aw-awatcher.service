@@ -1,0 +1,12 @@
+[Unit]
+Description=ActivityWatch window and idle watcher (awatcher)
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/aw-awatcher
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -214,10 +214,20 @@ function title {
 ZSH_THEME_TERM_TAB_TITLE_IDLE="%15<..<%~%<<" #15 char left truncated PWD
 ZSH_THEME_TERM_TITLE_IDLE="%n@%m:%~"
 
+# Set tmux pane title using tmux-title.sh
+function set_tmux_pane_title {
+  [[ -z "$TMUX" ]] && return
+  local cmd="${1:-zsh}"
+  local title_str
+  title_str=$(tmux-title.sh "$PWD" "$cmd" 2>/dev/null)
+  [[ -n "$title_str" ]] && printf '\033]2;%s\007' "$title_str"
+}
+
 # Runs before showing the prompt
 function mzc_termsupport_precmd {
   [[ "${DISABLE_AUTO_TITLE:-}" == true ]] && return
   title $ZSH_THEME_TERM_TAB_TITLE_IDLE $ZSH_THEME_TERM_TITLE_IDLE
+  set_tmux_pane_title "zsh"
 }
 
 # Runs before executing the command
@@ -268,6 +278,7 @@ function mzc_termsupport_preexec {
   local LINE="${2:gs/%/%%}"
 
   title '$CMD' '%100>...>$LINE%<<'
+  set_tmux_pane_title "$CMD"
 }
 
 autoload -U add-zsh-hook
