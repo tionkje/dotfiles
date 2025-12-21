@@ -148,12 +148,16 @@ async function main() {
   );
   const activeTerminal = intersectPeriods(terminalEvents, afkEvents);
 
-  // Aggregate by repo:branch
-  const repoMap = new Map<string, RepoTime>();
+  // Group by day, then by repo:branch
+  const dayMap = new Map<string, Map<string, RepoTime>>();
 
   for (const event of activeTerminal) {
     const parsed = parseTitle(event.data.title || "");
     if (!parsed) continue;
+
+    const day = new Date(event.timestamp).toLocaleDateString();
+    if (!dayMap.has(day)) dayMap.set(day, new Map());
+    const repoMap = dayMap.get(day)!;
 
     const key = `${parsed.repo}:${parsed.branch}`;
     let entry = repoMap.get(key);
@@ -165,33 +169,39 @@ async function main() {
     entry.commands.set(parsed.cmd, (entry.commands.get(parsed.cmd) || 0) + event.duration);
   }
 
-  // Sort by total time descending
-  const sorted = [...repoMap.values()].sort((a, b) => b.total - a.total);
+  // Sort days chronologically (most recent first)
+  const sortedDays = [...dayMap.keys()].sort(
+    (a, b) => new Date(b).getTime() - new Date(a).getTime()
+  );
 
   // Print results
   console.log(`\n📊 Repo time for ${label}\n`);
 
-  if (sorted.length === 0) {
+  if (sortedDays.length === 0) {
     console.log("No terminal activity tracked.");
     return;
   }
 
   let grandTotal = 0;
-  for (const entry of sorted) {
-    grandTotal += entry.total;
-    console.log(`${entry.repo}:${entry.branch}`);
-    console.log(`  Total: ${formatDuration(entry.total)}`);
+  for (const day of sortedDays) {
+    const repoMap = dayMap.get(day)!;
+    const sorted = [...repoMap.values()].sort((a, b) => b.total - a.total);
+    const dayTotal = sorted.reduce((sum, e) => sum + e.total, 0);
+    grandTotal += dayTotal;
 
-    // Show command breakdown
-    const cmdSorted = [...entry.commands.entries()].sort((a, b) => b[1] - a[1]);
-    for (const [cmd, duration] of cmdSorted) {
-      console.log(`    [${cmd}] ${formatDuration(duration)}`);
+    console.log(`── ${day} (${formatDuration(dayTotal)}) ──`);
+    for (const entry of sorted) {
+      console.log(`  ${entry.repo}:${entry.branch} ${formatDuration(entry.total)}`);
+      const cmdSorted = [...entry.commands.entries()].sort((a, b) => b[1] - a[1]);
+      for (const [cmd, duration] of cmdSorted) {
+        console.log(`    [${cmd}] ${formatDuration(duration)}`);
+      }
     }
     console.log();
   }
 
   console.log(`─────────────────────────`);
-  console.log(`Total active terminal: ${formatDuration(grandTotal)}`);
+  console.log(`Total: ${formatDuration(grandTotal)}`);
 }
 
 main().catch((err) => {
