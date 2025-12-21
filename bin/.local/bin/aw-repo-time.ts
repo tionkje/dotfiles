@@ -7,6 +7,16 @@
 
 const AW_HOST = "http://localhost:5600";
 
+const c = {
+  reset: "\x1b[0m",
+  bold: "\x1b[1m",
+  dim: "\x1b[2m",
+  cyan: "\x1b[36m",
+  yellow: "\x1b[33m",
+  green: "\x1b[32m",
+  magenta: "\x1b[35m",
+};
+
 interface AWEvent {
   timestamp: string;
   duration: number;
@@ -52,13 +62,15 @@ function parseTitle(title: string): { repo: string; branch: string; cmd: string 
   };
 }
 
-function formatDuration(seconds: number): string {
+function formatDuration(seconds: number, pad = 8): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
-  if (h > 0) return `${h}h ${m}m`;
-  if (m > 0) return `${m}m ${s}s`;
-  return `${s}s`;
+  let str: string;
+  if (h > 0) str = `${h}h ${m}m`;
+  else if (m > 0) str = `${m}m ${s}s`;
+  else str = `${s}s`;
+  return str.padStart(pad);
 }
 
 function intersectPeriods(events: AWEvent[], afkEvents: AWEvent[]): AWEvent[] {
@@ -175,7 +187,7 @@ async function main() {
   );
 
   // Print results
-  console.log(`\n📊 Repo time for ${label}\n`);
+  console.log();
 
   if (sortedDays.length === 0) {
     console.log("No terminal activity tracked.");
@@ -189,19 +201,16 @@ async function main() {
     const dayTotal = sorted.reduce((sum, e) => sum + e.total, 0);
     grandTotal += dayTotal;
 
-    console.log(`── ${day} (${formatDuration(dayTotal)}) ──`);
+    console.log(`${c.bold}${c.cyan}${formatDuration(dayTotal)}${c.reset}  ${c.bold}${day}${c.reset}`);
     for (const entry of sorted) {
-      console.log(`  ${entry.repo}:${entry.branch} ${formatDuration(entry.total)}`);
       const cmdSorted = [...entry.commands.entries()].sort((a, b) => b[1] - a[1]);
-      for (const [cmd, duration] of cmdSorted) {
-        console.log(`    [${cmd}] ${formatDuration(duration)}`);
-      }
+      const cmds = cmdSorted.map(([cmd, dur]) => `${c.dim}[${cmd}]${c.reset} ${formatDuration(dur, 0)}`).join(", ");
+      console.log(`${c.yellow}${formatDuration(entry.total)}${c.reset}  ${c.green}${entry.repo}${c.reset}:${c.magenta}${entry.branch}${c.reset}  ${cmds}`);
     }
     console.log();
   }
 
-  console.log(`─────────────────────────`);
-  console.log(`Total: ${formatDuration(grandTotal)}`);
+  console.log(`${c.bold}${formatDuration(grandTotal)}  Total${c.reset}`);
 }
 
 main().catch((err) => {
