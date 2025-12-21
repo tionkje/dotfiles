@@ -220,7 +220,7 @@ function set_tmux_pane_title {
   local cmd="${1:-zsh}"
   local title_str
   title_str=$(tmux-title.sh "$PWD" "$cmd" 2>/dev/null)
-  [[ -n "$title_str" ]] && printf '\033]2;%s\007' "$title_str"
+  [[ -n "$title_str" ]] && tmux select-pane -T "$title_str"
 }
 
 # Runs before showing the prompt
