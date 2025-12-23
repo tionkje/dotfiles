@@ -3,10 +3,13 @@
 # Displays: [cwd | org/repo |  branch sync | changes | tokens]
 
 # Colors
-GREEN='\033[32m'
-RED='\033[31m'
-YELLOW='\033[33m'
-RESET='\033[0m'
+GREEN=$'\033[32m'
+RED=$'\033[31m'
+YELLOW=$'\033[33m'
+BLUE=$'\033[34m'
+MAGENTA=$'\033[35m'
+CYAN=$'\033[36m'
+RESET=$'\033[0m'
 
 # Read JSON input from stdin
 input=$(cat)
@@ -94,10 +97,10 @@ if [ "$usage" != "null" ]; then
     fi
 fi
 
-# Build output
-out="[$cwd"
-[ -n "$remote" ] && out+=" | $remote"
-[ -n "$branch" ] && out+=" |$branch"
+# Build output with colors: cwd=blue, remote=magenta, branch=cyan
+out="[${BLUE}${cwd}${RESET}"
+[ -n "$remote" ] && out+=" | ${MAGENTA}${remote}${RESET}"
+[ -n "$branch" ] && out+=" |${CYAN}${branch}${RESET}"
 [ -n "$sync" ] && out+=" $sync"
 [ -n "$changes" ] && out+=" | $changes"
 [ -n "$context" ] && out+=" | $context"
