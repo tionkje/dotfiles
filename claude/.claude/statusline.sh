@@ -27,6 +27,7 @@ branch=""
 changes=""
 context=""
 sync=""
+stash=""
 
 # Git information (only if in a git repo)
 if git rev-parse --git-dir >/dev/null 2>&1; then
@@ -72,6 +73,10 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
             fi
         fi
     fi
+
+    # Stash count
+    stash_count=$(git stash list 2>/dev/null | wc -l)
+    [ "$stash_count" -gt 0 ] && stash="$(printf "${CYAN}⚑%s${RESET}" "$stash_count")"
 fi
 
 # Context window usage (gradient: green < 50%, yellow 50-79%, red >= 80%)
@@ -102,6 +107,7 @@ out="[${BLUE}${cwd}${RESET}"
 [ -n "$remote" ] && out+=" | ${MAGENTA}${remote}${RESET}"
 [ -n "$branch" ] && out+=" |${CYAN}${branch}${RESET}"
 [ -n "$sync" ] && out+=" $sync"
+[ -n "$stash" ] && out+=" $stash"
 [ -n "$changes" ] && out+=" | $changes"
 [ -n "$context" ] && out+=" | $context"
 out+="]"
