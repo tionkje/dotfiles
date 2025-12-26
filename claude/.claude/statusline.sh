@@ -50,9 +50,43 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
         deleted=$(echo "$status" | grep -c '^ D')
         untracked=$(echo "$status" | grep -c '^??')
 
+        # Staged lines added/removed
+        staged_stats=$(git diff --cached --numstat 2>/dev/null | awk '{add+=$1; del+=$2} END {print add" "del}')
+        staged_add=$(echo "$staged_stats" | cut -d' ' -f1)
+        staged_del=$(echo "$staged_stats" | cut -d' ' -f2)
+        [ -z "$staged_add" ] && staged_add=0
+        [ -z "$staged_del" ] && staged_del=0
+
+        # Unstaged lines added/removed
+        unstaged_stats=$(git diff --numstat 2>/dev/null | awk '{add+=$1; del+=$2} END {print add" "del}')
+        unstaged_add=$(echo "$unstaged_stats" | cut -d' ' -f1)
+        unstaged_del=$(echo "$unstaged_stats" | cut -d' ' -f2)
+        [ -z "$unstaged_add" ] && unstaged_add=0
+        [ -z "$unstaged_del" ] && unstaged_del=0
+
         parts=()
-        [ "$staged" -gt 0 ] && parts+=("$(printf "${GREEN}+%s${RESET}" "$staged")")
-        [ "$modified" -gt 0 ] && parts+=("$(printf "${RED}●%s${RESET}" "$modified")")
+        # Staged files and lines
+        if [ "$staged" -gt 0 ]; then
+            staged_info="$(printf "${GREEN}+%s${RESET}" "$staged")"
+            if [ "$staged_add" -gt 0 ] || [ "$staged_del" -gt 0 ]; then
+                staged_info+="("
+                [ "$staged_add" -gt 0 ] && staged_info+="$(printf "${GREEN}+%s${RESET}" "$staged_add")"
+                [ "$staged_del" -gt 0 ] && staged_info+="$(printf "${RED}-%s${RESET}" "$staged_del")"
+                staged_info+=")"
+            fi
+            parts+=("$staged_info")
+        fi
+        # Modified files and lines
+        if [ "$modified" -gt 0 ]; then
+            mod_info="$(printf "${RED}✎%s${RESET}" "$modified")"
+            if [ "$unstaged_add" -gt 0 ] || [ "$unstaged_del" -gt 0 ]; then
+                mod_info+="("
+                [ "$unstaged_add" -gt 0 ] && mod_info+="$(printf "${GREEN}+%s${RESET}" "$unstaged_add")"
+                [ "$unstaged_del" -gt 0 ] && mod_info+="$(printf "${RED}-%s${RESET}" "$unstaged_del")"
+                mod_info+=")"
+            fi
+            parts+=("$mod_info")
+        fi
         [ "$deleted" -gt 0 ] && parts+=("$(printf "${RED}-%s${RESET}" "$deleted")")
         [ "$untracked" -gt 0 ] && parts+=("$(printf "${YELLOW}?%s${RESET}" "$untracked")")
 
