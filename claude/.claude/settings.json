@@ -23,7 +23,8 @@
     "deny": [
       "Read(**/theoretical_ballast/*)",
       "mcp__atlassian__*",
-      "WebFetch(domain:telemetry.vercel.com)"
+      "WebFetch(domain:telemetry.vercel.com)",
+      "Bash(pnpm cat:*)"
     ]
   },
   "statusLine": {
