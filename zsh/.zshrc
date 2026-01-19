@@ -109,6 +109,11 @@ export EDITOR=/usr/bin/nvim
 export VISUAL=/usr/bin/nvim
 WORDCHARS=${WORDCHARS//\/[&.;]}                                 # Don't consider certain characters part of the word
 
+# Edit command line in $EDITOR
+autoload -z edit-command-line
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line
+
 
 ## Keybindings section
 bindkey -e

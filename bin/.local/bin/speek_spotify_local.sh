@@ -16,6 +16,6 @@ playerctl -p spotify --follow metadata --format '"{{title}}" by "{{artist}}"' | 
   echo "$volume $text"
 
   # Generate TTS locally with supertonic
-  supertonic tts "$text" -o /tmp/spotify_tts.wav
-  ffplay -loglevel fatal /tmp/spotify_tts.wav -autoexit -nodisp -volume $volume
+  supertonic tts "$text" -o /tmp/spotify_tts.wav --voice F3 --steps 3
+  ffplay -loglevel fatal /tmp/spotify_tts.wav -autoexit -nodisp -af "volume=2.0" -volume $volume
 done
