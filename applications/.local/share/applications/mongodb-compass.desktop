@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=MongoDB Compass
+Comment=GUI for MongoDB
+Exec=/home/bastiaan/.local/bin/mongodb-compass
+Icon=mongodb-compass
+Type=Application
+Categories=Development;Database;
+Terminal=false

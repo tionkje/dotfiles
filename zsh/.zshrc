@@ -465,7 +465,7 @@ alias vim=nvim
 alias vi=nvim
 alias v=nvim
 alias lzd='lazydocker'
-alias claude='~/.claude/local/claude'
+#alias claude='~/.claude/local/claude'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
