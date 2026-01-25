@@ -1,0 +1,3 @@
+#!/bin/bash
+export NIXPKGS_ALLOW_UNFREE=1
+exec nix run --impure 'github:nixos/nixpkgs/25.05#mongodb-compass'
