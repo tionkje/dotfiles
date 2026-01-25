@@ -13,6 +13,7 @@
   "conform.nvim": { "branch": "master", "commit": "ffe26e8df8115c9665d24231f8a49fadb2d611ce" },
   "copilot.lua": { "branch": "master", "commit": "a064570939f23ef155698654c98c81e0fc2dc54a" },
   "copilot.vim": { "branch": "release", "commit": "f89e977c87180519ba3b942200e3d05b17b1e2fc" },
+  "cutlass.nvim": { "branch": "main", "commit": "d01b5c1943050fcda8edf5c89d4419c41a65890e" },
   "fidget.nvim": { "branch": "main", "commit": "e32b672d8fd343f9d6a76944fedb8c61d7d8111a" },
   "fzf": { "branch": "master", "commit": "c8cf0992c18799e7a6e986e536cc0e890ea7e05a" },
   "gitsigns.nvim": { "branch": "main", "commit": "5813e4878748805f1518cee7abb50fd7205a3a48" },

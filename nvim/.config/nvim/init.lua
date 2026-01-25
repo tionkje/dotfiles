@@ -415,6 +415,9 @@ vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww ses.sh<CR>")
 -- vim.cmd('xnoremap <expr> p \'pgv"\' . v:register . \'y\'')
 -- vim.api.nvim_set_keymap('x', 'p', "pgv", {expr = true})
 vim.api.nvim_set_keymap("x", "p", "'pgv\"'.v:register.'y'", { expr = true })
+-- Change inner word and paste from unnamed register
+vim.keymap.set('n', '<leader>p', 'ciw<C-r>0<Esc>')
+
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

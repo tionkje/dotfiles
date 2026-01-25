@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 
+#source $HOME/.zshrc
+export PATH="$PATH:$HOME/.local/bin"
+
 export TERM=xterm-256color
 
 # tmux list-sessions -F '#{session_name}'  -f "#{!=:#{session_name},$(tmux display-message -p '#S')}"
 
+# echo $PATH
+# ssh-hosts.sh
+
+# sleep 1
 
 if [[ $# -eq 1 ]]; then
     selected=$1
