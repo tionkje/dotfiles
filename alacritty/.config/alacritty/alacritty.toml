@@ -38,6 +38,7 @@ save_to_clipboard = true
 decorations = "none"
 dynamic_title = true
 startup_mode = "Maximized"
+opacity = 0.5
 
 [window.padding]
 x = 0

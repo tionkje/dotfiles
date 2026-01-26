@@ -82,7 +82,8 @@ for key in $SSH_KEYS; do
   fi
 
   if [ -z "$password" ]; then
-    keepassxc-cli show -s -a password ~/Dropbox/mykeys.kdbx /VIRTO/virto_ecdsa | tr -d '\n' | xclip -i;
+    #keepassxc-cli show -s -a password ~/Dropbox/mykeys.kdbx /VIRTO/virto_ecdsa | tr -d '\n' | xclip -i;
+    keepassxc-cli show -s -a password ~/Dropbox/mykeys.kdbx /VIRTO/virto_ecdsa | tr -d '\n' | wl-copy -po;
     echo "Please enter your password:"
     read -s password
   fi
