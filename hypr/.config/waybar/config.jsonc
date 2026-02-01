@@ -1,0 +1,220 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 20,
+  "spacing": 4,
+  "modules-left": [
+    "mpris"
+    // "hyprland/workspaces",
+    // "hyprland/window"
+    // "niri/workspaces",
+    // "niri/window",
+  ],
+  "modules-center": [
+    "clock"
+  ],
+  "modules-right": [
+    "tray",
+    "network",
+    "cpu",
+    "memory",
+    "temperature",
+    "backlight",
+    "backlight/slider",
+    "wireplumber#sink",
+    "wireplumber#source",
+    "battery",
+    "custom/power"
+  ],
+  "hyprland/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "warp-on-scroll": false,
+    // "format": "{name}: {icon}",
+    "format": "{icon}",
+    "format-icons": {
+      "1": "",
+      "2": "",
+      "3": "",
+      "4": "",
+      "5": "",
+      "6": "",
+      "7": "meet",
+      // "urgent": "",
+      // "active": "",
+      // "default": ""
+    }
+  },
+  "hyprland/window": {
+    "max-length": 40
+  },
+  "tray": {
+    "icon-size": 14,
+    "spacing": 8
+  },
+  "mpris": {
+    "format": "{player_icon} {dynamic}",
+    "tooltip-format": "{position}/{length} {artist} - {title}",
+    "enable-tooltip-length-limit": true,
+    "format-paused": "{status_icon} <i>{dynamic}</i>",
+    "player-icons": {
+      "default": "▶"
+    },
+    "status-icons": {
+      "paused": "⏸"
+    },
+    "max-length": 30
+  },
+  "cpu": {
+    "interval": 10,
+    "format": " {usage}%",
+    "max-length": 10,
+    "on-click": "launch-or-focus-tui btop"
+  },
+  "custom/cpuhistory": {
+    "exec": "~/.config/waybar/scripts/cpu_history.py -d 60",
+    "format": "<span color='#FFA500'>  </span>{}",
+    "interval": 1,
+    "return-type": "json",
+    "on-click": "~/.config/waybar/scripts/cpu_history.py toggle"
+  },
+  "backlight/slider": {
+    "min": 0,
+    "max": 100,
+    "orientation": "horizontal",
+    "device": "intel_backlight"
+  },
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "{icon}",
+    "tooltip-format": "{percent}%",
+    "format-icons": [
+      "󰃚",
+      "󰃛",
+      "󰃜",
+      "󰃝",
+      "󰃞",
+      "󰃟",
+      "󰃠"
+    ]
+  },
+  "memory": {
+    "interval": 30,
+    "format": " {}%",
+    "max-length": 10,
+    "on-click": "launch-or-focus-tui btop"
+  },
+  "wireplumber#sink": {
+    "format": "{icon}",
+    "tooltip-format": "{volume}%",
+    "format-muted": "󰝟",
+    "format-icons": [
+      "",
+      "",
+      ""
+    ],
+    "on-click": "pwvucontrol",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "scroll-step": 5
+  },
+  "wireplumber#source": {
+    "node-type": "Audio/Source",
+    "tooltip-format": "{volume}%",
+    "format": "",
+    "format-muted": "",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+    "scroll-step": 5
+  },
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-charging": " {capacity}%",
+    "format-plugged": " {capacity}%",
+    "interval": 10,
+    "states": {
+      "good": 99,
+      "warning": 30,
+      "critical": 20
+    },
+    "format-icons": [
+      "󰂎",
+      "󰁺",
+      "󰁻",
+      "󰁽",
+      "󰁾",
+      "󰁿",
+      "󰂀",
+      "󰂁",
+      "󰂂",
+      "󰁹"
+    ],
+    "tooltip-format": "{capacity}% {timeTo}"
+  },
+  "network": {
+    "interval": 5,
+    "format": "",
+    "format-wifi": "{icon}",
+    "format-ethernet": "",
+    "format-disconnected": "",
+    "format-icons": [
+      "󰤫",
+      "󰤟",
+      "󰤢",
+      "󰤥",
+      "󰤨"
+    ],
+    "tooltip-format": "{ifname}\nDownload: {bandwidthDownBytes}\nUpload: {bandwidthUpBytes}",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%) \nDownload: {bandwidthDownBytes}\nUpload: {bandwidthUpBytes}",
+    "tooltip-format-ethernet": "{ifname} \nDownload: {bandwidthDownBytes}\nUpload: {bandwidthUpBytes}",
+    "tooltip-format-disconnected": "Disconnected",
+    "on-click": "alacritty -e nmtui"
+  },
+  "clock": {
+    "interval": 1,
+    "format": "{:%H:%M.%S %a %e %b}",
+    // "format-alt": "{:%A, %B %d, %Y}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "year",
+      "mode-mon-col": 2,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "on-click-right": "mode",
+      "format": {
+        "months": "<span color='#ffead3'><b>{}</b></span>",
+        "days": "<span color='#ecc6d9'><b>{}</b></span>",
+        "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-click-forward": "tz_up",
+      "on-click-backward": "tz_down",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+  "custom/power": {
+    "format": "⏻ ",
+    // "tooltip": false,
+    // "menu": "on-click",
+    // "menu-file": "~/.config/waybar/power_menu.xml",
+    // "menu-actions": {
+    //     "shutdown": "hyprshutdown -t 'Shutting down...' --post-cmd 'shutdown -P 0'",
+    //     "reboot": "hyprshutdown -t 'Restarting...' --post-cmd 'reboot'",
+    //     "logout": "hyprshutdown -t 'Logging out...'",
+    //
+    //     "suspend": "systemctl suspend",
+    //     // "hibernate": "systemctl hibernate",
+    // },
+    "on-click": "wleave"
+  },
+ "temperature": {
+    // "thermal-zone": 2,
+    // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+    "critical-threshold": 80,
+    // "format-critical": "{temperatureC}°C ",
+    "format": "{temperatureC}°C "
+}
+}

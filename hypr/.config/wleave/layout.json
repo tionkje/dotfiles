@@ -1,0 +1,40 @@
+{
+  "buttons-per-row": "3",
+  "buttons": [
+    {
+      "label": "lock",
+      "action": "hyprlock",
+      "text": "Lock",
+      "keybind": "l",
+      "icon": "/usr/share/wleave/icons/lock.svg"
+    },
+    {
+      "label": "logout",
+      "action": "hyprshutdown --top-label 'Logging out...'",
+      "text": "Logout",
+      "keybind": "e",
+      "icon": "/usr/share/wleave/icons/logout.svg"
+    },
+    {
+      "label": "shutdown",
+      "action": "/usr/bin/hyprshutdown -t 'Shutting down...' --post-cmd 'shutdown -P 0'",
+      "text": "Shutdown",
+      "keybind": "s",
+      "icon": "/usr/share/wleave/icons/shutdown.svg"
+    },
+    {
+      "label": "suspend",
+      "action": "systemctl suspend",
+      "text": "Suspend",
+      "keybind": "u",
+      "icon": "/usr/share/wleave/icons/suspend.svg"
+    },
+    {
+      "label": "reboot",
+      "action": "/usr/bin/hyprshutdown -t 'Restarting...' --post-cmd 'reboot'",
+      "text": "Reboot",
+      "keybind": "r",
+      "icon": "/usr/share/wleave/icons/reboot.svg"
+    }
+  ]
+}
