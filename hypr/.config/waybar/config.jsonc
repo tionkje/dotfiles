@@ -11,7 +11,8 @@
     // "niri/window",
   ],
   "modules-center": [
-    "clock"
+    "clock",
+    "custom/notification",
   ],
   "modules-right": [
     "tray",
@@ -210,11 +211,31 @@
     // },
     "on-click": "wleave"
   },
- "temperature": {
+  "temperature": {
     // "thermal-zone": 2,
     // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
     "critical-threshold": 80,
     // "format-critical": "{temperatureC}°C ",
     "format": "{temperatureC}°C "
-}
+  },
+  "custom/notification": {
+    "tooltip": true,
+    "format": "{0} <span size='16pt'>{icon}</span>",
+    "format-icons": {
+      "notification": "󱅫",
+      "none": "󰂜",
+      "dnd-notification": "󰂠",
+      "dnd-none": "󰪓",
+      "inhibited-notification": "󰂛",
+      "inhibited-none": "󰪑",
+      "dnd-inhibited-notification": "󰂛",
+      "dnd-inhibited-none": "󰪑"
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  },
 }
