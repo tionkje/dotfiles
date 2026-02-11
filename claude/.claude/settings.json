@@ -20,13 +20,13 @@
       "WebSearch",
       "WebFetch(domain:tsdown.dev)"
     ],
-    "ask":[
-      "mcp__atlassian__*"
-    ],
     "deny": [
       "Read(**/theoretical_ballast/*)",
       "WebFetch(domain:telemetry.vercel.com)",
       "Bash(pnpm cat:*)"
+    ],
+    "ask": [
+      "mcp__atlassian__*"
     ]
   },
   "statusLine": {
