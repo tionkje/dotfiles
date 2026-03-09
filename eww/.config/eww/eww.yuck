@@ -6,13 +6,11 @@
   :initial "/tmp/eww-loadavg-graph.svg"
   `scripts/loadavg_info`)
 
-(defwidget loadavg_graph []
-  (box :class "loadavg-graph-box" :orientation "v" :space-evenly false
-    (image :class "loadavg-graph" :path loadavg_svg :image-width 40)))
-
 (defwidget cpu_graph []
-  (box :class "cpu-graph-box" :orientation "v" :space-evenly false :vexpand true
-    (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true)))
+  (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true))
+
+(defwidget loadavg_graph []
+  (image :class "loadavg-graph" :path loadavg_svg :image-width 40 :vexpand true))
 
 (defwindow sidebar
   :monitor 0
@@ -25,6 +23,7 @@
   :stacking "bottom"
   :exclusive true
   :namespace "eww-sidebar"
-  (box :orientation "v" :space-evenly false :vexpand true
-    (loadavg_graph)
-    (cpu_graph)))
+  (box :class "sidebar-box" :orientation "v" :vexpand true
+    (overlay :vexpand true
+      (cpu_graph)
+      (loadavg_graph))))

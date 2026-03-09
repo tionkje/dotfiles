@@ -5,6 +5,8 @@ const WIDTH = 40;
 const HEIGHT = 800;
 const MAX_POINTS = 80;
 const POLL_MS = 100;
+const LEGEND_HEIGHT = 80;
+const GRAPH_HEIGHT = HEIGHT - LEGEND_HEIGHT;
 const STROKE_COLOR = "#33ccff";
 const FILL_COLOR = "rgba(51,204,255,1)";
 
@@ -41,13 +43,13 @@ function generateSvg(values: number[]): void {
   let linePoints = "";
   for (let i = 0; i < n; i++) {
     const x = (i * step).toFixed(1);
-    const y = (HEIGHT - (HEIGHT * values[i]) / 100).toFixed(1);
+    const y = (GRAPH_HEIGHT - (GRAPH_HEIGHT * values[i]) / 100).toFixed(1);
     polyPoints += `${x},${y} `;
     linePoints += `${x},${y} `;
   }
 
   const lastX = ((n - 1) * step).toFixed(1);
-  polyPoints = `0,${HEIGHT} ${polyPoints}${lastX},${HEIGHT}`;
+  polyPoints = `0,${GRAPH_HEIGHT} ${polyPoints}${lastX},${GRAPH_HEIGHT}`;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <polygon points="${polyPoints}" fill="${FILL_COLOR}" />

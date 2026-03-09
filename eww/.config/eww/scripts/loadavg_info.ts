@@ -2,7 +2,7 @@
 
 const SVG_PATH = "/tmp/eww-loadavg-graph.svg";
 const WIDTH = 40;
-const HEIGHT = 400;
+const HEIGHT = 800;
 const MAX_POINTS = 80;
 const POLL_MS = 2000;
 
@@ -23,6 +23,7 @@ interface LoadSample {
 
 const LEGEND_HEIGHT = 80;
 const GRAPH_HEIGHT = HEIGHT - LEGEND_HEIGHT;
+const GRAPH_TOP = 0;
 
 function readLoadAvg(): LoadSample {
   const data = fs.readFileSync("/proc/loadavg", "utf-8");
@@ -32,7 +33,7 @@ function readLoadAvg(): LoadSample {
 
 function valueToY(value: number, maxVal: number): number {
   const clamped = Math.min(value, maxVal);
-  return LEGEND_HEIGHT + GRAPH_HEIGHT - (GRAPH_HEIGHT * clamped) / maxVal;
+  return GRAPH_TOP + GRAPH_HEIGHT - (GRAPH_HEIGHT * clamped) / maxVal;
 }
 
 function buildPolyline(
@@ -61,7 +62,7 @@ function generateSvg(values: LoadSample[]): void {
   const line5 = buildPolyline(values, "load5", maxVal, step);
   const line15 = buildPolyline(values, "load15", maxVal, step);
 
-  const legendY = 16;
+  const legendBase = GRAPH_HEIGHT + 16;
   const legendSpacing = 22;
 
   const zeroY = valueToY(0, maxVal).toFixed(1);
@@ -70,12 +71,12 @@ function generateSvg(values: LoadSample[]): void {
   <style>text { font-family: monospace; font-size: 11px; }</style>
 
   <!-- Legend -->
-  <circle cx="4" cy="${legendY}" r="3" fill="${COLORS.load1}" />
-  <text x="10" y="${legendY + 4}" fill="${COLORS.load1}">1m</text>
-  <circle cx="4" cy="${legendY + legendSpacing}" r="3" fill="${COLORS.load5}" />
-  <text x="10" y="${legendY + legendSpacing + 4}" fill="${COLORS.load5}">5m</text>
-  <circle cx="4" cy="${legendY + legendSpacing * 2}" r="3" fill="${COLORS.load15}" />
-  <text x="10" y="${legendY + legendSpacing * 2 + 4}" fill="${COLORS.load15}">15</text>
+  <circle cx="4" cy="${legendBase}" r="3" fill="${COLORS.load1}" />
+  <text x="10" y="${legendBase + 4}" fill="${COLORS.load1}">1m</text>
+  <circle cx="4" cy="${legendBase + legendSpacing}" r="3" fill="${COLORS.load5}" />
+  <text x="10" y="${legendBase + legendSpacing + 4}" fill="${COLORS.load5}">5m</text>
+  <circle cx="4" cy="${legendBase + legendSpacing * 2}" r="3" fill="${COLORS.load15}" />
+  <text x="10" y="${legendBase + legendSpacing * 2 + 4}" fill="${COLORS.load15}">15</text>
 
   <!-- Zero line -->
   <line x1="0" y1="${zeroY}" x2="${WIDTH}" y2="${zeroY}" stroke="#ffffff" stroke-width="1" opacity="0.3" />
