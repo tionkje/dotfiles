@@ -1,0 +1,30 @@
+(defvar cpu_percent 0)
+
+(deflisten cpu_listen
+  :initial "0"
+  `scripts/cpu_info`)
+
+(defwidget cpu_graph []
+  (box :class "cpu-graph-box" :orientation "v" :space-evenly false :vexpand true
+    (graph
+      :class "cpu-graph"
+      :thickness 3
+      :time-range "20s"
+      :min 0
+      :max 100
+      :value cpu_listen
+      :line-style "round"
+      :vexpand true)))
+
+(defwindow sidebar
+  :monitor 0
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "40px"
+    :height "100%"
+    :anchor "left center")
+  :stacking "bottom"
+  :exclusive true
+  :namespace "eww-sidebar"
+  (cpu_graph))

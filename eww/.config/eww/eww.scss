@@ -1,0 +1,14 @@
+* {
+  all: unset;
+}
+
+.cpu-graph-box {
+  background-color: rgba(10, 10, 20, 0.85);
+  padding: 4px 2px;
+}
+
+.cpu-graph {
+  color: #33ccff;
+  background-color: transparent;
+  min-height: 100px;
+}
