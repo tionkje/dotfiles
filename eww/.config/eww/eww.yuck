@@ -1,20 +1,18 @@
-(defvar cpu_percent 0)
-
-(deflisten cpu_listen
-  :initial "0"
+(deflisten cpu_svg
+  :initial "/tmp/eww-cpu-graph.svg"
   `scripts/cpu_info`)
+
+(deflisten loadavg_svg
+  :initial "/tmp/eww-loadavg-graph.svg"
+  `scripts/loadavg_info`)
+
+(defwidget loadavg_graph []
+  (box :class "loadavg-graph-box" :orientation "v" :space-evenly false
+    (image :class "loadavg-graph" :path loadavg_svg :image-width 40)))
 
 (defwidget cpu_graph []
   (box :class "cpu-graph-box" :orientation "v" :space-evenly false :vexpand true
-    (graph
-      :class "cpu-graph"
-      :thickness 3
-      :time-range "20s"
-      :min 0
-      :max 100
-      :value cpu_listen
-      :line-style "round"
-      :vexpand true)))
+    (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true)))
 
 (defwindow sidebar
   :monitor 0
@@ -27,4 +25,6 @@
   :stacking "bottom"
   :exclusive true
   :namespace "eww-sidebar"
-  (cpu_graph))
+  (box :orientation "v" :space-evenly false :vexpand true
+    (loadavg_graph)
+    (cpu_graph)))

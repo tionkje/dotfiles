@@ -1,8 +1,2 @@
 #!/usr/bin/env bash
-
-LC_NUMERIC=C mpstat 1 | awk '/all/ {
-  idle = $NF
-  usage = 100 - idle
-  printf "%.0f\n", usage
-  fflush(stdout)
-}'
+exec zx "$(dirname "$0")/cpu_info.ts"

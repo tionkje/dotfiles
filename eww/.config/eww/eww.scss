@@ -2,13 +2,20 @@
   all: unset;
 }
 
+.loadavg-graph-box {
+  background-color: rgba(10, 10, 20, 0.45);
+  padding: 0;
+}
+
+.loadavg-graph {
+  min-height: 200px;
+}
+
 .cpu-graph-box {
-  background-color: rgba(10, 10, 20, 0.85);
-  padding: 4px 2px;
+  background-color: rgba(10, 10, 20, 0.45);
+  padding: 0;
 }
 
 .cpu-graph {
-  color: #33ccff;
-  background-color: transparent;
   min-height: 100px;
 }
