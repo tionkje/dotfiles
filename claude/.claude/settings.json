@@ -33,5 +33,7 @@
     "type": "command",
     "command": "/home/bastiaan/.claude/statusline.sh"
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "skipDangerousModePermissionPrompt": true,
+  "effortLevel": "high"
 }
