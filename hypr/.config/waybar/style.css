@@ -28,6 +28,7 @@ window#waybar {
 #battery.critical,
 #battery.warning,
 #network,
+#bluetooth,
 #custom-power,
 #custom-notification,
 #clock {
@@ -129,6 +130,9 @@ window#waybar {
 }
 
 #network {
+  color: #3584e4;
+}
+#bluetooth {
   color: #3584e4;
 }
 

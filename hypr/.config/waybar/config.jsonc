@@ -13,10 +13,9 @@
   "modules-center": [
     "clock",
     "custom/notification",
+    "tray",
   ],
   "modules-right": [
-    "tray",
-    "network",
     "cpu",
     "memory",
     "temperature",
@@ -24,6 +23,8 @@
     "backlight/slider",
     "wireplumber#sink",
     "wireplumber#source",
+    "bluetooth",
+    "network",
     "battery",
     "custom/power"
   ],
@@ -64,7 +65,7 @@
     "status-icons": {
       "paused": "⏸"
     },
-    "max-length": 30
+    "max-length": 70
   },
   "cpu": {
     "interval": 10,
@@ -150,6 +151,17 @@
     ],
     "tooltip-format": "{capacity}% {timeTo}"
   },
+  "bluetooth": {
+    "format": "󰂯",
+    "format-disabled": "",
+    "format-connected": "󰂯 {device_alias}",
+    "format-connected-battery": "󰂯 {device_alias} {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+    "on-click": "alacritty -e bluetui"
+  },
   "network": {
     "interval": 5,
     "format": "",
@@ -167,7 +179,7 @@
     "tooltip-format-wifi": "{essid} ({signalStrength}%) \nDownload: {bandwidthDownBytes}\nUpload: {bandwidthUpBytes}",
     "tooltip-format-ethernet": "{ifname} \nDownload: {bandwidthDownBytes}\nUpload: {bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
-    "on-click": "alacritty -e nmtui"
+    "on-click": "alacritty -e wifitui"
   },
   "clock": {
     "interval": 1,
