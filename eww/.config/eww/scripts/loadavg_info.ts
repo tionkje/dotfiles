@@ -71,12 +71,9 @@ function generateSvg(values: LoadSample[]): void {
   <style>text { font-family: monospace; font-size: 11px; }</style>
 
   <!-- Legend -->
-  <circle cx="4" cy="${legendBase}" r="3" fill="${COLORS.load1}" />
-  <text x="10" y="${legendBase + 4}" fill="${COLORS.load1}">1m</text>
-  <circle cx="4" cy="${legendBase + legendSpacing}" r="3" fill="${COLORS.load5}" />
-  <text x="10" y="${legendBase + legendSpacing + 4}" fill="${COLORS.load5}">5m</text>
-  <circle cx="4" cy="${legendBase + legendSpacing * 2}" r="3" fill="${COLORS.load15}" />
-  <text x="10" y="${legendBase + legendSpacing * 2 + 4}" fill="${COLORS.load15}">15</text>
+  <text x="4" y="${legendBase + 4}" fill="${COLORS.load1}">1m</text>
+  <text x="4" y="${legendBase + legendSpacing + 4}" fill="${COLORS.load5}">5m</text>
+  <text x="4" y="${legendBase + legendSpacing * 2 + 4}" fill="${COLORS.load15}">15</text>
 
   <!-- Zero line -->
   <line x1="0" y1="${zeroY}" x2="${WIDTH}" y2="${zeroY}" stroke="#ffffff" stroke-width="1" opacity="0.3" />

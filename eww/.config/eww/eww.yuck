@@ -6,11 +6,21 @@
   :initial "/tmp/eww-loadavg-graph.svg"
   `scripts/loadavg_info`)
 
+(deflisten sysinfo_json
+  :initial '{"mem":"/tmp/eww-mem-graph-0.svg","disk":"/tmp/eww-disk-graph-0.svg"}'
+  `scripts/sys_info`)
+
 (defwidget cpu_graph []
   (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true))
 
 (defwidget loadavg_graph []
   (image :class "loadavg-graph" :path loadavg_svg :image-width 40 :vexpand true))
+
+(defwidget mem_graph []
+  (image :class "mem-graph" :path {sysinfo_json.mem} :image-width 40 :image-height 120 :vexpand false))
+
+(defwidget disk_graph []
+  (image :class "disk-graph" :path {sysinfo_json.disk} :image-width 40 :image-height 120 :vexpand false))
 
 (defwindow sidebar
   :monitor 0
@@ -23,7 +33,9 @@
   :stacking "bottom"
   :exclusive true
   :namespace "eww-sidebar"
-  (box :class "sidebar-box" :orientation "v" :vexpand true
+  (box :class "sidebar-box" :orientation "v" :vexpand true :space-evenly false
+    (mem_graph)
+    (disk_graph)
     (overlay :vexpand true
       (cpu_graph)
       (loadavg_graph))))
