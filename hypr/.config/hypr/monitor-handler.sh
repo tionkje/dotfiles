@@ -19,7 +19,11 @@ handle() {
         fi
         hyprctl dispatch moveworkspacetomonitor 6 "eDP-1"
         hyprctl dispatch moveworkspacetomonitor 7 "eDP-1"
+        ~/.config/hypr/eww-sidebar.sh
       fi
+      ;;
+    monitorremoved*)
+      ~/.config/hypr/eww-sidebar.sh
       ;;
   esac
 }

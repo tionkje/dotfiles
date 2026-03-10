@@ -20,6 +20,7 @@ if [[ -f "$STATE_FILE" ]]; then
   hyprctl dispatch focusmonitor "$EXT"
   hyprctl dispatch workspace 1
   rm "$STATE_FILE"
+  ~/.config/hypr/eww-sidebar.sh
   notify-send "Presentation Mode" "OFF — normal layout restored"
 else
   # === Toggle ON ===
@@ -33,5 +34,6 @@ else
   # Focus back on laptop
   hyprctl dispatch focusmonitor "$LAPTOP"
   touch "$STATE_FILE"
+  ~/.config/hypr/eww-sidebar.sh
   notify-send "Presentation Mode" "ON — external shows empty workspace"
 fi
