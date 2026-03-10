@@ -6,13 +6,17 @@ handle() {
     monitoraddedv2*);;
     monitoradded*)
       monitor=${1#monitoradded>>}
-      # echo "Monitor added: $monitor";
       if [[ "$monitor" != "eDP-1" ]]; then
-        hyprctl dispatch moveworkspacetomonitor 1 "$monitor"
-        hyprctl dispatch moveworkspacetomonitor 2 "$monitor"
-        hyprctl dispatch moveworkspacetomonitor 3 "$monitor"
-        hyprctl dispatch moveworkspacetomonitor 4 "$monitor"
-        hyprctl dispatch moveworkspacetomonitor 5 "$monitor"
+        if [[ -f /tmp/hypr-presentation-mode ]]; then
+          # Presentation mode: only put presentation WS on external
+          hyprctl dispatch moveworkspacetomonitor name:presentation "$monitor"
+        else
+          hyprctl dispatch moveworkspacetomonitor 1 "$monitor"
+          hyprctl dispatch moveworkspacetomonitor 2 "$monitor"
+          hyprctl dispatch moveworkspacetomonitor 3 "$monitor"
+          hyprctl dispatch moveworkspacetomonitor 4 "$monitor"
+          hyprctl dispatch moveworkspacetomonitor 5 "$monitor"
+        fi
         hyprctl dispatch moveworkspacetomonitor 6 "eDP-1"
         hyprctl dispatch moveworkspacetomonitor 7 "eDP-1"
       fi
