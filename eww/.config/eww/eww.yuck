@@ -11,10 +11,10 @@
   `scripts/sys_info`)
 
 (defwidget cpu_graph []
-  (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true))
+  (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true :valign "end"))
 
 (defwidget loadavg_graph []
-  (image :class "loadavg-graph" :path loadavg_svg :image-width 40 :vexpand true))
+  (image :class "loadavg-graph" :path loadavg_svg :image-width 40 :vexpand true :valign "end"))
 
 (defwidget mem_graph []
   (image :class "mem-graph" :path {sysinfo_json.mem} :image-width 40 :image-height 120 :vexpand false))

@@ -21,7 +21,7 @@ interface LoadSample {
   load15: number;
 }
 
-const LEGEND_HEIGHT = 80;
+const LEGEND_HEIGHT = 20;
 const GRAPH_HEIGHT = HEIGHT - LEGEND_HEIGHT;
 const GRAPH_TOP = 0;
 
@@ -62,18 +62,17 @@ function generateSvg(values: LoadSample[]): void {
   const line5 = buildPolyline(values, "load5", maxVal, step);
   const line15 = buildPolyline(values, "load15", maxVal, step);
 
-  const legendBase = GRAPH_HEIGHT + 16;
-  const legendSpacing = 22;
+  const legendBase = GRAPH_HEIGHT + 14;
 
   const zeroY = valueToY(0, maxVal).toFixed(1);
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
-  <style>text { font-family: monospace; font-size: 11px; }</style>
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" >
+  <style>text { font-family: monospace; font-size: 8px; }</style>
 
   <!-- Legend -->
-  <text x="4" y="${legendBase + 4}" fill="${COLORS.load1}">1m</text>
-  <text x="4" y="${legendBase + legendSpacing + 4}" fill="${COLORS.load5}">5m</text>
-  <text x="4" y="${legendBase + legendSpacing * 2 + 4}" fill="${COLORS.load15}">15</text>
+  <text x="1" y="${legendBase}" fill="${COLORS.load1}">1</text>
+  <text x="14" y="${legendBase}" fill="${COLORS.load5}">5</text>
+  <text x="25" y="${legendBase}" fill="${COLORS.load15}">15</text>
 
   <!-- Zero line -->
   <line x1="0" y1="${zeroY}" x2="${WIDTH}" y2="${zeroY}" stroke="#ffffff" stroke-width="1" opacity="0.3" />
