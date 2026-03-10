@@ -30,12 +30,13 @@
     :width "40px"
     :height "100%"
     :anchor "left center")
-  :stacking "bottom"
+  :stacking "fg"
   :exclusive true
   :namespace "eww-sidebar"
-  (box :class "sidebar-box" :orientation "v" :vexpand true :space-evenly false
-    (mem_graph)
-    (disk_graph)
-    (overlay :vexpand true
-      (cpu_graph)
-      (loadavg_graph))))
+  (eventbox :onclick "launch-or-focus-tui btop"
+    (box :class "sidebar-box" :orientation "v" :vexpand true :space-evenly false
+      (mem_graph)
+      (disk_graph)
+      (overlay :vexpand true
+        (cpu_graph)
+        (loadavg_graph)))))
