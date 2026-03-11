@@ -13,20 +13,20 @@ fi
 if [[ -f "$STATE_FILE" ]]; then
   # === Toggle OFF ===
   # Move WS 1-5 back to external
-  for ws in 1 2 3 4 5; do
-    hyprctl dispatch moveworkspacetomonitor "$ws" "$EXT"
+  for ws in work edit read talk youtube; do
+    hyprctl dispatch moveworkspacetomonitor "name:$ws" "$EXT"
   done
-  # Focus WS 1 on external
+  # Focus work WS on external
   hyprctl dispatch focusmonitor "$EXT"
-  hyprctl dispatch workspace 1
+  hyprctl dispatch workspace name:work
   rm "$STATE_FILE"
   ~/.config/hypr/eww-sidebar.sh
   notify-send "Presentation Mode" "OFF — normal layout restored"
 else
   # === Toggle ON ===
   # Move WS 1-5 to laptop
-  for ws in 1 2 3 4 5; do
-    hyprctl dispatch moveworkspacetomonitor "$ws" "$LAPTOP"
+  for ws in work edit read talk youtube; do
+    hyprctl dispatch moveworkspacetomonitor "name:$ws" "$LAPTOP"
   done
   # Create empty presentation workspace on external
   hyprctl dispatch focusmonitor "$EXT"

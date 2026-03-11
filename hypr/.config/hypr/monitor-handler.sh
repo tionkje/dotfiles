@@ -11,14 +11,14 @@ handle() {
           # Presentation mode: only put presentation WS on external
           hyprctl dispatch moveworkspacetomonitor name:presentation "$monitor"
         else
-          hyprctl dispatch moveworkspacetomonitor 1 "$monitor"
-          hyprctl dispatch moveworkspacetomonitor 2 "$monitor"
-          hyprctl dispatch moveworkspacetomonitor 3 "$monitor"
-          hyprctl dispatch moveworkspacetomonitor 4 "$monitor"
-          hyprctl dispatch moveworkspacetomonitor 5 "$monitor"
+          hyprctl dispatch moveworkspacetomonitor name:work "$monitor"
+          hyprctl dispatch moveworkspacetomonitor name:edit "$monitor"
+          hyprctl dispatch moveworkspacetomonitor name:read "$monitor"
+          hyprctl dispatch moveworkspacetomonitor name:talk "$monitor"
+          hyprctl dispatch moveworkspacetomonitor name:youtube "$monitor"
         fi
-        hyprctl dispatch moveworkspacetomonitor 6 "eDP-1"
-        hyprctl dispatch moveworkspacetomonitor 7 "eDP-1"
+        hyprctl dispatch moveworkspacetomonitor name:spotify "eDP-1"
+        hyprctl dispatch moveworkspacetomonitor name:meet "eDP-1"
         ~/.config/hypr/eww-sidebar.sh
       fi
       ;;
