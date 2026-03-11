@@ -16,5 +16,7 @@ fi
 # eww uses GDK monitor names (model) not Wayland connector names
 SCREEN=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name == "'"$TARGET"'") | .model')
 
-eww close sidebar 2>/dev/null
+eww kill 2>/dev/null
+setsid eww daemon &
+sleep 1
 eww open sidebar --screen "$SCREEN"

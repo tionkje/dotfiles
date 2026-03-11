@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec zx "$(dirname "$0")/cpu_info.ts"
+exec /home/bastiaan/.local/share/pnpm/zx "$(dirname "$0")/cpu_info.ts"

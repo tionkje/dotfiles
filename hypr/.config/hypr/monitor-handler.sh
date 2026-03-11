@@ -32,8 +32,21 @@ sleep 5
 for monitorname in $(hyprctl -j monitors | jq -r '.[].name'); do
   handle "monitoradded>>$monitorname"
 done
+~/.config/hypr/eww-sidebar.sh
+waybar &
 
 socat -U - UNIX-CONNECT:"$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do
   handle "$line"
-done
+done &
+
+# Re-evaluate sidebar on wake from sleep
+dbus-monitor --system "type=signal,interface=org.freedesktop.login1.Manager,member=PrepareForSleep" |
+  while read -r line; do
+    if echo "$line" | grep -q "boolean false"; then
+      sleep 2
+      ~/.config/hypr/eww-sidebar.sh
+    fi
+  done &
+
+wait
 
