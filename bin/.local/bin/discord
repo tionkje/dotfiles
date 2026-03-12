@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+launch-or-focus-webapp --profile private Discord "https://discord.com/app"

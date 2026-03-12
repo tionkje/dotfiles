@@ -1,8 +1,23 @@
 #!/bin/bash
 
 # Launch the passed in URL as a web app in the default browser (or chromium if the default doesn't support --app).
+# Use --profile work|private to select a specific Chrome profile/binary.
 
 echo "browser" > /tmp/last-browser.txt
+
+BROWSER_OVERRIDE=""
+if [[ "$1" == "--profile" ]]; then
+  case "$2" in
+    work) BROWSER_OVERRIDE="google-chrome-stable" ;;
+    private) BROWSER_OVERRIDE="google-chrome-beta" ;;
+    *) echo "Unknown profile: $2 (expected: work, private)" >&2; exit 1 ;;
+  esac
+  shift 2
+fi
+
+if [[ -n "$BROWSER_OVERRIDE" ]]; then
+  exec setsid "$BROWSER_OVERRIDE" --app="$1" "${@:2}"
+fi
 
 browser=$(xdg-settings get default-web-browser)
 

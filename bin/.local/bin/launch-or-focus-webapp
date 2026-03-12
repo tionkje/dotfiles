@@ -4,7 +4,7 @@
 # Use by some default bindings, like the one for WhatsApp, to ensure there is only one instance of the application open.
 
 if (($# == 0)); then
-  echo "Usage: launch-or-focus-webapp [--workspace NAME] [window-pattern] [url-and-flags...]"
+  echo "Usage: launch-or-focus-webapp [--workspace NAME] [--profile work|private] [window-pattern] [url-and-flags...]"
   exit 1
 fi
 
@@ -14,8 +14,14 @@ if [[ "$1" == "--workspace" ]]; then
   shift 2
 fi
 
+PROFILE_FLAG=""
+if [[ "$1" == "--profile" ]]; then
+  PROFILE_FLAG="--profile $2"
+  shift 2
+fi
+
 WINDOW_PATTERN="$1"
 shift
-LAUNCH_COMMAND="launch-webapp $@"
+LAUNCH_COMMAND="launch-webapp $PROFILE_FLAG $@"
 
 exec launch-or-focus $WORKSPACE_FLAG "$WINDOW_PATTERN" "$LAUNCH_COMMAND"
