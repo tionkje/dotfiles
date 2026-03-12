@@ -4,8 +4,14 @@
 # Use by some default bindings, like the one for Spotify, to ensure there is only one instance of the application open.
 
 if (($# == 0)); then
-  echo "Usage: omarchy-launch-or-focus [window-pattern] [launch-command]"
+  echo "Usage: launch-or-focus [--workspace NAME] [window-pattern] [launch-command]"
   exit 1
+fi
+
+WORKSPACE=""
+if [[ "$1" == "--workspace" ]]; then
+  WORKSPACE="$2"
+  shift 2
 fi
 
 WINDOW_PATTERN="$1"
@@ -15,5 +21,8 @@ WINDOW_ADDRESS=$(hyprctl clients -j | jq -r --arg p "$WINDOW_PATTERN" '.[]|selec
 if [[ -n $WINDOW_ADDRESS ]]; then
   hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
 else
+  if [[ -n $WORKSPACE ]]; then
+    hyprctl dispatch workspace "name:$WORKSPACE"
+  fi
   eval exec setsid $LAUNCH_COMMAND
 fi
