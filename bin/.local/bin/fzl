@@ -90,6 +90,12 @@ if [[ "$cmd" == "SUBMENU_SES" ]]; then
   exit 0
 fi
 
+if [[ "$cmd" == "SUBMENU_MONRES" ]]; then
+  monitor-resolution.sh
+  bump_frequency "$selected"
+  exit 0
+fi
+
 bump_frequency "$selected"
 
 # Run the command synchronously first (so focus commands like launch-or-focus
