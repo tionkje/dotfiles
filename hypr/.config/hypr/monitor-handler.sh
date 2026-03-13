@@ -17,17 +17,21 @@ assign_workspaces() {
   fi
 }
 
+reload_bars() {
+  ~/.config/waybar/reload.sh
+  sleep 1
+  ~/.config/hypr/eww-sidebar.sh
+}
+
 handle() {
   case $1 in
     monitoraddedv2*);;
     monitoradded*)
       assign_workspaces "${1#monitoradded>>}"
-      ~/.config/hypr/eww-sidebar.sh
-      ~/.config/waybar/reload.sh
+      reload_bars
       ;;
     monitorremoved*)
-      ~/.config/hypr/eww-sidebar.sh
-      ~/.config/waybar/reload.sh
+      reload_bars
       ;;
   esac
 }
@@ -36,8 +40,7 @@ sleep "${MONITOR_HANDLER_INIT_DELAY:-5}"
 for monitorname in $(hyprctl -j monitors | jq -r '.[].name'); do
   assign_workspaces "$monitorname"
 done
-~/.config/hypr/eww-sidebar.sh
-waybar &
+reload_bars
 
 socat -U - UNIX-CONNECT:"$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do
   handle "$line"
@@ -55,8 +58,7 @@ dbus-monitor --system "type=signal,interface=org.freedesktop.login1.Manager,memb
   while read -r line; do
     if echo "$line" | grep -q "boolean false"; then
       sleep 2
-      ~/.config/hypr/eww-sidebar.sh
-      ~/.config/waybar/reload.sh
+      reload_bars
     fi
   done &
 

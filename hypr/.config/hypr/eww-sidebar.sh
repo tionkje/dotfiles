@@ -16,7 +16,12 @@ fi
 # eww uses GDK monitor names (model) not Wayland connector names
 SCREEN=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name == "'"$TARGET"'") | .model')
 
+MONITOR_HEIGHT=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name == "'"$TARGET"'") | .height')
+LAYERS_JSON=$(hyprctl layers -j)
+WAYBAR_HEIGHT=$(echo "$LAYERS_JSON" | jq '[.. | objects | select(.namespace == "waybar")] | max_by(.h) | .h // 0')
+SIDEBAR_HEIGHT=$((MONITOR_HEIGHT - WAYBAR_HEIGHT))
+
 eww kill 2>/dev/null
 setsid eww daemon &
 sleep 1
-eww open sidebar --screen "$SCREEN"
+eww open sidebar --screen "$SCREEN" --arg height="${SIDEBAR_HEIGHT}px"
