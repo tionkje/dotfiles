@@ -1,7 +1,7 @@
 #!/usr/bin/env zx
 
-const WIDTH = 40;
-const HEIGHT = 120;
+import { generateGraphSvg } from "./graph_svg.ts";
+
 const MAX_POINTS = 40;
 const POLL_MS = 2000;
 
@@ -33,42 +33,6 @@ function readDiskPercent(): number {
   return Math.round((used / stat.blocks) * 100);
 }
 
-function generateSvg(
-  values: number[],
-  color: string,
-  label: string,
-): string {
-  const n = values.length;
-  const current = n > 0 ? values[n - 1] : 0;
-
-  if (n < 2) {
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
-  <text x="${WIDTH / 2}" y="${HEIGHT / 2}" fill="${color}" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="central">${current}%</text>
-  <text x="${WIDTH / 2}" y="${HEIGHT / 2 + 16}" fill="${color}" font-family="monospace" font-size="9" text-anchor="middle" opacity="0.7">${label}</text>
-</svg>`;
-  }
-
-  const step = WIDTH / (MAX_POINTS - 1);
-
-  let polyPoints = "";
-  let linePoints = "";
-  for (let i = 0; i < n; i++) {
-    const x = (i * step).toFixed(1);
-    const y = (HEIGHT - (HEIGHT * values[i]) / 100).toFixed(1);
-    polyPoints += `${x},${y} `;
-    linePoints += `${x},${y} `;
-  }
-
-  const lastX = ((n - 1) * step).toFixed(1);
-  polyPoints = `0,${HEIGHT} ${polyPoints}${lastX},${HEIGHT}`;
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
-  <polygon points="${polyPoints}" fill="${color}" opacity="0.3" />
-  <polyline points="${linePoints}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
-  <text x="${WIDTH / 2}" y="${HEIGHT-16}" fill="${color}" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="central">${label} ${current}%</text>
-</svg>`;
-}
-
 // Use alternating files so eww sees a path change each tick
 const MEM_PATHS = ["/tmp/eww-mem-graph-0.svg", "/tmp/eww-mem-graph-1.svg"];
 const DISK_PATHS = ["/tmp/eww-disk-graph-0.svg", "/tmp/eww-disk-graph-1.svg"];
@@ -92,8 +56,28 @@ setInterval(() => {
   const memPath = MEM_PATHS[idx];
   const diskPath = DISK_PATHS[idx];
 
-  fs.writeFileSync(memPath, generateSvg(memValues, COLORS.mem, "󰍛"));
-  fs.writeFileSync(diskPath, generateSvg(diskValues, COLORS.disk, ""));
+  const memCurrent = memValues[memValues.length - 1];
+  const diskCurrent = diskValues[diskValues.length - 1];
+  fs.writeFileSync(
+    memPath,
+    generateGraphSvg({
+      values: memValues,
+      color: COLORS.mem,
+      label: "󰍛",
+      displayValue: `${memCurrent}%`,
+      maxValue: 100,
+    }),
+  );
+  fs.writeFileSync(
+    diskPath,
+    generateGraphSvg({
+      values: diskValues,
+      color: COLORS.disk,
+      label: "",
+      displayValue: `${diskCurrent}%`,
+      maxValue: 100,
+    }),
+  );
 
   console.log(JSON.stringify({ mem: memPath, disk: diskPath }));
   tick++;

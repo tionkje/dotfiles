@@ -10,6 +10,10 @@
   :initial '{"mem":"/tmp/eww-mem-graph-0.svg","disk":"/tmp/eww-disk-graph-0.svg"}'
   `scripts/sys_info`)
 
+(deflisten netinfo_json
+  :initial '{"rx":"/tmp/eww-netrx-graph-0.svg","tx":"/tmp/eww-nettx-graph-0.svg"}'
+  `scripts/net_info`)
+
 (defwidget cpu_graph []
   (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true :valign "end"))
 
@@ -21,6 +25,12 @@
 
 (defwidget disk_graph []
   (image :class "disk-graph" :path {sysinfo_json.disk} :image-width 40 :image-height 120 :vexpand false))
+
+(defwidget net_rx_graph []
+  (image :class "net-rx-graph" :path {netinfo_json.rx} :image-width 40 :image-height 120 :vexpand false))
+
+(defwidget net_tx_graph []
+  (image :class "net-tx-graph" :path {netinfo_json.tx} :image-width 40 :image-height 120 :vexpand false))
 
 (defwindow sidebar
   :monitor 0
@@ -37,6 +47,8 @@
     (box :class "sidebar-box" :orientation "v" :vexpand true :space-evenly false
       (mem_graph)
       (disk_graph)
+      (net_rx_graph)
+      (net_tx_graph)
       (overlay :vexpand true
         (cpu_graph)
         (loadavg_graph)))))
