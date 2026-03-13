@@ -20,10 +20,12 @@ handle() {
         hyprctl dispatch moveworkspacetomonitor name:spotify "eDP-1"
         hyprctl dispatch moveworkspacetomonitor name:meet "eDP-1"
         ~/.config/hypr/eww-sidebar.sh
+        ~/.config/waybar/reload.sh
       fi
       ;;
     monitorremoved*)
       ~/.config/hypr/eww-sidebar.sh
+      ~/.config/waybar/reload.sh
       ;;
   esac
 }
@@ -45,6 +47,7 @@ dbus-monitor --system "type=signal,interface=org.freedesktop.login1.Manager,memb
     if echo "$line" | grep -q "boolean false"; then
       sleep 2
       ~/.config/hypr/eww-sidebar.sh
+      ~/.config/waybar/reload.sh
     fi
   done &
 

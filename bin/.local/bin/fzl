@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# --launch: determine target monitor and spawn alacritty with fzl on it
+if [[ "${1:-}" == "--launch" ]]; then
+  LAPTOP=eDP-1
+  EXT=$(hyprctl -j monitors | jq -r ".[] | select(.name != \"$LAPTOP\") | .name" | head -1)
+  if [[ -n "$EXT" && ! -f /tmp/hypr-presentation-mode ]]; then
+    MON="$EXT"
+  else
+    MON="$LAPTOP"
+  fi
+  hyprctl dispatch exec "[monitor $MON] alacritty --class fzl-launcher -o 'window.startup_mode=\"Windowed\"' -o 'window.opacity=0.9' -e fzl"
+  exit 0
+fi
+
+CONF="${HOME}/.local/bin/fzl-entries.conf"
+FREQ_DIR="${HOME}/.local/share/fzl"
+FREQ_FILE="${FREQ_DIR}/frequency.tsv"
+
+mkdir -p "$FREQ_DIR"
+touch "$FREQ_FILE"
+
+# Read entries from config (label = command)
+declare -A commands
+labels=()
+while IFS= read -r line; do
+  [[ -z "$line" || "$line" == \#* ]] && continue
+  label="${line%%=*}"
+  cmd="${line#*=}"
+  label="${label%"${label##*[! ]}"}"
+  cmd="${cmd#"${cmd%%[! ]*}"}"
+  commands["$label"]="$cmd"
+  labels+=("$label")
+done < "$CONF"
+
+# Read frequency counts
+declare -A freq
+while IFS=$'\t' read -r count label; do
+  [[ -n "$label" ]] && freq["$label"]="$count"
+done < "$FREQ_FILE"
+
+# Sort labels by frequency descending (stable: config order preserved for ties)
+sorted_labels=()
+while IFS= read -r label; do
+  sorted_labels+=("$label")
+done < <(
+  for label in "${labels[@]}"; do
+    printf '%s\t%s\n' "${freq[$label]:-0}" "$label"
+  done | sort -t$'\t' -k1,1 -rn -s | cut -f2
+)
+
+# Build display lines: "label<TAB>command" — fzf shows both, returns full line
+display_lines=()
+for label in "${sorted_labels[@]}"; do
+  display_lines+=("$(printf '%s\t\033[90m%s\033[0m' "$label" "${commands[$label]}")")
+done
+
+# Show fzf picker — delimiter is TAB, search only on field 1 (label)
+selected=$(printf '%s\n' "${display_lines[@]}" | fzf --ansi --no-info --prompt "launch > " --delimiter=$'\t' --nth=1) || exit 0
+# Extract label (first field before TAB)
+selected="${selected%%$'\t'*}"
+
+# Increment frequency
+bump_frequency() {
+  local sel="$1"
+  local found=false
+  local tmp="${FREQ_FILE}.tmp"
+  while IFS=$'\t' read -r count label; do
+    if [[ "$label" == "$sel" ]]; then
+      printf '%s\t%s\n' "$(( count + 1 ))" "$label" >> "$tmp"
+      found=true
+    else
+      printf '%s\t%s\n' "$count" "$label" >> "$tmp"
+    fi
+  done < "$FREQ_FILE"
+  if [[ "$found" == false ]]; then
+    printf '%s\t%s\n' "1" "$sel" >> "$tmp"
+  fi
+  mv "$tmp" "$FREQ_FILE"
+}
+
+cmd="${commands[$selected]}"
+
+if [[ "$cmd" == "SUBMENU_SES" ]]; then
+  ses.sh
+  bump_frequency "$selected"
+  hyprctl dispatch workspace name:edit
+  exit 0
+fi
+
+bump_frequency "$selected"
+
+# Run the command synchronously first (so focus commands like launch-or-focus
+# complete before the terminal closes), then exit. Commands that launch GUI
+# apps handle their own detaching (launch-or-focus uses exec setsid).
+eval "$cmd" &>/dev/null
