@@ -41,6 +41,13 @@ socat -U - UNIX-CONNECT:"$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.soc
   handle "$line"
 done &
 
+# Reload waybar after eww auto-reloads on config file change
+inotifywait -m -e modify -r ~/.config/eww/ |
+  while read -r; do
+    sleep 1
+    killall -SIGUSR2 waybar
+  done &
+
 # Re-evaluate sidebar on wake from sleep
 dbus-monitor --system "type=signal,interface=org.freedesktop.login1.Manager,member=PrepareForSleep" |
   while read -r line; do
