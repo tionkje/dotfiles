@@ -1,27 +1,29 @@
 #!/bin/bash
 
+assign_workspaces() {
+  local monitor=$1
+  if [[ "$monitor" != "eDP-1" ]]; then
+    if [[ -f /tmp/hypr-presentation-mode ]]; then
+      hyprctl dispatch moveworkspacetomonitor name:presentation "$monitor"
+    else
+      hyprctl dispatch moveworkspacetomonitor name:work "$monitor"
+      hyprctl dispatch moveworkspacetomonitor name:edit "$monitor"
+      hyprctl dispatch moveworkspacetomonitor name:read "$monitor"
+      hyprctl dispatch moveworkspacetomonitor name:talk "$monitor"
+      hyprctl dispatch moveworkspacetomonitor name:youtube "$monitor"
+    fi
+    hyprctl dispatch moveworkspacetomonitor name:spotify "eDP-1"
+    hyprctl dispatch moveworkspacetomonitor name:meet "eDP-1"
+  fi
+}
+
 handle() {
-  # echo $1;
   case $1 in
     monitoraddedv2*);;
     monitoradded*)
-      monitor=${1#monitoradded>>}
-      if [[ "$monitor" != "eDP-1" ]]; then
-        if [[ -f /tmp/hypr-presentation-mode ]]; then
-          # Presentation mode: only put presentation WS on external
-          hyprctl dispatch moveworkspacetomonitor name:presentation "$monitor"
-        else
-          hyprctl dispatch moveworkspacetomonitor name:work "$monitor"
-          hyprctl dispatch moveworkspacetomonitor name:edit "$monitor"
-          hyprctl dispatch moveworkspacetomonitor name:read "$monitor"
-          hyprctl dispatch moveworkspacetomonitor name:talk "$monitor"
-          hyprctl dispatch moveworkspacetomonitor name:youtube "$monitor"
-        fi
-        hyprctl dispatch moveworkspacetomonitor name:spotify "eDP-1"
-        hyprctl dispatch moveworkspacetomonitor name:meet "eDP-1"
-        ~/.config/hypr/eww-sidebar.sh
-        ~/.config/waybar/reload.sh
-      fi
+      assign_workspaces "${1#monitoradded>>}"
+      ~/.config/hypr/eww-sidebar.sh
+      ~/.config/waybar/reload.sh
       ;;
     monitorremoved*)
       ~/.config/hypr/eww-sidebar.sh
@@ -30,9 +32,9 @@ handle() {
   esac
 }
 
-sleep 5
+sleep "${MONITOR_HANDLER_INIT_DELAY:-5}"
 for monitorname in $(hyprctl -j monitors | jq -r '.[].name'); do
-  handle "monitoradded>>$monitorname"
+  assign_workspaces "$monitorname"
 done
 ~/.config/hypr/eww-sidebar.sh
 waybar &
