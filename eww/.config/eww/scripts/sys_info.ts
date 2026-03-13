@@ -65,8 +65,7 @@ function generateSvg(
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <polygon points="${polyPoints}" fill="${color}" opacity="0.3" />
   <polyline points="${linePoints}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
-  <text x="${WIDTH / 2}" y="${HEIGHT / 2}" fill="${color}" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle" dominant-baseline="central">${current}%</text>
-  <text x="${WIDTH / 2}" y="${HEIGHT / 2 + 16}" fill="${color}" font-family="monospace" font-size="9" text-anchor="middle" opacity="0.7">${label}</text>
+  <text x="${WIDTH / 2}" y="${HEIGHT-16}" fill="${color}" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle" dominant-baseline="central">${label} ${current}%</text>
 </svg>`;
 }
 
@@ -93,8 +92,8 @@ setInterval(() => {
   const memPath = MEM_PATHS[idx];
   const diskPath = DISK_PATHS[idx];
 
-  fs.writeFileSync(memPath, generateSvg(memValues, COLORS.mem, "MEM"));
-  fs.writeFileSync(diskPath, generateSvg(diskValues, COLORS.disk, "DSK"));
+  fs.writeFileSync(memPath, generateSvg(memValues, COLORS.mem, "󰍛"));
+  fs.writeFileSync(diskPath, generateSvg(diskValues, COLORS.disk, ""));
 
   console.log(JSON.stringify({ mem: memPath, disk: diskPath }));
   tick++;
