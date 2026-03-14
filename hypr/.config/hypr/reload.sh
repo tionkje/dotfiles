@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Kill existing monitor-handler and its spawned processes
+# Kill existing monitor-handler and its spawned child processes
 pkill -f 'monitor-handler\.sh'
+pkill -f 'inotifywait.*\.config/eww'
+pkill -f 'socat.*socket2\.sock'
+pkill -f 'dbus-monitor.*PrepareForSleep'
 killall waybar
 
 # Reload eww config

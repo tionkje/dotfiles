@@ -39,14 +39,14 @@
 (defwidget temp_graph []
   (image :class "temp-graph" :path temp_svg :image-width 40 :image-height 120 :vexpand false))
 
-(defwindow sidebar [?height]
+(defwindow sidebar
   :monitor 0
   :geometry (geometry
     :x "0px"
     :y "0px"
     :width "40px"
-    :height {height ?: "100%"}
-    :anchor "top right")
+    :height "100%"
+    :anchor "center right")
   :stacking "fg"
   :exclusive true
   :namespace "eww-sidebar"
