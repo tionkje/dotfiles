@@ -1,8 +1,10 @@
 #!/usr/bin/env zx
 
+import { bigGraphHeight } from "./screen.ts";
+
 const SVG_PATH = "/tmp/eww-loadavg-graph.svg";
 const WIDTH = 40;
-const HEIGHT = 800;
+const HEIGHT = bigGraphHeight;
 const MAX_POINTS = 80;
 const POLL_MS = 2000;
 
