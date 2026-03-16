@@ -506,7 +506,7 @@ export PATH=$PATH:/home/bastiaan/.pulumi/bin
 
 eval "$(direnv hook zsh)"
 
-export ANTHROPIC_API_KEY=$(cat ~/.ssh/anthropic_key)
+#export ANTHROPIC_API_KEY=$(cat ~/.ssh/anthropic_key)
 
 
 # opencode
