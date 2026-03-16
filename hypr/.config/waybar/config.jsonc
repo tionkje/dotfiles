@@ -16,9 +16,9 @@
     "tray",
   ],
   "modules-right": [
-    "cpu",
-    "memory",
-    "temperature",
+    // "cpu",
+    // "memory",
+    // "temperature",
     "backlight",
     "backlight/slider",
     "wireplumber#sink",
