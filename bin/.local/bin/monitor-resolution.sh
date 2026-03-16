@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+trap 'notify-send -u critical "Error: $(basename "$0")" "Line $LINENO failed (exit $?)"' ERR
 
 MONITORS_CONF="$HOME/.config/hypr/monitors.conf"
 LAPTOP="eDP-1"
@@ -20,7 +21,7 @@ if [[ -n "$current_line" ]]; then
   current_scale=$(echo "$current_line" | cut -d',' -f4)
   current_res=$(echo "$current_line" | cut -d',' -f2)
 else
-  current_pos="auto"
+  current_pos="auto-center-up"
   current_scale="1"
   current_res="unknown"
 fi
@@ -34,7 +35,8 @@ modes=$(hyprctl -j monitors | jq -r ".[] | select(.name == \"$EXT\") | .availabl
   | awk '{print $3}')
 
 # Find line number of current resolution for fzf cursor position
-current_idx=$(echo "$modes" | grep -n "^${current_res}$" | head -1 | cut -d: -f1)
+# grep exits 1 when no match — not an error here, just means current res isn't in the list
+current_idx=$(echo "$modes" | grep -n "^${current_res}$" | head -1 | cut -d: -f1 || true)
 fzf_pos=()
 if [[ -n "$current_idx" ]]; then
   fzf_pos=(--bind "start:pos($current_idx)")
