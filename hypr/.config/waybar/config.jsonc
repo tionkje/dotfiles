@@ -115,7 +115,7 @@
       "",
       ""
     ],
-    "on-click": "pwvucontrol",
+    "on-click": "eww open --toggle volume-popup --screen $(hyprctl monitors -j | jq -r '.[] | select(.focused) | .id')",
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "scroll-step": 5
   },

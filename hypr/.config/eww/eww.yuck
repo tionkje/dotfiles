@@ -1,3 +1,41 @@
+;; ── Volume popup ──────────────────────────────────────────────
+(defpoll volume_percent :interval "1s"
+  `wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2*100)}'`)
+
+(defpoll volume_muted :interval "1s"
+  `wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED && echo "true" || echo "false"`)
+
+(defwidget volume-slider []
+  (box :class "vol-popup" :orientation "v" :space-evenly false :spacing 8
+    (label :text {volume_muted == "true" ? "󰝟" : volume_percent < 33 ? "" : volume_percent < 66 ? "" : ""}
+           :class "vol-icon")
+    (scale :class "vol-scale"
+           :orientation "v"
+           :flipped true
+           :value volume_percent
+           :min 0
+           :max 100
+           :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")
+    (label :text "${volume_percent}%"
+           :class "vol-label")
+    (button :class "vol-open-mixer"
+            :onclick "pwvucontrol & eww close volume-popup"
+            "Open mixer")))
+
+(defwindow volume-popup
+  :monitor 0
+  :geometry (geometry
+    :x "180px"
+    :y "30px"
+    :width "50px"
+    :height "220px"
+    :anchor "top right")
+  :stacking "overlay"
+  :focusable false
+  :namespace "eww-volume-popup"
+  (volume-slider))
+
+;; ── Sidebar ──────────────────────────────────────────────────
 (deflisten cpu_svg
   :initial "/tmp/eww-cpu-graph.svg"
   `scripts/cpu_info`)

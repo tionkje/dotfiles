@@ -2,6 +2,58 @@
   all: unset;
 }
 
+// ── Volume popup ──────────────────────────────────────────
+.vol-popup {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 12px 8px;
+}
+
+.vol-icon {
+  font-family: "NotoSansMono Nerd Font";
+  font-size: 20px;
+  color: #3584e4;
+}
+
+.vol-label {
+  font-family: "Cantarell", "Inter", sans-serif;
+  font-size: 12px;
+  color: #dedede;
+}
+
+.vol-scale trough {
+  min-width: 8px;
+  min-height: 120px;
+  border-radius: 4px;
+  background-color: #353535;
+}
+
+.vol-scale trough highlight {
+  border-radius: 4px;
+  background-color: #3584e4;
+}
+
+.vol-scale trough slider {
+  min-width: 16px;
+  min-height: 16px;
+  border-radius: 50%;
+  background-color: #dedede;
+}
+
+.vol-open-mixer {
+  font-family: "Cantarell", "Inter", sans-serif;
+  font-size: 11px;
+  color: #dedede;
+  background-color: #353535;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.vol-open-mixer:hover {
+  background-color: #3584e4;
+}
+
+// ── Sidebar ──────────────────────────────────────────────
 .sidebar-box {
   background-color: rgba(10, 10, 20, 0.45);
   margin-top: 20px;
