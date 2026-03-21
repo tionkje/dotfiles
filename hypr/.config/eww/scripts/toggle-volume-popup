@@ -1,0 +1,19 @@
+#!/bin/bash
+# Toggle volume popup centered under the cursor, just below waybar
+
+if eww active-windows | grep -q 'volume-popup'; then
+  eww close volume-popup volume-popup-backdrop
+  exit 0
+fi
+
+CURSOR=$(hyprctl cursorpos)
+CX=${CURSOR%%,*}
+
+MON_JSON=$(hyprctl monitors -j | jq '.[] | select(.focused)')
+MON_ID=$(echo "$MON_JSON" | jq '.id')
+MON_X=$(echo "$MON_JSON" | jq '.x')
+
+REL_X=$(( CX - MON_X - 35 ))
+
+eww open volume-popup-backdrop --screen "$MON_ID" &
+eww open volume-popup --screen "$MON_ID" --pos "${REL_X}x24" --anchor "top left"

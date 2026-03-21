@@ -22,14 +22,28 @@
             :onclick "pwvucontrol & eww close volume-popup"
             "Open mixer")))
 
+(defwindow volume-popup-backdrop
+  :monitor 0
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "100%"
+    :height "100%"
+    :anchor "center center")
+  :stacking "overlay"
+  :focusable false
+  :namespace "eww-volume-popup-backdrop"
+  (eventbox :onclick "eww close volume-popup volume-popup-backdrop"
+    (box)))
+
 (defwindow volume-popup
   :monitor 0
   :geometry (geometry
-    :x "180px"
-    :y "30px"
+    :x "0px"
+    :y "0px"
     :width "50px"
     :height "220px"
-    :anchor "top right")
+    :anchor "top left")
   :stacking "overlay"
   :focusable false
   :namespace "eww-volume-popup"
