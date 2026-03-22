@@ -96,9 +96,35 @@ if [[ "$cmd" == "SUBMENU_MONRES" ]]; then
   exit 0
 fi
 
+if [[ "$cmd" == "SUBMENU_APPS" ]]; then
+  # List desktop apps, let fzf pick, launch with gtk-launch for error capture
+  app=$(find /usr/share/applications ~/.local/share/applications -name '*.desktop' -readable 2>/dev/null \
+    | while IFS= read -r f; do
+        name=$(grep -m1 '^Name=' "$f" | cut -d= -f2-)
+        [[ -n "$name" ]] && printf '%s\t%s\n' "$name" "$(basename "$f")"
+      done \
+    | sort -f -t$'\t' -k1,1 \
+    | fzf --ansi --no-info --prompt "app > " --delimiter=$'\t' --nth=1 --with-nth=1) || exit 0
+  desktop="${app#*$'\t'}"
+  bump_frequency "$selected"
+  err_file=$(mktemp)
+  setsid gtk-launch "$desktop" >/dev/null 2>"$err_file" &
+  sleep 1
+  err=$(<"$err_file")
+  rm -f "$err_file"
+  if [[ -n "$err" ]]; then
+    notify-send -u critical "fzl: $desktop" "$err"
+  fi
+  exit 0
+fi
+
 bump_frequency "$selected"
 
 # Run the command synchronously first (so focus commands like launch-or-focus
 # complete before the terminal closes), then exit. Commands that launch GUI
 # apps handle their own detaching (launch-or-focus uses exec setsid).
-eval "$cmd" &>/dev/null
+err=$(eval "$cmd" 2>&1 >/dev/null)
+exit_code=$?
+if [[ $exit_code -ne 0 ]]; then
+  notify-send -u critical "fzl: $selected" "${err:-exit code $exit_code}"
+fi
