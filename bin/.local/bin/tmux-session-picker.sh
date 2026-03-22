@@ -94,10 +94,14 @@ generate_lines() {
         _child_of["$cppid"]="$cpid"  # last (highest pid) wins = newest
     done < <(ps -eo pid,ppid --no-headers | sort -n -k1)
 
+    # Unit separator as field delimiter (session names may contain |, and tab
+    # is IFS-whitespace which collapses empty fields in bash read)
+    local fs=$'\x1f'
+
     # Collect all panes for process aggregation per window
     declare -A window_procs
     local _PROC_RESULT=""
-    while IFS='|' read -r sess widx ppid pcmd; do
+    while IFS=$'\x1f' read -r sess widx ppid pcmd; do
         local key="${sess}:${widx}"
         get_process_info "$ppid" "$pcmd"
         if [[ -n "${window_procs[$key]+x}" ]]; then
@@ -105,14 +109,14 @@ generate_lines() {
         else
             window_procs["$key"]="$_PROC_RESULT"
         fi
-    done < <(tmux list-panes -a -F '#{session_name}|#{window_index}|#{pane_pid}|#{pane_current_command}')
+    done < <(tmux list-panes -a -F "#{session_name}${fs}#{window_index}${fs}#{pane_pid}${fs}#{pane_current_command}")
 
     # Get current time once (bash builtin, zero forks)
     local _now
     printf -v _now '%(%s)T' -1
 
     # Iterate windows (active pane only for cwd/git)
-    while IFS='|' read -r sess widx wname wactive attached sess_activity stack_idx activity ppath pcmd ppid npanes; do
+    while IFS=$'\x1f' read -r sess widx attached last_attached last_visited stack_idx activity ppath pcmd ppid npanes; do
         local key="${sess}:${widx}"
         local short_path="${ppath/#$HOME/\~}"
 
@@ -138,6 +142,16 @@ generate_lines() {
         local marker=" "
         [[ "$attached" != "0" ]] && marker="*"
 
+        # Sort key: per-window visit timestamp from hook, fallback to session_last_attached
+        local sort_key
+        if [[ -n "$last_visited" ]]; then
+            sort_key="$last_visited"
+        elif [[ "$attached" != "0" ]]; then
+            sort_key=$(( _now - stack_idx ))
+        else
+            sort_key=$(( last_attached - stack_idx ))
+        fi
+
         # Format display line
         local display=""
         display+="${C_GREEN}${marker}${C_RESET} "
@@ -153,13 +167,13 @@ generate_lines() {
         display+="${procs}  "
         display+="${C_DIM}${age}${C_RESET}"
 
-        printf '%s\t%s\t%s\t%s\n' "$sess_activity" "$stack_idx" "$key" "$display"
-    done < <(tmux list-windows -a -F '#{session_name}|#{window_index}|#{window_name}|#{window_active}|#{session_attached}|#{session_activity}|#{window_stack_index}|#{window_activity}|#{pane_current_path}|#{pane_current_command}|#{pane_pid}|#{window_panes}' -f '#{pane_active}')
+        printf '%s\t%s\t%s\n' "$sort_key" "$key" "$display"
+    done < <(tmux list-windows -a -F "#{session_name}${fs}#{window_index}${fs}#{session_attached}${fs}#{session_last_attached}${fs}#{@last_visited}${fs}#{window_stack_index}${fs}#{window_activity}${fs}#{pane_current_path}${fs}#{pane_current_command}${fs}#{pane_pid}${fs}#{window_panes}" -f '#{pane_active}')
 }
 
-# --- sort by activity (most recent first), strip epoch column ---
+# --- sort by visit time (most recent first), strip sort column ---
 sorted_lines() {
-    generate_lines | sort -t$'\t' -k1,1rn -k2,2n | cut -f3-
+    generate_lines | sort -t$'\t' -k1,1rn | cut -f2-
 }
 
 # --list mode: output lines only
