@@ -4,47 +4,12 @@ trap 'echo "Error: $(basename "$0"):$LINENO (exit $?)" >&2' ERR
 
 export PATH="$PATH:$HOME/.local/bin"
 
-# --- helpers (inlined from tmux-title.sh) ---
-
-get_repo_name() {
-    local path="$1" url=""
-    url=$(git -C "$path" remote get-url origin 2>/dev/null)
-    if [[ -z "$url" ]]; then
-        local remote
-        remote=$(git -C "$path" remote 2>/dev/null | head -1)
-        if [[ -n "$remote" ]]; then
-            url=$(git -C "$path" remote get-url "$remote" 2>/dev/null)
-        fi
-    fi
-    if [[ -n "$url" ]]; then
-        echo "$url" | sed 's/\.git$//' | sed -E 's/.*[\/:]([^\/]+\/[^\/]+)$/\1/'
-    fi
-}
-
-get_branch() {
-    git -C "$1" rev-parse --abbrev-ref HEAD 2>/dev/null
-}
-
-relative_time() {
-    local epoch="$1" now diff
-    now=$(date +%s)
-    diff=$(( now - epoch ))
-    if (( diff < 60 )); then echo "${diff}s"
-    elif (( diff < 3600 )); then echo "$(( diff / 60 ))m"
-    elif (( diff < 86400 )); then echo "$(( diff / 3600 ))h"
-    else echo "$(( diff / 86400 ))d"
-    fi
-}
-
-shorten_path() {
-    local home="$HOME"
-    echo "${1/#$home/\~}"
-}
+# --- helpers ---
 
 read_cmdline() {
     local -a args
     mapfile -t -d '' args < "/proc/$1/cmdline" 2>/dev/null || true
-    echo "${args[*]}"
+    _PROC_RESULT="${args[*]}"
 }
 
 get_process_info() {
@@ -55,7 +20,7 @@ get_process_info() {
             read_cmdline "$child_pid"
             return
         fi
-        echo "$pane_cmd"
+        _PROC_RESULT="$pane_cmd"
         return
     fi
     read_cmdline "$pane_pid"
@@ -68,8 +33,11 @@ declare -A git_cache_miss
 
 get_git_info() {
     local path="$1"
-    local toplevel
-    toplevel=$(git -C "$path" rev-parse --show-toplevel 2>/dev/null) || { BRANCH=""; REPO=""; return 1; }
+    local combined
+    combined=$(git -C "$path" rev-parse --show-toplevel --abbrev-ref HEAD 2>/dev/null) || { BRANCH=""; REPO=""; return 1; }
+
+    local toplevel="${combined%%$'\n'*}"
+    local branch="${combined##*$'\n'}"
 
     if [[ -n "${git_cache_miss[$toplevel]+x}" ]]; then
         BRANCH=""; REPO=""; return 1
@@ -80,8 +48,26 @@ get_git_info() {
         return 0
     fi
 
-    BRANCH=$(get_branch "$toplevel")
-    REPO=$(get_repo_name "$toplevel")
+    BRANCH="$branch"
+
+    # Inline repo name extraction
+    local url=""
+    url=$(git -C "$toplevel" config --get remote.origin.url 2>/dev/null)
+    if [[ -z "$url" ]]; then
+        local remote
+        remote=$(git -C "$toplevel" remote 2>/dev/null | head -1)
+        if [[ -n "$remote" ]]; then
+            url=$(git -C "$toplevel" config --get "remote.${remote}.url" 2>/dev/null)
+        fi
+    fi
+    REPO=""
+    if [[ -n "$url" ]]; then
+        url="${url%.git}"
+        if [[ "$url" =~ [/:]([^/:]+/[^/:]+)$ ]]; then
+            REPO="${BASH_REMATCH[1]}"
+        fi
+    fi
+
     if [[ -z "$BRANCH" && -z "$REPO" ]]; then
         git_cache_miss["$toplevel"]=1
         return 1
@@ -110,22 +96,25 @@ generate_lines() {
 
     # Collect all panes for process aggregation per window
     declare -A window_procs
+    local _PROC_RESULT=""
     while IFS='|' read -r sess widx ppid pcmd; do
         local key="${sess}:${widx}"
-        local proc_info
-        proc_info=$(get_process_info "$ppid" "$pcmd")
+        get_process_info "$ppid" "$pcmd"
         if [[ -n "${window_procs[$key]+x}" ]]; then
-            window_procs["$key"]="${window_procs[$key]}, $proc_info"
+            window_procs["$key"]="${window_procs[$key]}, $_PROC_RESULT"
         else
-            window_procs["$key"]="$proc_info"
+            window_procs["$key"]="$_PROC_RESULT"
         fi
     done < <(tmux list-panes -a -F '#{session_name}|#{window_index}|#{pane_pid}|#{pane_current_command}')
+
+    # Get current time once (bash builtin, zero forks)
+    local _now
+    printf -v _now '%(%s)T' -1
 
     # Iterate windows (active pane only for cwd/git)
     while IFS='|' read -r sess widx wname wactive attached sess_activity stack_idx activity ppath pcmd ppid npanes; do
         local key="${sess}:${widx}"
-        local short_path
-        short_path=$(shorten_path "$ppath")
+        local short_path="${ppath/#$HOME/\~}"
 
         # Git info
         local branch="" repo=""
@@ -137,9 +126,13 @@ generate_lines() {
         # Processes from all panes in this window
         local procs="${window_procs[$key]:-$pcmd}"
 
-        # Relative activity time
-        local age
-        age=$(relative_time "$activity")
+        # Relative activity time (inlined)
+        local diff=$(( _now - activity )) age
+        if (( diff < 60 )); then age="${diff}s"
+        elif (( diff < 3600 )); then age="$(( diff / 60 ))m"
+        elif (( diff < 86400 )); then age="$(( diff / 3600 ))h"
+        else age="$(( diff / 86400 ))d"
+        fi
 
         # Attached marker
         local marker=" "
