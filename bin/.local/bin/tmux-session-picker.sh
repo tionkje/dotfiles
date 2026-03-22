@@ -122,7 +122,7 @@ generate_lines() {
     done < <(tmux list-panes -a -F '#{session_name}|#{window_index}|#{pane_pid}|#{pane_current_command}')
 
     # Iterate windows (active pane only for cwd/git)
-    while IFS='|' read -r sess widx wname wactive attached activity ppath pcmd ppid npanes; do
+    while IFS='|' read -r sess widx wname wactive attached sess_activity stack_idx activity ppath pcmd ppid npanes; do
         local key="${sess}:${widx}"
         local short_path
         short_path=$(shorten_path "$ppath")
@@ -160,13 +160,13 @@ generate_lines() {
         display+="${procs}  "
         display+="${C_DIM}${age}${C_RESET}"
 
-        printf '%s\t%s\t%s\n' "$activity" "$key" "$display"
-    done < <(tmux list-windows -a -F '#{session_name}|#{window_index}|#{window_name}|#{window_active}|#{session_attached}|#{window_activity}|#{pane_current_path}|#{pane_current_command}|#{pane_pid}|#{window_panes}' -f '#{pane_active}')
+        printf '%s\t%s\t%s\t%s\n' "$sess_activity" "$stack_idx" "$key" "$display"
+    done < <(tmux list-windows -a -F '#{session_name}|#{window_index}|#{window_name}|#{window_active}|#{session_attached}|#{session_activity}|#{window_stack_index}|#{window_activity}|#{pane_current_path}|#{pane_current_command}|#{pane_pid}|#{window_panes}' -f '#{pane_active}')
 }
 
 # --- sort by activity (most recent first), strip epoch column ---
 sorted_lines() {
-    generate_lines | sort -t$'\t' -k1 -rn | cut -f2-
+    generate_lines | sort -t$'\t' -k1,1rn -k2,2n | cut -f3-
 }
 
 # --list mode: output lines only
