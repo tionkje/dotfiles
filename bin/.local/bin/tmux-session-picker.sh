@@ -41,20 +41,24 @@ shorten_path() {
     echo "${1/#$home/\~}"
 }
 
+read_cmdline() {
+    local -a args
+    mapfile -t -d '' args < "/proc/$1/cmdline" 2>/dev/null || true
+    echo "${args[*]}"
+}
+
 get_process_info() {
     local pane_pid="$1" pane_cmd="$2"
     if [[ "$pane_cmd" =~ ^(bash|zsh|fish|sh)$ ]]; then
-        local child_pid
-        # pgrep exits 1 when no children found — that's expected (idle shell)
-        child_pid=$(pgrep -P "$pane_pid" -n 2>/dev/null) || true
+        local child_pid="${_child_of[$pane_pid]:-}"
         if [[ -n "$child_pid" ]]; then
-            tr '\0' ' ' < "/proc/$child_pid/cmdline" 2>/dev/null | sed 's/ $//'
+            read_cmdline "$child_pid"
             return
         fi
         echo "$pane_cmd"
         return
     fi
-    tr '\0' ' ' < "/proc/$pane_pid/cmdline" 2>/dev/null | sed 's/ $//'
+    read_cmdline "$pane_pid"
 }
 
 # --- git cache ---
@@ -98,6 +102,12 @@ C_CYAN=$'\033[36m'
 
 # --- generate display lines ---
 generate_lines() {
+    # Build child-pid lookup: parent_pid -> newest child pid (single ps call)
+    declare -A _child_of
+    while read -r cpid cppid; do
+        _child_of["$cppid"]="$cpid"  # last (highest pid) wins = newest
+    done < <(ps -eo pid,ppid --no-headers | sort -n -k1)
+
     # Collect all panes for process aggregation per window
     declare -A window_procs
     while IFS='|' read -r sess widx ppid pcmd; do
