@@ -160,18 +160,24 @@ generate_lines() {
         display+="${procs}  "
         display+="${C_DIM}${age}${C_RESET}"
 
-        printf '%s\t%s\n' "$key" "$display"
-    done < <(tmux list-windows -a -F '#{session_name}|#{window_index}|#{window_name}|#{window_active}|#{session_attached}|#{session_activity}|#{pane_current_path}|#{pane_current_command}|#{pane_pid}|#{window_panes}' -f '#{pane_active}')
+        printf '%s\t%s\t%s\n' "$activity" "$key" "$display"
+    done < <(tmux list-windows -a -F '#{session_name}|#{window_index}|#{window_name}|#{window_active}|#{session_attached}|#{window_activity}|#{pane_current_path}|#{pane_current_command}|#{pane_pid}|#{window_panes}' -f '#{pane_active}')
+}
+
+# --- sort by activity (most recent first), strip epoch column ---
+sorted_lines() {
+    generate_lines | sort -t$'\t' -k1 -rn | cut -f2-
 }
 
 # --list mode: output lines only
 if [[ "${1:-}" == "--list" ]]; then
-    generate_lines
+    sorted_lines
     exit 0
 fi
 
-selected=$(generate_lines | fzf --ansi --no-sort \
+selected=$(sorted_lines | fzf --ansi --no-sort \
     --delimiter=$'\t' --with-nth=2 \
+    --header-lines=1 \
     --preview='tmux capture-pane -t {1} -p -e 2>/dev/null' \
     --preview-window='right:50%:wrap' \
     --prompt='window > ' \
