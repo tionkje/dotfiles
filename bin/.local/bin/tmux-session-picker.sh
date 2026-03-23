@@ -185,8 +185,8 @@ fi
 selected=$(sorted_lines | fzf --ansi --no-sort \
     --delimiter=$'\t' --with-nth=2 \
     --header-lines=1 \
-    --preview='tmux capture-pane -t {1} -p -e 2>/dev/null' \
-    --preview-window='right:50%:wrap' \
+    --preview='tmux capture-pane -t {1} -p -e 2>/dev/null | tr -d "\r" | tail -n 50' \
+    --preview-window='right:50%' \
     --prompt='window > ' \
     --no-info \
 ) || exit 0
