@@ -1,22 +1,20 @@
 ;; ── Volume popup ──────────────────────────────────────────────
-(defpoll volume_percent :interval "1s"
-  `wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print int($2*100)}'`)
-
-(defpoll volume_muted :interval "1s"
-  `wpctl get-volume @DEFAULT_AUDIO_SINK@ | grep -q MUTED && echo "true" || echo "false"`)
+(deflisten volume_json
+  :initial '{"volume": 0, "muted": false}'
+  `scripts/volume_info`)
 
 (defwidget volume-slider []
   (box :class "vol-popup" :orientation "v" :space-evenly false :spacing 8
-    (label :text {volume_muted == "true" ? "󰝟" : volume_percent < 33 ? "" : volume_percent < 66 ? "" : ""}
+    (label :text {volume_json.muted ? "󰝟" : volume_json.volume < 33 ? "" : volume_json.volume < 66 ? "" : ""}
            :class "vol-icon")
     (scale :class "vol-scale"
            :orientation "v"
            :flipped true
-           :value volume_percent
+           :value {volume_json.volume}
            :min 0
            :max 100
            :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")
-    (label :text "${volume_percent}%"
+    (label :text "${volume_json.volume}%"
            :class "vol-label")
     (button :class "vol-open-mixer"
             :onclick "pwvucontrol & eww close volume-popup"
