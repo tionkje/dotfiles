@@ -83,7 +83,6 @@ C_DIM=$'\033[2m'
 C_GREEN=$'\033[32m'
 C_YELLOW=$'\033[33m'
 C_BLUE=$'\033[34m'
-C_MAGENTA=$'\033[35m'
 C_CYAN=$'\033[36m'
 
 # --- generate display lines ---
@@ -98,38 +97,18 @@ generate_lines() {
     # is IFS-whitespace which collapses empty fields in bash read)
     local fs=$'\x1f'
 
-    # Collect all panes for process aggregation per window
-    # declare -A window_procs
-    # local _PROC_RESULT=""
-    # while IFS=$'\x1f' read -r sess widx ppid pcmd; do
-    #     local key="${sess}:${widx}"
-    #     get_process_info "$ppid" "$pcmd"
-    #     if [[ -n "${window_procs[$key]+x}" ]]; then
-    #         window_procs["$key"]="${window_procs[$key]}, $_PROC_RESULT"
-    #     else
-    #         window_procs["$key"]="$_PROC_RESULT"
-    #     fi
-    # done < <(tmux list-panes -a -F "#{session_name}${fs}#{window_index}${fs}#{pane_pid}${fs}#{pane_current_command}")
-
     # Get current time once (bash builtin, zero forks)
     local _now
     printf -v _now '%(%s)T' -1
 
-    # Iterate windows (active pane only for cwd/git)
-    while IFS=$'\x1f' read -r sess attached last_attached last_visited stack_idx activity ppath pcmd ppid npanes; do
-        # local key="${sess}:${widx}"
-        local key="${sess}"
-        local short_path="${ppath/#$HOME/\~}"
-
+    # Iterate sessions (active pane info for cwd/git)
+    while IFS=$'\x1f' read -r sess attached last_attached activity ppath nwindows; do
         # Git info
         local branch="" repo=""
         if get_git_info "$ppath"; then
             branch="$BRANCH"
             repo="$REPO"
         fi
-
-        # Processes from all panes in this window
-        # local procs="${window_procs[$key]:-$pcmd}"
 
         # Relative activity time (inlined)
         local diff=$(( _now - activity )) age
@@ -143,34 +122,24 @@ generate_lines() {
         local marker=" "
         [[ "$attached" != "0" ]] && marker="*"
 
-        # Sort key: per-window visit timestamp from hook, fallback to session_last_attached
-        local sort_key
-        if [[ -n "$last_visited" ]]; then
-            sort_key="$last_visited"
-        elif [[ "$attached" != "0" ]]; then
-            sort_key=$(( _now - stack_idx ))
-        else
-            sort_key=$(( last_attached - stack_idx ))
-        fi
+        # Sort key
+        local sort_key="$last_attached"
 
         # Format display line
         local display=""
         display+="${C_GREEN}${marker}${C_RESET} "
         display+="${C_BOLD}${sess}${C_RESET}  "
-        #display+="${C_BLUE}${short_path}${C_RESET}  "
         if [[ -n "$branch" ]]; then
             display+="${C_YELLOW}${branch}${C_RESET}  "
         fi
         if [[ -n "$repo" ]]; then
             display+="${C_CYAN}${repo}${C_RESET}  "
         fi
-        # display+="${procs} "
         display+="${C_DIM}${age}${C_RESET} "
-        display+="${C_DIM}${npanes}p${C_RESET}  "
+        display+="${C_DIM}${nwindows}w${C_RESET}  "
 
-        printf '%s\t%s\t%s\n' "$sort_key" "$key" "$display"
-    done < <(tmux list-windows -a -F "#{session_name}${fs}#{session_attached}${fs}#{session_last_attached}${fs}#{@last_visited}${fs}#{window_stack_index}${fs}#{window_activity}${fs}#{pane_current_path}${fs}#{pane_current_command}${fs}#{pane_pid}${fs}#{window_panes}" -f '#{pane_active}')
-    # done < <(tmux list-windows -a -F "#{session_name}${fs}#{window_index}${fs}#{session_attached}${fs}#{session_last_attached}${fs}#{@last_visited}${fs}#{window_stack_index}${fs}#{window_activity}${fs}#{pane_current_path}${fs}#{pane_current_command}${fs}#{pane_pid}${fs}#{window_panes}" -f '#{pane_active}')
+        printf '%s\t%s\t%s\n' "$sort_key" "$sess" "$display"
+    done < <(tmux list-sessions -F "#{session_name}${fs}#{session_attached}${fs}#{session_last_attached}${fs}#{session_activity}${fs}#{pane_current_path}${fs}#{session_windows}")
 }
 
 # --- sort by visit time (most recent first), strip sort column ---
@@ -189,7 +158,7 @@ selected=$(sorted_lines | fzf --ansi --no-sort \
     --header-lines=1 \
     --preview='tmux capture-pane -t {1} -p -e 2>/dev/null | tr -d "\r" | tail -n 50' \
     --preview-window='right:50%' \
-    --prompt='window > ' \
+    --prompt='session > ' \
     --no-info \
 ) || exit 0
 
