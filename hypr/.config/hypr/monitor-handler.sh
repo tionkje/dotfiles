@@ -11,6 +11,7 @@ assign_workspaces() {
       hyprctl dispatch moveworkspacetomonitor name:read "$monitor"
       hyprctl dispatch moveworkspacetomonitor name:talk "$monitor"
       hyprctl dispatch moveworkspacetomonitor name:youtube "$monitor"
+      hyprctl dispatch moveworkspacetomonitor name:incognito "$monitor"
     fi
     hyprctl dispatch moveworkspacetomonitor name:spotify "eDP-1"
     hyprctl dispatch moveworkspacetomonitor name:meet "eDP-1"
