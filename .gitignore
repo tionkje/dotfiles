@@ -1,1 +1,3 @@
 test.txt
+bin/.local/bin/node_modules
+bin/.local/bin/pnpm-lock.yaml

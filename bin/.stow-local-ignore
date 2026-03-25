@@ -1,0 +1,3 @@
+\.local/bin/package\.json
+\.local/bin/pnpm-lock\.yaml
+\.local/bin/node_modules
