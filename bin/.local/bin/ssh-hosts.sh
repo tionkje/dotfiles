@@ -83,57 +83,81 @@ _ssh_host_list() {
       FS="\n"
       RS=""
 
-      host_list = ""
+      nrec = 0
     }
     {
       match_directive = ""
-
-      # Use spaces to ensure the column command maintains the correct number of columns.
-      #   - user
-      #   - desc_formated
-
       user = " "
       host_name = ""
-      alias = ""
+      aliases = ""
       desc = ""
       desc_formated = " "
 
       for (line_num = 1; line_num <= NF; ++line_num) {
         line = parse_line($line_num)
-
         split(line, tmp, "#-#")
-
         key = tolower(tmp[1])
         value = tmp[2]
 
         if (key == "match") { match_directive = value }
-
         if (key == "host") { aliases = value }
         if (key == "user") { user = value }
         if (key == "hostname") { host_name = value }
         if (key == "#_desc") { desc = value }
       }
 
+      if (desc) {
+        desc_formated = sprintf("[\033[00;34m%s\033[0m]", desc)
+      }
+
       split(aliases, alias_list, " ")
       for (i in alias_list) {
         alias = alias_list[i]
+        if (starts_or_ends_with_star(alias) || match_directive) continue
 
-        if (!host_name && alias ) {
-          host_name = alias
-        }
+        hn = host_name ? host_name : alias
+        if (starts_or_ends_with_star(hn)) continue
 
-        if (desc) {
-          desc_formated = sprintf("[\033[00;34m%s\033[0m]", desc)
-        }
+        nrec++
+        rec_alias[nrec] = alias
+        rec_hn[nrec] = hn
+        rec_user[nrec] = user
+        rec_desc[nrec] = desc_formated
+        rec_implicit[nrec] = (hn == alias) ? 1 : 0
 
-        if ((host_name && !starts_or_ends_with_star(host_name)) && (alias && !starts_or_ends_with_star(alias)) && !match_directive) {
-          host = sprintf("%s | %s | %s | %s\n", alias, host_name, user, desc_formated)
-          host_list = host_list host
-        }
+        if (hn != alias) alias_has_explicit[alias] = 1
       }
     }
     END {
-      print host_list
+      # Pass 1: skip implicit entries (alias==hostname) when an explicit one exists
+      host_count = 0
+      for (i = 1; i <= nrec; i++) {
+        if (rec_implicit[i] && alias_has_explicit[rec_alias[i]]) continue
+
+        hn = rec_hn[i]
+        alias = rec_alias[i]
+
+        if (!(hn in host_aliases)) {
+          host_aliases[hn] = alias
+          seen_alias[hn, alias] = 1
+          host_users[hn] = rec_user[i]
+          host_descs[hn] = rec_desc[i]
+          host_count++
+          host_order[hn] = host_count
+          order_to_hn[host_count] = hn
+        } else {
+          if (!seen_alias[hn, alias]) {
+            host_aliases[hn] = host_aliases[hn] ", " alias
+            seen_alias[hn, alias] = 1
+          }
+        }
+      }
+
+      # Pass 2: output in insertion order
+      for (i = 1; i <= host_count; i++) {
+        hn = order_to_hn[i]
+        printf "%s | %s | %s | %s\n", host_aliases[hn], hn, host_users[hn], host_descs[hn]
+      }
     }
   ')
 
