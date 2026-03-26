@@ -22,11 +22,12 @@
            :class "vol-label")
     (button :class "vol-open-mixer"
             :onclick "pwvucontrol & eww close volume-popup"
-            "Open mixer")
+            :tooltip "Open mixer"
+            "")
     (button :class "sleep-inhibit ${sleep_inhibit_json.inhibited ? 'active' : ''}"
             :onclick "scripts/toggle-sleep-inhibit"
             :tooltip {sleep_inhibit_json.inhibited ? "Sleep inhibited — click to re-enable" : "Click to prevent sleep"}
-            {sleep_inhibit_json.inhibited ? "󰒳 Awake" : "󰒲 Sleep"})))
+            {sleep_inhibit_json.inhibited ? "󰒳" : "󰒲"})))
 
 (defwindow volume-popup-backdrop
   :monitor 0
