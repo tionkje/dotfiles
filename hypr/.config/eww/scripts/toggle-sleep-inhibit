@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+trap 'notify-send -u critical "Error: $(basename "$0")" "Line $LINENO failed (exit $?)"' ERR
+
+STATE_FILE="/tmp/eww-sleep-inhibit"
+
+if [ -f "$STATE_FILE" ]; then
+    rm "$STATE_FILE"
+    if ! pgrep -x hypridle >/dev/null; then
+        hypridle &
+        disown
+    fi
+    notify-send "Sleep inhibit off" "hypridle re-enabled"
+else
+    touch "$STATE_FILE"
+    pkill -x hypridle || true  # expected: hypridle may already be dead
+    notify-send "Sleep inhibit on" "hypridle disabled — machine will stay awake"
+fi

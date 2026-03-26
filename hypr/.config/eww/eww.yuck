@@ -3,6 +3,10 @@
   :initial '{"volume": 0, "muted": false}'
   `scripts/volume_info`)
 
+(deflisten sleep_inhibit_json
+  :initial '{"inhibited": false}'
+  `scripts/sleep_inhibit_info`)
+
 (defwidget volume-slider []
   (box :class "vol-popup" :orientation "v" :space-evenly false :spacing 8
     (label :text {volume_json.muted ? "󰝟" : volume_json.volume < 33 ? "" : volume_json.volume < 66 ? "" : ""}
@@ -18,7 +22,11 @@
            :class "vol-label")
     (button :class "vol-open-mixer"
             :onclick "pwvucontrol & eww close volume-popup"
-            "Open mixer")))
+            "Open mixer")
+    (button :class "sleep-inhibit ${sleep_inhibit_json.inhibited ? 'active' : ''}"
+            :onclick "scripts/toggle-sleep-inhibit"
+            :tooltip {sleep_inhibit_json.inhibited ? "Sleep inhibited — click to re-enable" : "Click to prevent sleep"}
+            {sleep_inhibit_json.inhibited ? "󰒳 Awake" : "󰒲 Sleep"})))
 
 (defwindow volume-popup-backdrop
   :monitor 0
@@ -40,7 +48,7 @@
     :x "0px"
     :y "0px"
     :width "50px"
-    :height "220px"
+    :height "260px"
     :anchor "top left")
   :stacking "overlay"
   :focusable false

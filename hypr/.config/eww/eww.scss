@@ -53,6 +53,28 @@
   background-color: #3584e4;
 }
 
+.sleep-inhibit {
+  font-family: "NotoSansMono Nerd Font", "Cantarell", "Inter", sans-serif;
+  font-size: 11px;
+  color: #dedede;
+  background-color: #353535;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.sleep-inhibit:hover {
+  background-color: #3584e4;
+}
+
+.sleep-inhibit.active {
+  background-color: #e5a50a;
+  color: #1e1e1e;
+}
+
+.sleep-inhibit.active:hover {
+  background-color: #c98f08;
+}
+
 // ── Sidebar ──────────────────────────────────────────────
 .sidebar-box {
   background-color: rgba(10, 10, 20, 0.45);
