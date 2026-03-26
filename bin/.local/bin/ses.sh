@@ -35,10 +35,11 @@ if [[ "${selected%% *}" = "ssh" ]]; then
   eval `loadKeys.sh`;
 
   temp="${selected#* }"
-  cmd="ssh ${temp%% *}"
-  selected_name=${selected//./_}
-  echo "ssh -o ConnectTimeout=5 -q ${temp%% *} exit"
-  if ssh -o ConnectTimeout=5 -q ${temp%% *} exit; then
+  first_alias="${temp%%[, |]*}"
+  cmd="ssh ${first_alias}"
+  selected_name="ssh_${first_alias//./_}"
+  echo "ssh -o ConnectTimeout=5 -q ${first_alias} exit"
+  if ssh -o ConnectTimeout=5 -q ${first_alias} exit; then
 
     if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
         tmux -2 new-session -s "$selected_name" zsh -c "export TERM=xterm-256color; $cmd"
