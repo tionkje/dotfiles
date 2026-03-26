@@ -17,6 +17,9 @@ fi
 SCREEN=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name == "'"$TARGET"'") | .model')
 
 eww kill 2>/dev/null
+pkill -f 'eww daemon'
+while eww ping 2>/dev/null; do sleep 0.1; done
 setsid eww daemon &
 sleep 1
+
 eww open sidebar --screen "$SCREEN"
