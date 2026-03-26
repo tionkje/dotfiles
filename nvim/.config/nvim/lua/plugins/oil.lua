@@ -1,3 +1,42 @@
+local git_status_cache = {}
+local git_status_cache_dir = nil
+
+local function get_git_status(dir)
+	if git_status_cache_dir == dir then
+		return git_status_cache
+	end
+
+	git_status_cache = {}
+	git_status_cache_dir = dir
+
+	local handle = io.popen(
+		"git -C " .. vim.fn.shellescape(dir) .. " status --porcelain --ignored . 2>/dev/null"
+	)
+	if not handle then
+		return git_status_cache
+	end
+
+	local result = handle:read("*a")
+	handle:close()
+
+	for line in result:gmatch("[^\n]+") do
+		local status = line:sub(1, 2)
+		local name = line:sub(4)
+		-- Strip trailing / from directories
+		name = name:gsub("/$", "")
+		-- Only keep the first path component (immediate child of current dir)
+		local entry_name = name:match("^([^/]+)")
+		if entry_name then
+			-- Don't overwrite a "stronger" status (modified > ignored)
+			if not git_status_cache[entry_name] or git_status_cache[entry_name] == "!!" then
+				git_status_cache[entry_name] = status
+			end
+		end
+	end
+
+	return git_status_cache
+end
+
 return {
 
 	{
@@ -65,11 +104,8 @@ return {
 						if not dir then
 							return false
 						end
-						local exit_code = os.execute(
-							"git -C " .. vim.fn.shellescape(dir) .. " check-ignore -q " .. vim.fn.shellescape(name) .. " 2>/dev/null"
-						)
-						-- os.execute returns 0 for success (file is ignored), non-zero otherwise
-						return exit_code == 0
+						local status = get_git_status(dir)[name] or ""
+						return status == "!!"
 					end,
 					-- Customize the highlight group for the file name based on git status
 					highlight_filename = function(entry, is_hidden, is_link_target, is_link_orphan)
@@ -83,25 +119,16 @@ return {
 							return nil
 						end
 
-						-- Check git status for this file
-						local handle = io.popen("git -C " .. vim.fn.shellescape(dir) .. " status --porcelain " .. vim.fn.shellescape(entry.name) .. " 2>/dev/null")
-						if not handle then
+						local status = get_git_status(dir)[entry.name]
+						if not status then
 							return nil
 						end
 
-						local result = handle:read("*a")
-						handle:close()
-
-						if result and result ~= "" then
-							local status = result:sub(1, 2)
-							-- Modified files (M in working tree or index)
-							if status:match("M") or status:match("MM") then
-								return entry.type == "directory" and "OilDirModified" or "OilFileModified"
-							end
-							-- Untracked files (??)
-							if status:match("?") then
-								return entry.type == "directory" and "OilDirUntracked" or "OilFileUntracked"
-							end
+						if status:match("M") then
+							return entry.type == "directory" and "OilDirModified" or "OilFileModified"
+						end
+						if status:match("%?") then
+							return entry.type == "directory" and "OilDirUntracked" or "OilFileUntracked"
 						end
 
 						return nil
