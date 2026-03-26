@@ -42,14 +42,14 @@ if [[ "${selected%% *}" = "ssh" ]]; then
   if ssh -o ConnectTimeout=5 -q ${first_alias} exit; then
 
     if [[ -z $TMUX ]] && [[ -z $tmux_running ]]; then
-        tmux -2 new-session -s "$selected_name" zsh -c "export TERM=xterm-256color; $cmd"
+        tmux -2 new-session -s "$selected_name" -c ~ zsh -c "export TERM=xterm-256color; $cmd"
         # tmux send-keys -t $selected_name "vim ." C-m
         exit 0
     fi
 
     echo selected_name: $selected_name
     if ! tmux has-session -t="$selected_name" 2> /dev/null; then
-        tmux -2 new-session -ds "$selected_name" zsh -c "export TERM=xterm-256color; $cmd"
+        tmux -2 new-session -ds "$selected_name" -c ~ zsh -c "export TERM=xterm-256color; $cmd"
         # tmux send-keys -t $selected_name "vim ." C-m
     fi
   else
