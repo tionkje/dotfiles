@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+  . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+fi
+
 # --launch: determine target monitor and spawn alacritty with fzl on it
 if [[ "${1:-}" == "--launch" ]]; then
   LAPTOP=eDP-1
@@ -123,8 +127,11 @@ bump_frequency "$selected"
 # Run the command synchronously first (so focus commands like launch-or-focus
 # complete before the terminal closes), then exit. Commands that launch GUI
 # apps handle their own detaching (launch-or-focus uses exec setsid).
-err=$(eval "$cmd" 2>&1 >/dev/null)
+err_file=$(mktemp)
+eval "setsid --fork $cmd" >/dev/null 2>"$err_file"
 exit_code=$?
+err=$(<"$err_file")
+rm -f "$err_file"
 if [[ $exit_code -ne 0 ]]; then
   notify-send -u critical "fzl: $selected" "${err:-exit code $exit_code}"
 fi

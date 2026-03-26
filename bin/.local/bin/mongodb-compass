@@ -1,7 +1,26 @@
 #!/usr/bin/env bash
-#export NIXPKGS_ALLOW_UNFREE=1
-#exec nix run --impure 'github:nixos/nixpkgs/25.05#mongodb-compass'
 
-export NIXPKGS_ALLOW_UNFREE=1 
-export ELECTRON_OZONE_PLATFORM_HINT=auto 
-nix run --impure github:nix-community/nixGL -- nix run --impure 'github:nixos/nixpkgs/25.05#mongodb-compass' -- --ignore-additional-command-line-flags --password-store=gnome-libsecret
+export NIXPKGS_ALLOW_UNFREE=1
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/mongodb-compass-nix"
+mkdir -p "$CACHE_DIR"
+
+rebuild() {
+  local nixgl compass
+  nixgl=$(nix build --impure github:nix-community/nixGL#nixGLDefault --no-link --print-out-paths) || return 1
+  compass=$(nix build --impure 'github:nixos/nixpkgs/25.05#mongodb-compass' --no-link --print-out-paths) || return 1
+  echo "$nixgl" > "$CACHE_DIR/nixgl"
+  echo "$compass" > "$CACHE_DIR/compass"
+}
+
+NIXGL_PATH=$(cat "$CACHE_DIR/nixgl" 2>/dev/null)
+COMPASS_PATH=$(cat "$CACHE_DIR/compass" 2>/dev/null)
+
+if [[ ! -x "$NIXGL_PATH/bin/nixGL" || ! -x "$COMPASS_PATH/bin/mongodb-compass" ]]; then
+  rebuild || { echo "nix build failed" >&2; exit 1; }
+  NIXGL_PATH=$(cat "$CACHE_DIR/nixgl")
+  COMPASS_PATH=$(cat "$CACHE_DIR/compass")
+fi
+
+exec "$NIXGL_PATH/bin/nixGL" "$COMPASS_PATH/bin/mongodb-compass" --ignore-additional-command-line-flags --password-store=gnome-libsecret
