@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-import { $ } from "zx";
-
-$.verbose = false;
-$.quiet = true;
+import { $ } from "./zx-polyfill.ts";
 
 // --- ANSI colors ---
 
