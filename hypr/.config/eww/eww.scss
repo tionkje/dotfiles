@@ -2,77 +2,77 @@
   all: unset;
 }
 
-// ── Volume popup ──────────────────────────────────────────
-.vol-popup {
+// ── Quick-settings popup ──────────────────────────────────
+.qs-popup {
   background-color: #1e1e1e;
   border-radius: 12px;
   padding: 12px 8px;
 }
 
-.vol-icon {
+.qs-icon {
   font-family: "NotoSansMono Nerd Font";
   font-size: 20px;
   color: #3584e4;
+
+  &.brightness {
+    color: #f8e45c;
+  }
 }
 
-.vol-label {
+.qs-label {
   font-family: "Cantarell", "Inter", sans-serif;
   font-size: 12px;
   color: #dedede;
 }
 
-.vol-scale trough {
+.qs-scale trough {
   min-width: 8px;
   min-height: 120px;
   border-radius: 4px;
   background-color: #353535;
 }
 
-.vol-scale trough highlight {
+.qs-scale trough highlight {
   border-radius: 4px;
   background-color: #3584e4;
 }
 
-.vol-scale trough slider {
+.qs-scale.brightness trough highlight {
+  background-color: #f8e45c;
+}
+
+.qs-scale trough slider {
   min-width: 16px;
   min-height: 16px;
   border-radius: 50%;
   background-color: #dedede;
 }
 
-.vol-open-mixer {
-  font-family: "Cantarell", "Inter", sans-serif;
-  font-size: 11px;
-  color: #dedede;
-  background-color: #353535;
-  border-radius: 6px;
-  padding: 4px 8px;
-}
-
-.vol-open-mixer:hover {
-  background-color: #3584e4;
-}
-
-.sleep-inhibit {
+.qs-btn {
   font-family: "NotoSansMono Nerd Font", "Cantarell", "Inter", sans-serif;
   font-size: 11px;
   color: #dedede;
   background-color: #353535;
   border-radius: 6px;
   padding: 4px 8px;
-}
 
-.sleep-inhibit:hover {
-  background-color: #3584e4;
-}
+  &:hover {
+    background-color: #3584e4;
+  }
 
-.sleep-inhibit.active {
-  background-color: #e5a50a;
-  color: #1e1e1e;
-}
+  &.active {
+    background-color: #e5a50a;
+    color: #1e1e1e;
 
-.sleep-inhibit.active:hover {
-  background-color: #c98f08;
+    &:hover {
+      background-color: #c98f08;
+    }
+  }
+
+  &.power {
+    font-family: "Cantarell", "Inter", sans-serif;
+    font-size: 14px;
+  }
 }
 
 // ── Sidebar ──────────────────────────────────────────────

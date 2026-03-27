@@ -1,35 +1,65 @@
-;; ── Volume popup ──────────────────────────────────────────────
+;; ── Quick-settings popup ──────────────────────────────────────
 (deflisten volume_json
   :initial '{"volume": 0, "muted": false}'
   `scripts/volume_info`)
+
+(deflisten brightness_json
+  :initial '{"brightness": 0}'
+  `scripts/brightness_info`)
 
 (deflisten sleep_inhibit_json
   :initial '{"inhibited": false}'
   `scripts/sleep_inhibit_info`)
 
-(defwidget volume-slider []
-  (box :class "vol-popup" :orientation "v" :space-evenly false :spacing 8
-    (label :text {volume_json.muted ? "󰝟" : volume_json.volume < 33 ? "" : volume_json.volume < 66 ? "" : ""}
-           :class "vol-icon")
-    (scale :class "vol-scale"
-           :orientation "v"
-           :flipped true
-           :value {volume_json.volume}
-           :min 0
-           :max 100
-           :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")
-    (label :text "${volume_json.volume}%"
-           :class "vol-label")
-    (button :class "vol-open-mixer"
-            :onclick "pwvucontrol & eww close volume-popup"
-            :tooltip "Open mixer"
-            "")
-    (button :class "sleep-inhibit ${sleep_inhibit_json.inhibited ? 'active' : ''}"
-            :onclick "scripts/toggle-sleep-inhibit"
-            :tooltip {sleep_inhibit_json.inhibited ? "Sleep inhibited — click to re-enable" : "Click to prevent sleep"}
-            {sleep_inhibit_json.inhibited ? "󰒳" : "󰒲"})))
+(defwidget quick-settings-panel []
+  (box :class "qs-popup" :orientation "v" :space-evenly false :spacing 8
 
-(defwindow volume-popup-backdrop
+    ;; sliders row
+    (box :class "qs-sliders" :orientation "h" :space-evenly true :spacing 8
+
+      ;; volume column
+      (box :class "qs-slider-col" :orientation "v" :space-evenly false :spacing 4
+        (label :text {volume_json.muted ? "󰝟"
+                      : volume_json.volume < 33 ? ""
+                      : volume_json.volume < 66 ? "" : ""}
+               :class "qs-icon")
+        (scale :class "qs-scale"
+               :orientation "v" :flipped true
+               :value {volume_json.volume} :min 0 :max 100
+               :onchange "wpctl set-volume @DEFAULT_AUDIO_SINK@ {}%")
+        (label :text "${volume_json.volume}%" :class "qs-label"))
+
+      ;; brightness column
+      (box :class "qs-slider-col" :orientation "v" :space-evenly false :spacing 4
+        (label :text {brightness_json.brightness < 15 ? "󰃚"
+                      : brightness_json.brightness < 30 ? "󰃛"
+                      : brightness_json.brightness < 50 ? "󰃜"
+                      : brightness_json.brightness < 65 ? "󰃝"
+                      : brightness_json.brightness < 80 ? "󰃞"
+                      : brightness_json.brightness < 95 ? "󰃟" : "󰃠"}
+               :class "qs-icon brightness")
+        (scale :class "qs-scale brightness"
+               :orientation "v" :flipped true
+               :value {brightness_json.brightness} :min 1 :max 100
+               :onchange "brightnessctl s {}%")
+        (label :text "${brightness_json.brightness}%" :class "qs-label")))
+
+    ;; action buttons row
+    (box :class "qs-actions" :orientation "h" :space-evenly true :spacing 4
+      (button :class "qs-btn"
+              :onclick "pwvucontrol & eww close quick-settings quick-settings-backdrop"
+              :tooltip "Open mixer"
+              "")
+      (button :class "qs-btn ${sleep_inhibit_json.inhibited ? 'active' : ''}"
+              :onclick "scripts/toggle-sleep-inhibit"
+              :tooltip {sleep_inhibit_json.inhibited ? "Sleep inhibited — click to re-enable" : "Click to prevent sleep"}
+              {sleep_inhibit_json.inhibited ? "󰒳" : "󰒲"})
+      (button :class "qs-btn power"
+              :onclick "wleave & eww close quick-settings quick-settings-backdrop"
+              :tooltip "Power menu"
+              "⏻"))))
+
+(defwindow quick-settings-backdrop
   :monitor 0
   :geometry (geometry
     :x "0px"
@@ -39,22 +69,22 @@
     :anchor "center center")
   :stacking "overlay"
   :focusable false
-  :namespace "eww-volume-popup-backdrop"
-  (eventbox :onclick "eww close volume-popup volume-popup-backdrop"
+  :namespace "eww-quick-settings-backdrop"
+  (eventbox :onclick "eww close quick-settings quick-settings-backdrop"
     (box)))
 
-(defwindow volume-popup
+(defwindow quick-settings
   :monitor 0
   :geometry (geometry
     :x "0px"
     :y "0px"
-    :width "50px"
-    :height "260px"
+    :width "120px"
+    :height "280px"
     :anchor "top left")
   :stacking "overlay"
   :focusable false
-  :namespace "eww-volume-popup"
-  (volume-slider))
+  :namespace "eww-quick-settings"
+  (quick-settings-panel))
 
 ;; ── Sidebar ──────────────────────────────────────────────────
 (deflisten cpu_svg

@@ -19,14 +19,11 @@
     // "cpu",
     // "memory",
     // "temperature",
-    "backlight",
-    "backlight/slider",
     "wireplumber#sink",
     "wireplumber#source",
     "bluetooth",
     "network",
-    "battery",
-    "custom/power"
+    "battery"
   ],
   "hyprland/workspaces": {
     "disable-scroll": true,
@@ -80,26 +77,6 @@
     "return-type": "json",
     "on-click": "~/.config/waybar/scripts/cpu_history.py toggle"
   },
-  "backlight/slider": {
-    "min": 0,
-    "max": 100,
-    "orientation": "horizontal",
-    "device": "intel_backlight"
-  },
-  "backlight": {
-    "device": "intel_backlight",
-    "format": "{icon}",
-    "tooltip-format": "{percent}%",
-    "format-icons": [
-      "󰃚",
-      "󰃛",
-      "󰃜",
-      "󰃝",
-      "󰃞",
-      "󰃟",
-      "󰃠"
-    ]
-  },
   "memory": {
     "interval": 30,
     "format": " {}%",
@@ -115,7 +92,7 @@
       "",
       ""
     ],
-    "on-click": "~/.config/eww/scripts/toggle-volume-popup",
+    "on-click": "~/.config/eww/scripts/toggle-quick-settings",
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "scroll-step": 5
   },
@@ -207,21 +184,6 @@
       "on-scroll-up": "shift_up",
       "on-scroll-down": "shift_down"
     }
-  },
-  "custom/power": {
-    "format": "⏻ ",
-    // "tooltip": false,
-    // "menu": "on-click",
-    // "menu-file": "~/.config/waybar/power_menu.xml",
-    // "menu-actions": {
-    //     "shutdown": "hyprshutdown -t 'Shutting down...' --post-cmd 'shutdown -P 0'",
-    //     "reboot": "hyprshutdown -t 'Restarting...' --post-cmd 'reboot'",
-    //     "logout": "hyprshutdown -t 'Logging out...'",
-    //
-    //     "suspend": "systemctl suspend",
-    //     // "hibernate": "systemctl hibernate",
-    // },
-    "on-click": "wleave"
   },
   "temperature": {
     // "thermal-zone": 2,

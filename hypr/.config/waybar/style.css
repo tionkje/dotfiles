@@ -20,7 +20,6 @@ window#waybar {
 #mpris,
 #window,
 #cpu,
-#backlight,
 #memory,
 #wireplumber,
 #wireplumber.muted,
@@ -29,7 +28,6 @@ window#waybar {
 #battery.warning,
 #network,
 #bluetooth,
-#custom-power,
 #custom-notification,
 #clock {
   font-feature-settings: "tnum";
@@ -70,36 +68,6 @@ window#waybar {
   color: #ff7b63;
 }
 
-#backlight {
-  color: #f8e45c;
-}
-
-#backlight-slider slider {
-    min-height: 0px;
-    min-width: 0px;
-    opacity: 0;
-    background-image: none;
-    border: none;
-    box-shadow: none;
-    background: none;
-}
-#backlight-slider trough {
-    min-height: 10px;
-    min-width: 80px;
-    border-radius: 5px;
-    background: black;
-}
-#backlight-slider highlight {
-    min-width: 10px;
-    border-radius: 5px;
-    background: #dedede;
-}
-
-#custom-power {
-  font-size: 25px;
-  padding:0;
-  margin:-9px -5px -10px 0;
-}
 #memory {
   color: #12d1a2;
 }
