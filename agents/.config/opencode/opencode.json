@@ -1,0 +1,55 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "auto",
+  "plugin": [
+    "opencode-claude-auth"
+  ],
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  },
+  "permission": {
+    "edit": "ask",
+    "bash": {
+      "*": "ask",
+      "git *": "allow",
+      "git commit *": "deny",
+      "git push *": "deny",
+      "grep *": "allow",
+      "ls *": "allow",
+      "head *": "allow",
+      "find *": "allow",
+      "sort *": "allow",
+      "echo *": "allow",
+      "pnpm why *": "allow",
+      "npm view *": "allow",
+      "pnpm install *": "allow",
+      "pnpm --filter \"*\" exec tsc *": "allow",
+      "node --version": "allow",
+      "node --help": "allow"
+    }
+  },
+  "mcp": {
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "svelte": {
+      "type": "remote",
+      "url": "https://mcp.svelte.dev/mcp"
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest"
+      ]
+    },
+    "atlassian": {
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/sse"
+    }
+  }
+}

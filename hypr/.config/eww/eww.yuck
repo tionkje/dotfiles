@@ -108,25 +108,25 @@
   `scripts/temp_info`)
 
 (defwidget cpu_graph []
-  (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true :valign "end"))
+  (image :class "cpu-graph" :path cpu_svg :image-width 40 :vexpand true :valign "end" :tooltip "CPU usage"))
 
 (defwidget loadavg_graph []
-  (image :class "loadavg-graph" :path loadavg_svg :image-width 40 :vexpand true :valign "end"))
+  (image :class "loadavg-graph" :path loadavg_svg :image-width 40 :vexpand true :valign "end" :tooltip "Load average"))
 
 (defwidget mem_graph []
-  (image :class "mem-graph" :path {sysinfo_json.mem} :image-width 40 :image-height 120 :vexpand false))
+  (image :class "mem-graph" :path {sysinfo_json.mem} :image-width 40 :image-height 120 :vexpand false :tooltip "Memory usage"))
 
 (defwidget disk_graph []
-  (image :class "disk-graph" :path {sysinfo_json.disk} :image-width 40 :image-height 120 :vexpand false))
+  (image :class "disk-graph" :path {sysinfo_json.disk} :image-width 40 :image-height 120 :vexpand false :tooltip "Disk usage"))
 
 (defwidget net_rx_graph []
-  (image :class "net-rx-graph" :path {netinfo_json.rx} :image-width 40 :image-height 120 :vexpand false))
+  (image :class "net-rx-graph" :path {netinfo_json.rx} :image-width 40 :image-height 120 :vexpand false :tooltip "Network download"))
 
 (defwidget net_tx_graph []
-  (image :class "net-tx-graph" :path {netinfo_json.tx} :image-width 40 :image-height 120 :vexpand false))
+  (image :class "net-tx-graph" :path {netinfo_json.tx} :image-width 40 :image-height 120 :vexpand false :tooltip "Network upload"))
 
 (defwidget temp_graph []
-  (image :class "temp-graph" :path temp_svg :image-width 40 :image-height 120 :vexpand false))
+  (image :class "temp-graph" :path temp_svg :image-width 40 :image-height 120 :vexpand false :tooltip "CPU temperature"))
 
 (defwindow sidebar
   :monitor 0

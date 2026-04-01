@@ -151,6 +151,9 @@ alias df='df -h'                                                # Human-readable
 alias free='free -m'                                            # Show sizes in MB
 alias gitu='git add . && git commit && git push'
 
+bindkey '^[[1;3A' up-history          # alt+up
+bindkey '^[[1;3B' down-history
+
 fpath+=(~/.config/hcloud/completion/zsh)
 
 # Theming section  
