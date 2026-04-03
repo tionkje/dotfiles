@@ -4,5 +4,5 @@ hidden-descriptions = True
 use-icons = True
 selector = rofi
 max-recent = 10
-selector-args = -theme ~/.config/rofi/emoji-grid.rasi -kb-row-left Control+h -kb-row-right Control+l -kb-row-up Control+k -kb-row-down Control+j
+selector-args = -theme ~/.config/rofi/emoji-grid.rasi -kb-mode-previous "" -kb-accept-entry Return -kb-remove-to-eol "" -kb-mode-next "" -kb-remove-char-back "BackSpace,Shift+BackSpace" -kb-mode-complete "" -kb-row-left Control+h -kb-row-right Control+l -kb-row-up Control+k -kb-row-down Control+j
 files = [emojis, latin-1_supplement, latin_extended-a, currency_symbols]
