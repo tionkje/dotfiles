@@ -1,0 +1,63 @@
+* {
+  bg: #1a1a1a;
+  bg-alt: #2a2a2a;
+  fg: #e0e0e0;
+  accent: #555555;
+  background-color: transparent;
+  text-color: @fg;
+}
+
+window {
+  background-color: @bg;
+  border: 2px;
+  border-color: @accent;
+  border-radius: 8px;
+  padding: 8px;
+  width: 420px;
+}
+
+inputbar {
+  background-color: @bg-alt;
+  border-radius: 6px;
+  padding: 8px;
+  margin: 0 0 8px 0;
+  children: [prompt, entry];
+}
+
+prompt {
+  padding: 0 8px 0 0;
+}
+
+entry {
+  placeholder: "Search...";
+  placeholder-color: #666666;
+}
+
+listview {
+  columns: 9;
+  lines: 7;
+  cycle: true;
+  dynamic: true;
+  layout: vertical;
+  flow: horizontal;
+  fixed-height: true;
+  fixed-columns: true;
+  spacing: 0;
+}
+
+element {
+  orientation: vertical;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+element selected {
+  background-color: @bg-alt;
+}
+
+element-text {
+  vertical-align: 0.5;
+  horizontal-align: 0.5;
+  font: "MesloLGS Nerd Font Mono, Noto Color Emoji 24";
+  text-color: #ffffff;
+}
