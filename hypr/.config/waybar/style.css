@@ -28,6 +28,7 @@ window#waybar {
 #battery.warning,
 #network,
 #bluetooth,
+#custom-treadmill-steps,
 #custom-notification,
 #clock {
   font-feature-settings: "tnum";

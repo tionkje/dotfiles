@@ -16,6 +16,7 @@
     "tray",
   ],
   "modules-right": [
+    "custom/treadmill-steps",
     // "cpu",
     // "memory",
     // "temperature",
@@ -191,6 +192,12 @@
     "critical-threshold": 80,
     // "format-critical": "{temperatureC}°C ",
     "format": "{temperatureC}°C "
+  },
+  "custom/treadmill-steps": {
+    "exec": "~/.local/bin/ha-steps.ts",
+    "return-type": "json",
+    "interval": 60,
+    "format": "\uD83C\uDFC3 {}"
   },
   "custom/notification": {
     "tooltip": true,
