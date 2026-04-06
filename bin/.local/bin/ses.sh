@@ -15,13 +15,7 @@ export TERM=xterm-256color
 if [[ $# -eq 1 ]]; then
     selected=$1
 else
-    #selected=$(find ~/VIRTO ~/VIRTO/vs360_monorepo*/packages/ ~/ ~/dev/ ~/dev/basmonre/{apps,packages}/ -mindepth 1 -maxdepth 1 -type d | fzf)
-    selected=$( ( 
-      ssh-hosts.sh | sed 's/^/ssh /';
-      echo ~/.dotfiles; 
-      find ~/VIRTO ~/VIRTO/experiments  ~/dev/ -mindepth 1 -maxdepth 1 -type d; 
-    ) | fzf)
-    #selected=$(echo ~/VIRTO/vs360_monorepo* $(find ~/VIRTO/vs360_monorepo*/packages/ ~/ ~/dev/ ~/dev/basmonre/{apps,packages}/ -mindepth 1 -maxdepth 1 -type d | tr '\n' ' ') | tr ' ' '\n' | fzf)
+    selected=$(ses-entries.sh | fzf)
 fi
 
 if [[ -z $selected ]]; then
