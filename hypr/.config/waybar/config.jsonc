@@ -197,7 +197,8 @@
     "exec": "~/.local/bin/ha-steps.ts",
     "return-type": "json",
     "interval": 60,
-    "format": "\uD83C\uDFC3 {}"
+    "format": "\uD83C\uDFC3 {}",
+    "on-click": "launch-webapp --profile private https://ha.bastiaandeknudt.be/dashboard-test/walkingpad"
   },
   "custom/notification": {
     "tooltip": true,
