@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { spawnSync } from "node:child_process";
 import { $ } from "./zx-polyfill.ts";
 
 // --- ANSI colors ---
@@ -23,6 +24,12 @@ interface SessionInfo {
   windows: number;
   branch: string;
   repo: string;
+}
+
+interface SesEntry {
+  type: "ssh" | "dir";
+  raw: string; // full line from ses-entries.sh, passed to ses.sh as $1
+  display: string; // shown in fzf (~ substituted, no colors)
 }
 
 // --- Git info with caching ---
@@ -82,6 +89,43 @@ function formatAge(seconds: number): string {
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
   return `${Math.floor(seconds / 86400)}d`;
+}
+
+// --- Ses entries (directories + SSH hosts from ses-entries.sh) ---
+
+function toSessionName(entry: SesEntry): string {
+  if (entry.type === "ssh") {
+    const afterSsh = entry.raw.slice(4); // remove "ssh " prefix
+    const firstAlias = afterSsh.split(/[,| ]/)[0].trim();
+    return `ssh_${firstAlias.replace(/\./g, "_")}`;
+  }
+  const basename = entry.raw.split("/").pop() ?? "";
+  return basename.replace(/\./g, "_");
+}
+
+async function getSesEntries(
+  existingNames: Set<string>
+): Promise<SesEntry[]> {
+  const result = await $({ nothrow: true })`ses-entries.sh`;
+  if (result.exitCode !== 0) return [];
+
+  const home = process.env.HOME ?? "";
+  const lines = result.stdout.trim().split("\n").filter(Boolean);
+  const entries: SesEntry[] = [];
+
+  for (const line of lines) {
+    const type = line.startsWith("ssh ") ? "ssh" : "dir";
+    const display = home ? line.replace(home, "~") : line;
+    const entry: SesEntry = { type, raw: line, display };
+    if (existingNames.has(toSessionName(entry))) continue;
+    entries.push(entry);
+  }
+
+  return entries;
+}
+
+function formatSesEntries(entries: SesEntry[]): string[] {
+  return entries.map((e) => `${e.raw}\t  ${e.display}`);
 }
 
 // --- Session data ---
@@ -160,19 +204,42 @@ function formatLines(sessions: SessionInfo[]): string[] {
 
 // --- Main ---
 
+const SEPARATOR_KEY = "__separator__";
+
 async function main(): Promise<void> {
   const sessions = await getSessions();
-  const lines = formatLines(sessions);
+  const sessionLines = formatLines(sessions);
 
   if (process.argv.includes("--list")) {
-    process.stdout.write(lines.join("\n") + "\n");
+    process.stdout.write(sessionLines.join("\n") + "\n");
     return;
   }
 
-  const input = lines.join("\n");
-  // 2>/dev/null: capture-pane may fail transiently as user navigates fzf
-  const previewCmd =
-    'tmux capture-pane -t {1} -p -e 2>/dev/null | tr -d "\\r" | tail -n 50';
+  const existingNames = new Set(sessions.map((s) => s.name));
+  const sesEntries = await getSesEntries(existingNames);
+  const sesLines = formatSesEntries(sesEntries);
+
+  const allLines = [...sessionLines];
+  if (sesLines.length > 0) {
+    allLines.push(
+      `${SEPARATOR_KEY}\t  ${C.dim}─── new sessions ───${C.reset}`
+    );
+    allLines.push(...sesLines);
+  }
+
+  const input = allLines.join("\n");
+
+  const previewCmd = [
+    "if tmux has-session -t {1} 2>/dev/null; then",
+    '  tmux capture-pane -t {1} -p -e 2>/dev/null | tr -d "\\r" | tail -n 50;',
+    "elif [ -d {1} ]; then",
+    "  ls -la --color=always {1};",
+    'elif echo {1} | grep -q "^ssh "; then',
+    "  a=$(echo {1} | sed 's/^ssh //' | cut -d'|' -f1 | cut -d',' -f1 | tr -d ' ');",
+    '  ssh -G "$a" 2>/dev/null | grep -iE "^(hostname|user|port|identityfile|proxyjump) ";',
+    "fi",
+  ].join(" ");
+
   const fzfArgs = [
     "--ansi",
     "--no-sort",
@@ -189,7 +256,14 @@ async function main(): Promise<void> {
   if (result.exitCode !== 0) return;
 
   const target = result.stdout.trim().split("\t")[0];
-  await $`tmux switch-client -t ${target}`;
+  if (target === SEPARATOR_KEY) return;
+
+  if (target.startsWith("/") || target.startsWith("ssh ")) {
+    const sesScript = `${process.env.HOME}/.local/bin/ses.sh`;
+    spawnSync(sesScript, [target], { stdio: "inherit" });
+  } else {
+    await $`tmux switch-client -t ${target}`;
+  }
 }
 
 main();
