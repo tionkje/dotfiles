@@ -511,6 +511,7 @@ eval "$(direnv hook zsh)"
 
 #export ANTHROPIC_API_KEY=$(cat ~/.ssh/anthropic_key)
 
+export RUN_INFRA_SNAPSHOT_TESTS=true
 
 # opencode
 export PATH=/home/bastiaan/.opencode/bin:$PATH
