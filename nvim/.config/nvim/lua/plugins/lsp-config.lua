@@ -17,11 +17,10 @@ return { -- LSP Configuration & Plugins
 		-- { "folke/neodev.nvim", opts = {} },
 
 		-- "jose-elias-alvarez/typescript.nvim",
-		-- Allows extra capabilities provided by blink.cmp
-		"saghen/blink.cmp",
+		"hrsh7th/cmp-nvim-lsp",
 	},
 	config = function()
-		vim.lsp.set_log_level("debug")
+		vim.lsp.set_log_level("warn")
 		-- Brief aside: **What is LSP?**
 		--
 		-- LSP is an initialism you've probably heard, but might not understand what it is.

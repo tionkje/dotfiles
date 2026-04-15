@@ -54,7 +54,14 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
 		end,
 	},
 	{
-
 		"tpope/vim-fugitive",
+		config = function()
+			vim.keymap.set("n", "<leader>gs", "<cmd>Git<CR>", { desc = "[G]it [S]tatus (fugitive)" })
+			vim.keymap.set("n", "<leader>gd", "<cmd>Gdiffsplit<CR>", { desc = "[G]it [D]iff current file" })
+			vim.keymap.set("n", "<leader>gB", "<cmd>Git blame<CR>", { desc = "[G]it [B]lame file" })
+			vim.keymap.set("n", "<leader>gL", "<cmd>Git log --oneline -20<CR>", { desc = "[G]it [L]og recent" })
+			vim.keymap.set("n", "<leader>gp", "<cmd>Git push<CR>", { desc = "[G]it [p]ush" })
+			vim.keymap.set("n", "<leader>gP", "<cmd>Git pull --rebase<CR>", { desc = "[G]it [P]ull rebase" })
+		end,
 	},
 }
