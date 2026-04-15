@@ -2,6 +2,7 @@ return {
 	{
 		"mistricky/codesnap.nvim",
 		build = "make",
+		cmd = { "CodeSnap", "CodeSnapSave", "CodeSnapHighlight", "CodeSnapSaveHighlight" },
 		config = function()
 			require("codesnap").setup({
 				save_path = "~/Pictures/Screenshots/",

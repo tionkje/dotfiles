@@ -3,7 +3,7 @@ return {
 	{
 		"youyoumu/pretty-ts-errors.nvim",
 		config = function()
-			require("codesnap").setup({
+			require("pretty-ts-errors").setup({
 				executable = "pretty-ts-errors-markdown", -- Path to the executable
 				float_opts = {
 					border = "rounded", -- Border style for floating windows
