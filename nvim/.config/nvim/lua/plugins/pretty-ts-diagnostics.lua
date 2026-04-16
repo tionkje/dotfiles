@@ -59,36 +59,37 @@ return {
 		local original_handler = vim.lsp.handlers["textDocument/publishDiagnostics"]
 
 		vim.lsp.handlers["textDocument/publishDiagnostics"] = function(err, params, ctx, config)
-			-- Call original handler immediately so diagnostics show up right away
-			original_handler(err, params, ctx, config)
-
-			-- Only post-process TS diagnostics
 			local client = vim.lsp.get_client_by_id(ctx.client_id)
+
+			-- Non-TS clients: pass through immediately
 			if not client or not ts_clients[client.name] then
-				return
+				return original_handler(err, params, ctx, config)
 			end
 
-			local uri = params.uri
-			local bufnr = vim.uri_to_bufnr(uri)
-			if not vim.api.nvim_buf_is_valid(bufnr) then
-				return
-			end
-
-			local pending = 0
-			local any_updated = false
-
+			-- Check if all TS diagnostics are already cached
+			local all_cached = true
 			for _, diag in ipairs(params.diagnostics) do
 				local cache_key = tostring(diag.code or "") .. (diag.message or "")
-
 				if cache[cache_key] then
 					diag.message = cache[cache_key]
-					any_updated = true
 				else
+					all_cached = false
+				end
+			end
+
+			if all_cached then
+				return original_handler(err, params, ctx, config)
+			end
+
+			-- Some need formatting: wait for all to complete, then publish once
+			local pending = 0
+			for _, diag in ipairs(params.diagnostics) do
+				local cache_key = tostring(diag.code or "") .. (diag.message or "")
+				if not cache[cache_key] then
 					pending = pending + 1
 					format_async(diag, function(formatted)
 						cache[cache_key] = formatted
 						pending = pending - 1
-
 						if pending == 0 then
 							vim.schedule(function()
 								for _, d in ipairs(params.diagnostics) do
@@ -102,10 +103,6 @@ return {
 						end
 					end)
 				end
-			end
-
-			if pending == 0 and any_updated then
-				original_handler(err, params, ctx, config)
 			end
 		end
 
