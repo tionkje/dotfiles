@@ -109,9 +109,10 @@ return {
 			end
 		end
 
-		-- Wrap vim.diagnostic.open_float to render markdown in the float
-		-- when the buffer has TS diagnostics. This enables treesitter
-		-- syntax highlighting for TypeScript code blocks in the float.
+		-- Post-process the diagnostic float to enable markdown rendering
+		-- with treesitter syntax highlighting for TypeScript code blocks.
+		-- Uses winhighlight to neutralize DiagnosticFloatingError red so
+		-- treesitter colors show through. Does not change ]d flow at all.
 		local original_open_float = vim.diagnostic.open_float
 
 		vim.diagnostic.open_float = function(opts, ...)
@@ -120,9 +121,10 @@ return {
 				return float_bufnr, winnr
 			end
 
-			-- Check if current buffer has any TS diagnostics
+			-- Check if current line has any TS diagnostics
 			local cur_bufnr = vim.api.nvim_get_current_buf()
-			local diagnostics = vim.diagnostic.get(cur_bufnr)
+			local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
+			local diagnostics = vim.diagnostic.get(cur_bufnr, { lnum = lnum })
 			local has_ts = false
 			for _, d in ipairs(diagnostics) do
 				if ts_sources[d.source] then
@@ -132,12 +134,11 @@ return {
 			end
 
 			if has_ts then
-				-- Must clear syntax set by open_floating_preview('plaintext')
-				-- before switching to markdown, otherwise injections don't work
-				vim.bo[float_bufnr].syntax = ""
-				vim.bo[float_bufnr].modifiable = true
+				-- Clear ALL extmarks (ns=-1) on the float buffer. The diagnostic
+				-- highlights have priority 4096 which overrides treesitter (100).
+				vim.api.nvim_buf_clear_namespace(float_bufnr, -1, 0, -1)
+				-- Enable markdown treesitter for code fence syntax highlighting
 				vim.bo[float_bufnr].filetype = "markdown"
-				vim.bo[float_bufnr].modifiable = false
 				vim.treesitter.start(float_bufnr)
 				vim.wo[winnr].conceallevel = 2
 				vim.wo[winnr].concealcursor = ""
