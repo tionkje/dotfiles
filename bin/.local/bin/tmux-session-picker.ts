@@ -30,6 +30,7 @@ interface SesEntry {
   type: "ssh" | "dir";
   raw: string; // full line from ses-entries.sh, passed to ses.sh as $1
   display: string; // shown in fzf (~ substituted, no colors)
+  atime?: number; // unix seconds, dirs only
 }
 
 // --- Git info with caching ---
@@ -91,6 +92,55 @@ function formatAge(seconds: number): string {
   return `${Math.floor(seconds / 86400)}d`;
 }
 
+function formatRelativeTime(ts: number): string {
+  if (!ts || ts <= 0) return "never";
+  const now = new Date();
+  const then = new Date(ts * 1000);
+  const diffSec = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+  if (diffSec < 0) return "in the future";
+  if (diffSec < 60) return `${diffSec}s ago`;
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+  if (diffSec < 6 * 3600) return `${Math.floor(diffSec / 3600)}h ago`;
+
+  const hh = String(then.getHours()).padStart(2, "0");
+  const mm = String(then.getMinutes()).padStart(2, "0");
+  const time = `${hh}:${mm}`;
+
+  const startOfDay = (d: Date): number =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const daysAgo = Math.round(
+    (startOfDay(now) - startOfDay(then)) / 86400000
+  );
+
+  if (daysAgo === 0) {
+    const h = then.getHours();
+    if (h < 12) return `this morning ${time}`;
+    if (h < 18) return `this afternoon ${time}`;
+    return `this evening ${time}`;
+  }
+
+  if (daysAgo === 1) {
+    const h = then.getHours();
+    if (h >= 18 && now.getHours() < 12) return `last night ${time}`;
+    return `yesterday ${time}`;
+  }
+
+  if (daysAgo < 7) {
+    const weekday = then.toLocaleDateString("en-US", { weekday: "long" });
+    return `last ${weekday} ${time}`;
+  }
+
+  const dayMonth = then.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+  });
+  if (then.getFullYear() !== now.getFullYear()) {
+    return `${dayMonth} '${String(then.getFullYear()).slice(2)}`;
+  }
+  return dayMonth;
+}
+
 // --- Ses entries (directories + SSH hosts from ses-entries.sh) ---
 
 function toSessionName(entry: SesEntry): string {
@@ -114,9 +164,25 @@ async function getSesEntries(
   const entries: SesEntry[] = [];
 
   for (const line of lines) {
-    const type = line.startsWith("ssh ") ? "ssh" : "dir";
-    const display = home ? line.replace(home, "~") : line;
-    const entry: SesEntry = { type, raw: line, display };
+    if (line.startsWith("ssh ")) {
+      const display = home ? line.replace(home, "~") : line;
+      const entry: SesEntry = { type: "ssh", raw: line, display };
+      if (existingNames.has(toSessionName(entry))) continue;
+      entries.push(entry);
+      continue;
+    }
+
+    const tabIdx = line.indexOf("\t");
+    if (tabIdx === -1) continue;
+    const atime = parseFloat(line.slice(0, tabIdx));
+    const path = line.slice(tabIdx + 1);
+    const display = home ? path.replace(home, "~") : path;
+    const entry: SesEntry = {
+      type: "dir",
+      raw: path,
+      display,
+      atime: Number.isFinite(atime) && atime > 0 ? atime : undefined,
+    };
     if (existingNames.has(toSessionName(entry))) continue;
     entries.push(entry);
   }
@@ -125,7 +191,16 @@ async function getSesEntries(
 }
 
 function formatSesEntries(entries: SesEntry[]): string[] {
-  return entries.map((e) => `${e.raw}\t  ${e.display}`);
+  const rows = entries.map((e) => ({
+    e,
+    age: e.atime !== undefined ? formatRelativeTime(e.atime) : "",
+  }));
+  const maxDisplay = Math.max(0, ...rows.map((r) => r.e.display.length));
+  return rows.map(({ e, age }) => {
+    const padded = e.display.padEnd(maxDisplay);
+    const ageCol = age ? `  ${C.dim}${age}${C.reset}` : "";
+    return `${e.raw}\t  ${padded}${ageCol}`;
+  });
 }
 
 // --- Session data ---
