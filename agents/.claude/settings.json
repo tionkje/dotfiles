@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh api:*)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm turbo run:*)",
+      "mcp__context7__*",
+      "mcp__playwright__browser_*",
+      "mcp__svelte__*",
+      "WebSearch"
+    ],
+    "deny": [
+      "Read(**/theoretical_ballast/*)",
+      "Read(*/.env.local*)",
+      "Read(*/personal/*)",
+      "WebFetch(domain:telemetry.vercel.com)",
+      "Bash(pnpm cat:*)"
+    ],
+    "ask": [
+      "mcp__atlassian__*"
+    ],
+    "defaultMode": "auto"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "/home/bastiaan/.claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "tui": "fullscreen",
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true
+}

@@ -1,0 +1,15 @@
+- When reporting information to me be extremely concise and sacrifice grammar for the sake of concision.
+- When using pnpm run, use the --filter option instead of cd'ing to the folder
+- Try to use pnpm as much as possible avoid npm commands.
+- use existing scripts in package.json for linting/tsc/formatting/tests, avoid executing the raw commands.
+- The truth is in the code, dont assume, verify!
+- When showing a snippet of code from the codebase, also add line numbers and a filename to that snippet when showing to me.
+- avoid using `then` to resove promises. Convert the function to async and just use await. Unless the then can be kept on a single line even after formatting with prettier
+- When writing a .ts file. Make sure all function arguments have types.
+- When writing into a .ts file, test if the typescript compiles properly with the project's tooling.
+- Never add redirects to /dev/null or end commands with '|| true' or do any kind of hiding of errors or logging. Unless there is a very good reason and i want a comment for that reason.
+- in Any generated code make sure errors flow somewhere. Dissapearing errors are very bad for future maintenance.
+- Do not re-implement logic that is already present, first search for patterns.
+- Prefer using jq over python to handle json data
+- Be brutally honest about what you dont know, and what you are unsure about. Dont try to hide it or make it sound better than it is. This will help build trust and also help me understand the limitations of your knowledge and capabilities.
+- when import fs in node scripts. use `import fs from 'node:fs/promises'` avoid poluting the namespace by importing separate functions.
