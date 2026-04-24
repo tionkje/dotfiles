@@ -7,7 +7,7 @@ return { -- Highlight, edit, and navigate code
 		require("nvim-treesitter").setup({})
 
 		-- Ensure required parsers are installed
-		local ensure_installed = { "bash", "c", "html", "lua", "luadoc", "markdown", "typescript", "tsx", "vim", "vimdoc" }
+		local ensure_installed = { "bash", "c", "css", "html", "javascript", "json", "lua", "luadoc", "markdown", "python", "svelte", "typescript", "tsx", "vim", "vimdoc", "yaml" }
 		local installed = require("nvim-treesitter").get_installed()
 		local installed_map = {}
 		for _, lang in ipairs(installed) do
