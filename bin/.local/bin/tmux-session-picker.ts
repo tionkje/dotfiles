@@ -143,13 +143,13 @@ function formatRelativeTime(ts: number): string {
 
 // --- Ses entries (directories + SSH hosts from ses-entries.sh) ---
 
-function toSessionName(entry: SesEntry): string {
-  if (entry.type === "ssh") {
-    const afterSsh = entry.raw.slice(4); // remove "ssh " prefix
+function toSessionName(raw: string): string {
+  if (raw.startsWith("ssh ")) {
+    const afterSsh = raw.slice(4); // remove "ssh " prefix
     const firstAlias = afterSsh.split(/[,| ]/)[0].trim();
     return `ssh_${firstAlias.replace(/\./g, "_")}`;
   }
-  const basename = entry.raw.split("/").pop() ?? "";
+  const basename = raw.split("/").pop() ?? "";
   return basename.replace(/\./g, "_");
 }
 
@@ -167,7 +167,7 @@ async function getSesEntries(
     if (line.startsWith("ssh ")) {
       const display = home ? line.replace(home, "~") : line;
       const entry: SesEntry = { type: "ssh", raw: line, display };
-      if (existingNames.has(toSessionName(entry))) continue;
+      if (existingNames.has(toSessionName(line))) continue;
       entries.push(entry);
       continue;
     }
@@ -183,7 +183,7 @@ async function getSesEntries(
       display,
       atime: Number.isFinite(atime) && atime > 0 ? atime : undefined,
     };
-    if (existingNames.has(toSessionName(entry))) continue;
+    if (existingNames.has(toSessionName(path))) continue;
     entries.push(entry);
   }
 
@@ -317,6 +317,7 @@ async function main(): Promise<void> {
 
   const fzfArgs = [
     "--ansi",
+    "--multi",
     "--no-sort",
     `--delimiter=\t`,
     "--with-nth=2",
@@ -330,15 +331,27 @@ async function main(): Promise<void> {
   const result = await $({ input, nothrow: true })`fzf ${fzfArgs}`;
   if (result.exitCode !== 0) return;
 
-  const target = result.stdout.trim().split("\t")[0];
-  if (target === SEPARATOR_KEY) return;
+  const targets = result.stdout
+    .split("\n")
+    .map((line) => line.split("\t")[0])
+    .filter((t) => t && t !== SEPARATOR_KEY);
 
-  if (target.startsWith("/") || target.startsWith("ssh ")) {
-    const sesScript = `${process.env.HOME}/.local/bin/ses.sh`;
-    spawnSync(sesScript, [target], { stdio: "inherit" });
-  } else {
-    await $`tmux switch-client -t ${target}`;
+  if (targets.length === 0) return;
+
+  const sesScript = `${process.env.HOME}/.local/bin/ses.sh`;
+  for (const target of targets) {
+    if (target.startsWith("/") || target.startsWith("ssh ")) {
+      spawnSync(sesScript, [target], { stdio: "inherit" });
+    }
   }
+
+  const lastTarget = targets[targets.length - 1];
+  const finalSession =
+    lastTarget.startsWith("/") || lastTarget.startsWith("ssh ")
+      ? toSessionName(lastTarget)
+      : lastTarget;
+
+  await $`tmux switch-client -t ${finalSession}`;
 }
 
 main();
