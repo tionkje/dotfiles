@@ -1,3 +1,8 @@
 test.txt
 bin/.local/bin/node_modules
 bin/.local/bin/pnpm-lock.yaml
+
+# Override global ignores for the agents stow package
+!agents/.claude/
+!agents/**/CLAUDE*.md
+!agents/**/AGENTS.md
