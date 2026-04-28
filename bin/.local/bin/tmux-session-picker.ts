@@ -326,6 +326,7 @@ async function main(): Promise<void> {
     "--preview-window=right:50%",
     "--prompt=session > ",
     "--no-info",
+    "--bind=tab:toggle+up,btab:toggle+down",
   ];
 
   const result = await $({ input, nothrow: true })`fzf ${fzfArgs}`;
