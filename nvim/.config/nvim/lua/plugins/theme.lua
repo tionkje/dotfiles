@@ -16,5 +16,7 @@ return { -- You can easily change to a different colorscheme.
 
 		-- You can configure highlights by doing something like:
 		vim.cmd.hi("Comment gui=none")
+		vim.api.nvim_set_hl(0, "Comment", { fg = "#7780aa", italic = false })
+
 	end,
 }
