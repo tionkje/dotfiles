@@ -88,7 +88,7 @@ bump_frequency() {
 cmd="${commands[$selected]}"
 
 if [[ "$cmd" == "SUBMENU_SES" ]]; then
-  ses.sh
+  ses.ts
   bump_frequency "$selected"
   hyprctl dispatch workspace name:edit
   exit 0
