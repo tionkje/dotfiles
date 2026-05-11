@@ -158,7 +158,7 @@
   :geometry (geometry
     :x "8px"
     :y "24px"
-    :anchor "top right")
+    :anchor "top center")
   :stacking "overlay"
   :focusable false
   :namespace "eww-workspace-overview"
