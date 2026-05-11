@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# Kill existing monitor-handler and its spawned child processes
-pkill -f 'monitor-handler\.sh'
-pkill -f 'inotifywait.*\.config/eww'
-pkill -f 'socat.*socket2\.sock'
-pkill -f 'dbus-monitor.*PrepareForSleep'
-killall waybar
+# Tear down monitor-handler and everything it spawned (waybar, eww daemon,
+# socat/inotify/dbus watchers) in one shot via its process group, set up by
+# the setsid below. No hand-maintained pkill list needed.
 
-# Reload eww config
-eww reload
+if pid=$(pgrep -of monitor-handler.sh); then
+  pgid=$(ps -o pgid= -p "$pid" | tr -d ' ')
+  kill -TERM -"$pgid"
+  while pgrep -f monitor-handler.sh >/dev/null; do sleep 0.05; done
+fi
 
-# Restart monitor-handler with no init delay (it starts eww-sidebar + waybar)
 MONITOR_HANDLER_INIT_DELAY=0 setsid ~/.config/hypr/monitor-handler.sh &
