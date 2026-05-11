@@ -29,6 +29,7 @@ window#waybar {
 #network,
 #bluetooth,
 #custom-treadmill-steps,
+#custom-workspace-overview,
 #custom-notification,
 #clock {
   font-feature-settings: "tnum";
@@ -128,4 +129,14 @@ menuitem {
 #custom-notification {
   font-family: "NotoSansMono Nerd Font";
   margin: -5px 0;
+}
+
+#custom-workspace-overview {
+  font-family: "NotoSansMono Nerd Font";
+  color: #dedede;
+  padding: 0 6px;
+}
+
+#custom-workspace-overview:hover {
+  color: #3584e4;
 }

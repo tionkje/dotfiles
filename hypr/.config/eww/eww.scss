@@ -75,6 +75,91 @@
   }
 }
 
+// ── Workspace overview popup ─────────────────────────────
+.workspace-overview {
+  background-color: #1e1e1e;
+  border-radius: 12px;
+  padding: 12px;
+  font-family: "Cantarell", "Inter", sans-serif;
+  font-size: 13px;
+  color: #dedede;
+}
+
+.wso-side-panel {
+  background-color: #161616;
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 280px;
+}
+
+.wso-side-header {
+  font-weight: bold;
+  font-size: 13px;
+  color: #3584e4;
+  padding: 2px 6px 8px 6px;
+}
+
+.wso-window-row {
+  padding: 6px 8px;
+  border-radius: 6px;
+
+  &:hover {
+    background-color: #2a2a2a;
+  }
+
+  &.focused {
+    background-color: rgba(53, 132, 228, 0.15);
+    border-left: 2px solid #3584e4;
+    padding-left: 6px;
+  }
+}
+
+.wso-window-title {
+  color: #dedede;
+}
+
+.wso-list {
+  min-width: 240px;
+}
+
+.wso-monitor-header,
+.wso-special-header {
+  font-size: 10px;
+  font-weight: bold;
+  color: #7d7d7d;
+  padding: 6px 4px 2px 4px;
+}
+
+.wso-special-header {
+  color: #e5a50a;
+}
+
+.wso-workspace-row {
+  padding: 6px 8px;
+  border-radius: 6px;
+
+  &:hover {
+    background-color: #2a2a2a;
+  }
+
+  &.focused {
+    background-color: rgba(53, 132, 228, 0.15);
+    border-left: 2px solid #3584e4;
+    padding-left: 6px;
+  }
+}
+
+.wso-workspace-name {
+  color: #dedede;
+  font-weight: 500;
+}
+
+.wso-overflow-count {
+  color: #7d7d7d;
+  font-size: 11px;
+  padding-left: 4px;
+}
+
 // ── Sidebar ──────────────────────────────────────────────
 .sidebar-box {
   background-color: rgba(10, 10, 20, 0.45);

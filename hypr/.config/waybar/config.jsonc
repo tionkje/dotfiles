@@ -24,8 +24,14 @@
     "wireplumber#source",
     "bluetooth",
     "network",
-    "battery"
+    "battery",
+    "custom/workspace-overview"
   ],
+  "custom/workspace-overview": {
+    "format": "󱂬",
+    "tooltip": false,
+    "on-click": "~/.local/bin/workspace-overview-toggle.ts"
+  },
   "hyprland/workspaces": {
     "disable-scroll": true,
     "all-outputs": true,

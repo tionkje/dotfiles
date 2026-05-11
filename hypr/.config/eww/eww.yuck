@@ -86,6 +86,84 @@
   :namespace "eww-quick-settings"
   (quick-settings-panel))
 
+;; ── Workspace overview popup ─────────────────────────────────
+(defvar workspace_data '{"groups":[],"specials":[],"defaultHovered":"","byName":{}}')
+(defvar hovered_ws "")
+
+(defwidget wso-window-row [w]
+  (eventbox
+    :class {w.focused ? "wso-window-row focused" : "wso-window-row"}
+    :onclick {"hyprctl dispatch focuswindow address:" + w.address + " && eww close workspace-overview workspace-overview-backdrop"}
+    (box :orientation "h" :space-evenly false :spacing 8
+      (image :icon {w.icon} :image-width 22 :image-height 22)
+      (label :text {w.title} :limit-width 48 :xalign 0.0 :hexpand true :class "wso-window-title"))))
+
+(defwidget wso-side-panel []
+  (box :class "wso-side-panel" :orientation "v" :space-evenly false :spacing 4
+    (label :class "wso-side-header" :text {hovered_ws} :xalign 0.0)
+    (scroll :vscroll true :hscroll false :height 380
+      (box :orientation "v" :space-evenly false :spacing 2
+        (for w in {jq(workspace_data, "(.byName[\"" + hovered_ws + "\"].windows) // []")}
+          (wso-window-row :w w))))))
+
+(defwidget wso-workspace-row [ws]
+  (eventbox
+    :class {ws.focused ? "wso-workspace-row focused" : "wso-workspace-row"}
+    :onhover {"eww update hovered_ws=" + ws.name}
+    (box :orientation "h" :space-evenly false :spacing 8
+      (label :text {ws.name} :class "wso-workspace-name" :xalign 0.0 :hexpand true)
+      (box :orientation "h" :space-evenly false :spacing 2
+        (for cls in {ws.iconStrip}
+          (image :icon cls :image-width 16 :image-height 16))
+        (label :text {ws.overflowLabel}
+               :visible {ws.overflowLabel != ""}
+               :class "wso-overflow-count")))))
+
+(defwidget wso-monitor-group [group]
+  (box :orientation "v" :space-evenly false :spacing 2
+    (label :class "wso-monitor-header" :text {group.monitor} :xalign 0.0)
+    (for ws in {group.workspaces}
+      (wso-workspace-row :ws ws))))
+
+(defwidget wso-content []
+  (box :class "workspace-overview" :orientation "h" :space-evenly false :spacing 8
+    (wso-side-panel)
+    (box :class "wso-list" :orientation "v" :space-evenly false :spacing 6
+      (for group in {workspace_data.groups}
+        (wso-monitor-group :group group))
+      (box :orientation "v"
+           :space-evenly false
+           :spacing 2
+           :visible {arraylength(workspace_data.specials) > 0}
+        (label :class "wso-special-header" :text "Scratchpad" :xalign 0.0)
+        (for ws in {workspace_data.specials}
+          (wso-workspace-row :ws ws))))))
+
+(defwindow workspace-overview-backdrop
+  :monitor 0
+  :geometry (geometry
+    :x "0px"
+    :y "0px"
+    :width "100%"
+    :height "100%"
+    :anchor "center center")
+  :stacking "overlay"
+  :focusable false
+  :namespace "eww-workspace-overview-backdrop"
+  (eventbox :onclick "eww close workspace-overview workspace-overview-backdrop"
+    (box)))
+
+(defwindow workspace-overview
+  :monitor 0
+  :geometry (geometry
+    :x "8px"
+    :y "24px"
+    :anchor "top right")
+  :stacking "overlay"
+  :focusable false
+  :namespace "eww-workspace-overview"
+  (wso-content))
+
 ;; ── Sidebar ──────────────────────────────────────────────────
 (deflisten cpu_svg
   :initial "/tmp/eww-cpu-graph.svg"
