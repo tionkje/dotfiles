@@ -79,55 +79,59 @@
 .workspace-overview {
   background-color: #1e1e1e;
   border-radius: 12px;
-  padding: 12px;
+  padding: 16px;
   font-family: "Cantarell", "Inter", sans-serif;
-  font-size: 13px;
+  font-size: 16px;
   color: #dedede;
 }
 
 .wso-side-panel {
   background-color: #161616;
   border-radius: 8px;
-  padding: 8px;
-  min-width: 280px;
+  padding: 10px;
+  min-width: 340px;
 }
 
 .wso-side-header {
   font-weight: bold;
-  font-size: 13px;
+  font-size: 16px;
   color: #3584e4;
-  padding: 2px 6px 8px 6px;
+  padding: 4px 8px 10px 8px;
 }
 
 .wso-window-row {
-  padding: 6px 8px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 4px;
 
   &:hover {
     background-color: #2a2a2a;
   }
 
   &.focused {
-    background-color: rgba(53, 132, 228, 0.15);
-    border-left: 2px solid #3584e4;
-    padding-left: 6px;
+    background-color: #2a5a9e;
   }
 }
 
 .wso-window-title {
   color: #dedede;
+  font-size: 15px;
+
+  .wso-window-row.focused & {
+    color: #ffffff;
+    font-weight: 600;
+  }
 }
 
 .wso-list {
-  min-width: 240px;
+  min-width: 280px;
 }
 
 .wso-monitor-header,
 .wso-special-header {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: bold;
   color: #7d7d7d;
-  padding: 6px 4px 2px 4px;
+  padding: 8px 4px 4px 4px;
 }
 
 .wso-special-header {
@@ -135,28 +139,32 @@
 }
 
 .wso-workspace-row {
-  padding: 6px 8px;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 4px;
 
   &:hover {
     background-color: #2a2a2a;
   }
 
   &.focused {
-    background-color: rgba(53, 132, 228, 0.15);
-    border-left: 2px solid #3584e4;
-    padding-left: 6px;
+    background-color: #2a5a9e;
   }
 }
 
 .wso-workspace-name {
   color: #dedede;
   font-weight: 500;
+  font-size: 15px;
+
+  .wso-workspace-row.focused & {
+    color: #ffffff;
+    font-weight: 700;
+  }
 }
 
 .wso-overflow-count {
   color: #7d7d7d;
-  font-size: 11px;
+  font-size: 13px;
   padding-left: 4px;
 }
 

@@ -7,23 +7,40 @@ const POLL_MS = 2000;
 
 const COLORS = {
   mem: "#c792ea",
+  swap: "#ff9e64",
   disk: "#f78c6c",
 };
 
-function readMemPercent(): number {
+interface MemSample {
+  mem: number;
+  swap: number;
+}
+
+// Both values expressed as % of physical RAM (MemTotal), so they stack as
+// "memory pressure" — swap usage extends the bar past 100 % when RAM is full.
+function readMemSample(): MemSample {
   const data = fs.readFileSync("/proc/meminfo", "utf-8");
   const lines = data.split("\n");
-  let total = 0;
-  let available = 0;
+  let memTotal = 0;
+  let memAvailable = 0;
+  let swapTotal = 0;
+  let swapFree = 0;
   for (const line of lines) {
     if (line.startsWith("MemTotal:")) {
-      total = parseInt(line.split(/\s+/)[1], 10);
+      memTotal = parseInt(line.split(/\s+/)[1], 10);
     } else if (line.startsWith("MemAvailable:")) {
-      available = parseInt(line.split(/\s+/)[1], 10);
+      memAvailable = parseInt(line.split(/\s+/)[1], 10);
+    } else if (line.startsWith("SwapTotal:")) {
+      swapTotal = parseInt(line.split(/\s+/)[1], 10);
+    } else if (line.startsWith("SwapFree:")) {
+      swapFree = parseInt(line.split(/\s+/)[1], 10);
     }
   }
-  if (total === 0) return 0;
-  return Math.round(((total - available) / total) * 100);
+  if (memTotal === 0) return { mem: 0, swap: 0 };
+  const memPct = ((memTotal - memAvailable) / memTotal) * 100;
+  const swapUsed = swapTotal - swapFree;
+  const swapPct = (swapUsed / memTotal) * 100;
+  return { mem: Math.round(memPct), swap: Math.round(swapPct) };
 }
 
 function readDiskPercent(): number {
@@ -40,14 +57,20 @@ const DISK_PATHS = ["/tmp/eww-disk-graph-0.svg", "/tmp/eww-disk-graph-1.svg"];
 $.verbose = false;
 let tick = 0;
 const memValues: number[] = [];
+const swapValues: number[] = [];
 const diskValues: number[] = [];
 
-memValues.push(readMemPercent());
+const initial = readMemSample();
+memValues.push(initial.mem);
+swapValues.push(initial.swap);
 diskValues.push(readDiskPercent());
 
 setInterval(() => {
-  memValues.push(readMemPercent());
+  const sample = readMemSample();
+  memValues.push(sample.mem);
+  swapValues.push(sample.swap);
   if (memValues.length > MAX_POINTS) memValues.shift();
+  if (swapValues.length > MAX_POINTS) swapValues.shift();
 
   diskValues.push(readDiskPercent());
   if (diskValues.length > MAX_POINTS) diskValues.shift();
@@ -57,15 +80,25 @@ setInterval(() => {
   const diskPath = DISK_PATHS[idx];
 
   const memCurrent = memValues[memValues.length - 1];
+  const swapCurrent = swapValues[swapValues.length - 1];
   const diskCurrent = diskValues[diskValues.length - 1];
+  // Combined pressure as % of RAM fits the 40 px slot and conveys overall load.
+  const pressure = memCurrent + swapCurrent;
+  // Y floor at 100 so the RAM scale is stable; grows only when swap pushes past.
+  let pressurePeak = 100;
+  for (let i = 0; i < memValues.length; i++) {
+    const combined = memValues[i] + (swapValues[i] ?? 0);
+    if (combined > pressurePeak) pressurePeak = combined;
+  }
   fs.writeFileSync(
     memPath,
     generateGraphSvg({
       values: memValues,
       color: COLORS.mem,
       label: "󰍛",
-      displayValue: `${memCurrent}%`,
-      maxValue: 100,
+      displayValue: `${pressure}%`,
+      maxValue: pressurePeak,
+      stack: { values: swapValues, color: COLORS.swap },
     }),
   );
   fs.writeFileSync(

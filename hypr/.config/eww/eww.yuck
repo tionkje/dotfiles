@@ -92,10 +92,10 @@
 
 (defwidget wso-window-row [w]
   (eventbox
-    :class {w.focused ? "wso-window-row focused" : "wso-window-row"}
     :onclick {"hyprctl dispatch focuswindow address:" + w.address + " && eww close workspace-overview workspace-overview-backdrop"}
-    (box :orientation "h" :space-evenly false :spacing 8
-      (image :icon {w.icon} :image-width 22 :image-height 22)
+    (box :class {w.focused ? "wso-window-row focused" : "wso-window-row"}
+         :orientation "h" :space-evenly false :spacing 8
+      (image :icon {w.icon} :image-width 26 :image-height 26)
       (label :text {w.title} :limit-width 48 :xalign 0.0 :hexpand true :class "wso-window-title"))))
 
 (defwidget wso-side-panel []
@@ -108,13 +108,14 @@
 
 (defwidget wso-workspace-row [ws]
   (eventbox
-    :class {ws.focused ? "wso-workspace-row focused" : "wso-workspace-row"}
+    :hexpand true
     :onhover {"eww update hovered_ws=" + ws.name}
-    (box :orientation "h" :space-evenly false :spacing 8
+    (box :class {ws.focused ? "wso-workspace-row focused" : "wso-workspace-row"}
+         :orientation "h" :space-evenly false :spacing 8
       (label :text {ws.name} :class "wso-workspace-name" :xalign 0.0 :hexpand true)
       (box :orientation "h" :space-evenly false :spacing 2
         (for cls in {ws.iconStrip}
-          (image :icon cls :image-width 16 :image-height 16))
+          (image :icon cls :image-width 20 :image-height 20))
         (label :text {ws.overflowLabel}
                :visible {ws.overflowLabel != ""}
                :class "wso-overflow-count")))))
