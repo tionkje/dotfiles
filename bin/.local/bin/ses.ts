@@ -13,6 +13,10 @@ const C = {
   cyan: "\x1b[36m",
 } as const;
 
+// US (0x1f) — non-printing field separator used between fzf row fields.
+// Renders as zero-width so the joined display equals the visible string.
+const FZF_FS = "\x1f";
+
 // --- Types ---
 
 interface SessionInfo {
@@ -199,7 +203,19 @@ function formatSesEntries(entries: SesEntry[]): string[] {
   return rows.map(({ e, age }) => {
     const padded = e.display.padEnd(maxDisplay);
     const ageCol = age ? `  ${C.dim}${age}${C.reset}` : "";
-    return `${e.raw}\t  ${padded}${ageCol}`;
+    // Visual split into 3 invisible-delimited fields: prefix | match | suffix.
+    // ssh entries put the literal "ssh " in the prefix so it's not matched.
+    let prefix: string;
+    let match: string;
+    if (e.type === "ssh") {
+      prefix = "  ssh ";
+      const host = e.display.slice(4); // strip "ssh "
+      match = host.padEnd(Math.max(0, maxDisplay - 4));
+    } else {
+      prefix = "  ";
+      match = padded;
+    }
+    return `${e.raw}${FZF_FS}${prefix}${FZF_FS}${match}${FZF_FS}${ageCol}`;
   });
 }
 
@@ -259,21 +275,21 @@ function formatLines(sessions: SessionInfo[]): string[] {
   rows.sort((a, b) => b.s.lastAttached - a.s.lastAttached);
 
   return rows.map((r) => {
-    let display = "";
-    display += `${C.green}${r.marker}${C.reset} `;
-    display += `${C.bold}${r.s.name.padEnd(maxName)}${C.reset}  `;
+    const prefix = `${C.green}${r.marker}${C.reset} `;
+    const match = `${C.bold}${r.s.name.padEnd(maxName)}${C.reset}`;
 
+    let suffix = "  ";
     if (maxBranch > 0) {
-      display += `${C.yellow}${r.s.branch.padEnd(maxBranch)}${C.reset}  `;
+      suffix += `${C.yellow}${r.s.branch.padEnd(maxBranch)}${C.reset}  `;
     }
     if (maxRepo > 0) {
-      display += `${C.cyan}${r.s.repo.padEnd(maxRepo)}${C.reset}  `;
+      suffix += `${C.cyan}${r.s.repo.padEnd(maxRepo)}${C.reset}  `;
     }
+    suffix += `${C.dim}${r.age.padStart(maxAge)}${C.reset} `;
+    suffix += `${C.dim}${r.win.padStart(maxWin)}${C.reset}`;
 
-    display += `${C.dim}${r.age.padStart(maxAge)}${C.reset} `;
-    display += `${C.dim}${r.win.padStart(maxWin)}${C.reset}`;
-
-    return `${r.s.name}\t${display}`;
+    // Fields: target | prefix (marker) | match (session name — searched) | suffix (branch/repo/age/win)
+    return `${r.s.name}${FZF_FS}${prefix}${FZF_FS}${match}${FZF_FS}${suffix}`;
   });
 }
 
@@ -296,8 +312,9 @@ async function main(): Promise<void> {
 
   const allLines = [...sessionLines];
   if (sesLines.length > 0) {
+    // 4 fields to match the row schema; match field empty so the separator never matches a query.
     allLines.push(
-      `${SEPARATOR_KEY}\t  ${C.dim}─── new sessions ───${C.reset}`
+      `${SEPARATOR_KEY}${FZF_FS}  ${FZF_FS}${FZF_FS}${C.dim}─── new sessions ───${C.reset}`
     );
     allLines.push(...sesLines);
   }
@@ -319,8 +336,10 @@ async function main(): Promise<void> {
     "--ansi",
     "--multi",
     "--no-sort",
-    `--delimiter=\t`,
-    "--with-nth=2",
+    `--delimiter=${FZF_FS}`,
+    "--with-nth=2..", // hide field 1 (target); show prefix+match+suffix joined by invisible FS
+    "--nth=2", // restrict matching to the "match" field (transformed-line index = 2)
+    "--accept-nth=1", // emit only the target on accept
     "--header-lines=1",
     `--preview=${previewCmd}`,
     "--preview-window=right:50%",
@@ -334,7 +353,7 @@ async function main(): Promise<void> {
 
   const targets = result.stdout
     .split("\n")
-    .map((line) => line.split("\t")[0])
+    .map((line) => line.trim())
     .filter((t) => t && t !== SEPARATOR_KEY);
 
   if (targets.length === 0) return;
