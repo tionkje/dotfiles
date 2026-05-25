@@ -2,17 +2,33 @@
 set -euo pipefail
 trap 'notify-send -u critical "Error: $(basename "$0")" "Line $LINENO failed (exit $?)"' ERR
 
-STATE_FILE="/tmp/eww-sleep-inhibit"
+PID_FILE="${XDG_RUNTIME_DIR:-/tmp}/eww-sleep-inhibit.pid"
 
-if [ -f "$STATE_FILE" ]; then
-    rm "$STATE_FILE"
-    if ! pgrep -x hypridle >/dev/null; then
-        hypridle &
-        disown
-    fi
-    notify-send "Sleep inhibit off" "hypridle re-enabled"
+is_inhibited() {
+    [ -f "$PID_FILE" ] || return 1
+    local pid
+    pid=$(cat "$PID_FILE")
+    [ -d "/proc/$pid" ] || return 1
+    grep -q '^systemd-inhibit$' "/proc/$pid/comm"
+}
+
+if is_inhibited; then
+    pid=$(cat "$PID_FILE")
+    rm -f "$PID_FILE"
+    kill "$pid"
+    notify-send "Sleep inhibit off" "System may sleep again"
 else
-    touch "$STATE_FILE"
-    pkill -x hypridle || true  # expected: hypridle may already be dead
-    notify-send "Sleep inhibit on" "hypridle disabled — machine will stay awake"
+    rm -f "$PID_FILE"
+    # detach from eww's pipes so the inhibit holder survives this script's exit.
+    # stderr goes to the journal under tag eww-sleep-inhibit so errors are still discoverable.
+    setsid systemd-cat -t eww-sleep-inhibit \
+        systemd-inhibit \
+            --what=idle:sleep \
+            --who=eww \
+            --why="Manual sleep inhibit" \
+            --mode=block \
+            sleep infinity </dev/null &
+    echo $! > "$PID_FILE"
+    disown
+    notify-send "Sleep inhibit on" "System will stay awake"
 fi

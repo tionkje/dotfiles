@@ -6,7 +6,10 @@ for folder in $(echo $STOW_FOLDERS | sed "s/,/ /g")
 do
     echo "stow $folder"
     stow -D $folder
-    stow $folder
+    # --no-folding: always create real dirs + per-file symlinks. Required so systemd
+    # follows drop-in dirs like ~/.config/systemd/user/hypridle.service.d/ (systemd
+    # does not follow symlinked drop-in directories).
+    stow --no-folding $folder
 done
 popd
 

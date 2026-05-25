@@ -52,7 +52,7 @@
               "")
       (button :class "qs-btn ${sleep_inhibit_json.inhibited ? 'active' : ''}"
               :onclick "scripts/toggle-sleep-inhibit"
-              :tooltip {sleep_inhibit_json.inhibited ? "Sleep inhibited — click to re-enable" : "Click to prevent sleep"}
+              :tooltip {sleep_inhibit_json.inhibited ? "Sleep inhibited — click to allow sleep" : "Click to prevent sleep"}
               {sleep_inhibit_json.inhibited ? "󰒳" : "󰒲"})
       (button :class "qs-btn power"
               :onclick "wleave & eww close quick-settings quick-settings-backdrop"

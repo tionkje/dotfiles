@@ -2,26 +2,47 @@
 set -euo pipefail
 trap 'notify-send -u critical "Error: $(basename "$0")" "Line $LINENO failed (exit $?)"' ERR
 
-STATE_FILE="/tmp/eww-sleep-inhibit"
+PID_FILE="${XDG_RUNTIME_DIR:-/tmp}/eww-sleep-inhibit.pid"
+AC_PATH="/sys/class/power_supply/AC/online"
 PREV_AC=""
 
-while true; do
-    inhibited="false"
-    [ -f "$STATE_FILE" ] && inhibited="true" || true  # expected: file may not exist
+is_inhibited() {
+    [ -f "$PID_FILE" ] || return 1
+    local pid
+    pid=$(cat "$PID_FILE")
+    [ -d "/proc/$pid" ] || return 1
+    grep -q '^systemd-inhibit$' "/proc/$pid/comm"
+}
 
-    # Auto-disable inhibit when switching from AC to battery
-    AC=$(cat /sys/class/power_supply/AC/online 2>/dev/null) || AC=""
-    if [ "$PREV_AC" = "1" ] && [ "$AC" = "0" ] && [ "$inhibited" = "true" ]; then
-        rm -f "$STATE_FILE"
-        if ! pgrep -x hypridle >/dev/null; then
-            hypridle &
-            disown
-        fi
-        inhibited="false"
-        notify-send "Sleep inhibit off" "Switched to battery — hypridle re-enabled"
+drop_inhibit() {
+    [ -f "$PID_FILE" ] || return 0
+    local pid
+    pid=$(cat "$PID_FILE")
+    rm -f "$PID_FILE"
+    if [ -d "/proc/$pid" ]; then
+        kill "$pid" || notify-send -u critical "sleep_inhibit_info" "kill $pid failed"
     fi
-    PREV_AC="$AC"
+}
+
+while true; do
+    if is_inhibited; then
+        inhibited="true"
+    else
+        inhibited="false"
+        # Stale pid file (process died on its own) — clean up so toggle stays consistent.
+        [ -f "$PID_FILE" ] && rm -f "$PID_FILE"
+    fi
+
+    if [ -r "$AC_PATH" ]; then
+        AC=$(cat "$AC_PATH")
+        if [ "$PREV_AC" = "1" ] && [ "$AC" = "0" ] && [ "$inhibited" = "true" ]; then
+            drop_inhibit
+            inhibited="false"
+            notify-send "Sleep inhibit off" "Switched to battery"
+        fi
+        PREV_AC="$AC"
+    fi
 
     echo "{\"inhibited\": $inhibited}"
-    sleep 2
+    sleep 1
 done

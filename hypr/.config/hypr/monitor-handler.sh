@@ -30,9 +30,11 @@ handle() {
     monitoradded*)
       assign_workspaces "${1#monitoradded>>}"
       reload_bars
+      ~/.config/hypr/swaync-follow-main.sh
       ;;
     monitorremoved*)
       reload_bars
+      ~/.config/hypr/swaync-follow-main.sh
       ;;
   esac
 }
@@ -42,6 +44,7 @@ for monitorname in $(hyprctl -j monitors | jq -r '.[].name'); do
   assign_workspaces "$monitorname"
 done
 reload_bars
+~/.config/hypr/swaync-follow-main.sh
 
 socat -U - UNIX-CONNECT:"$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock" | while read -r line; do
   handle "$line"
