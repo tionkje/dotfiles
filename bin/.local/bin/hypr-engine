@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Switch the active Hyprland config engine between the legacy hyprlang (.conf)
+# and the new Lua (.lua) implementation. Manages symlinks under $HOME pointing
+# into either $DOTFILES/hypr-conf/ or $DOTFILES/hypr-lua/. Restart Hyprland to
+# apply (engine selection happens at startup, not on reload).
+
+set -euo pipefail
+trap 'echo "hypr-engine: error at ${BASH_SOURCE[0]}:$LINENO" >&2' ERR
+
+script_path=$(readlink -f "${BASH_SOURCE[0]}")
+DOTFILES=$(cd "$(dirname "$script_path")/../../.." && pwd)
+
+HOME_DIR=${HOME:?HOME must be set}
+
+shared_files=(
+  ".config/hypr/monitor-handler.sh"
+  ".config/eww/eww.yuck"
+  ".local/bin/launch-or-focus"
+  ".local/bin/hypr-cycle-or-group"
+)
+
+usage() {
+  cat >&2 <<EOF
+usage: hypr-engine <command>
+
+  lua     activate hypr-lua package (Hyprland >=0.55 native engine)
+  conf    activate hypr-conf package (legacy hyprlang, deprecated)
+  status  print current engine (lua|conf|none)
+
+After switching, restart Hyprland: hyprctl dispatch exit
+EOF
+  exit 2
+}
+
+current_engine() {
+  if   [[ -L $HOME_DIR/.config/hypr/hyprland.lua  ]]; then echo lua
+  elif [[ -L $HOME_DIR/.config/hypr/hyprland.conf ]]; then echo conf
+  else echo none
+  fi
+}
+
+switch_to() {
+  local engine=$1 other
+  case $engine in
+    lua)  other=conf ;;
+    conf) other=lua  ;;
+    *) echo "hypr-engine: unknown engine '$engine'" >&2; exit 2 ;;
+  esac
+
+  local pkg=$DOTFILES/hypr-$engine
+  [[ -d $pkg ]] || { echo "hypr-engine: missing package $pkg" >&2; exit 1; }
+
+  # Create new engine's hyprland.* link FIRST so the file exists before we
+  # remove the other one. Avoids a gap where Hyprland could regenerate a
+  # default stub (it watches its config path and writes a stub when missing).
+  ln -sfn "$pkg/.config/hypr/hyprland.$engine" "$HOME_DIR/.config/hypr/hyprland.$engine"
+
+  local other_hypr=$HOME_DIR/.config/hypr/hyprland.$other
+  if [[ -L $other_hypr || -e $other_hypr ]]; then
+    rm -- "$other_hypr"
+  fi
+
+  local f
+  for f in "${shared_files[@]}"; do
+    mkdir -p "$(dirname "$HOME_DIR/$f")"
+    ln -sfn "$pkg/$f" "$HOME_DIR/$f"
+  done
+
+  echo "switched to $engine. restart hyprland to apply: hyprctl dispatch exit"
+}
+
+case ${1:-} in
+  lua|conf) switch_to "$1" ;;
+  status)   current_engine ;;
+  *)        usage ;;
+esac
