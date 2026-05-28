@@ -302,6 +302,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
 -- Import the diff_blocks module
 require("diff_blocks")
 require("bitbucket-url")
+require("single_use_hl").setup()
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
