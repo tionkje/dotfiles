@@ -10,7 +10,7 @@
       "Bash(pnpm run:*)",
       "Bash(pnpm turbo run:*)",
       "mcp__context7__*",
-      "mcp__playwright__browser_*",
+      "mcp__playwright",
       "mcp__svelte__*",
       "WebSearch"
     ],
@@ -31,7 +31,16 @@
     "command": "/home/bastiaan/.claude/statusline.sh"
   },
   "enabledPlugins": {
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "ponytail@ponytail": true
+  },
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
   },
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
