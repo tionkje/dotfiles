@@ -36,5 +36,11 @@ return { -- Highlight, edit, and navigate code
 		})
 	end,
 	},
-	"nvim-treesitter/nvim-treesitter-context"
+	{
+		"nvim-treesitter/nvim-treesitter-context",
+		opts = { 
+			multiline_threshold = 3 , -- cap each context layer at 3 lines
+			-- separator = "─",
+		},
+	},
 }
