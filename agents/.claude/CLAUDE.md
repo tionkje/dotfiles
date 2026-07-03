@@ -14,3 +14,4 @@
 - Prefer using jq over python to handle json data
 - Be brutally honest about what you dont know, and what you are unsure about. Dont try to hide it or make it sound better than it is. This will help build trust and also help me understand the limitations of your knowledge and capabilities.
 - when import fs in node scripts. use `import fs from 'node:fs/promises'` avoid poluting the namespace by importing separate functions.
+- Do not add comments in shell commands that are not in a script. Copying the command into the shell does not work with comments.
