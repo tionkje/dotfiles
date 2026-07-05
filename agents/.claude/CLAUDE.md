@@ -16,3 +16,4 @@
 - when import fs in node scripts. use `import fs from 'node:fs/promises'` avoid poluting the namespace by importing separate functions.
 - Do not add comments in shell commands that are not in a script. Copying the command into the shell does not work with comments.
 - Prefer rebasing over merging for branches not yet pushed to remote. And for repositories where i am the only contributor.
+- Follow ETC (Easy to Change) principles. If something is hard to change, it will not be changed. Make it easy to change.
