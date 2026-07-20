@@ -45,6 +45,11 @@ hypr-lua/
 
 ## 2. Clean up draft leftovers
 
+- [ ] FIRST: `git rm hypr/.config/hypr/monitors.conf` (keep the local file) —
+      the live `~/.config/hypr/monitors.conf` is a regular file, not a
+      symlink, so restowing hypr conflicts on it and stow aborts the whole
+      package *after* `stow -D hypr` already unlinked hypridle.conf and
+      hyprlock.conf. Machine-local per `plan-hypr-lua-gaps.md` §3 anyway
 - [ ] Removing the draft from the `hypr` package orphans the
       `~/.config/hypr/hyprland.lua.draft` symlink — `stow -D hypr` before
       the move, restow after (install.sh already does this). Note: this

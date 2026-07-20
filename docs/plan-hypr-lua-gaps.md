@@ -10,6 +10,8 @@ rules, animations, groupbar/input/device settings match.
 `Hyprland --verify-config --config FILE` works on lua configs and is strict:
 unknown rule effect keys and bad monitor mode strings are hard errors, not
 warnings. The current draft already passes (`config ok`, verified on 0.55.4).
+Caveat: verify-config picks the parser by file extension — run it on a file
+named `.lua`; the in-place `.draft` is parsed as conf syntax and fails.
 
 - [ ] Never restart into the lua engine without a passing
       `Hyprland --verify-config --config ~/.config/hypr/hyprland.lua`
