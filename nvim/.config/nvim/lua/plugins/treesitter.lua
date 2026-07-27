@@ -29,7 +29,8 @@ return { -- Highlight, edit, and navigate code
 				-- Ruby depends on vim's regex highlighting for indent rules
 				if args.match == "ruby" then
 					vim.bo[args.buf].syntax = "on"
-				else
+				elseif args.match ~= "python" then
+					-- treesitter python indent is experimental and reindents wrongly on ':'
 					vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 				end
 			end,
