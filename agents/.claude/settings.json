@@ -9,9 +9,7 @@
       "Bash(pnpm install:*)",
       "Bash(pnpm run:*)",
       "Bash(pnpm turbo run:*)",
-      "mcp__context7__*",
       "mcp__playwright",
-      "mcp__svelte__*",
       "WebSearch"
     ],
     "deny": [
@@ -22,7 +20,7 @@
       "Bash(pnpm cat:*)"
     ],
     "ask": [
-      "mcp__atlassian__*"
+      "mcp__claude_ai_Atlassian__*"
     ],
     "defaultMode": "auto"
   },
