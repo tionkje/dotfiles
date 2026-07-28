@@ -13,8 +13,11 @@ of lua, and under the lua provider `hyprctl dispatch <arg>` evaluates `<arg>` as
 on the official wiki and confirmed in Hyprland source. `hypr-dispatch`
 (`hypr-common/.local/bin/hypr-dispatch`) exists so scripts shared by both engines
 (`hypr-cycle-or-group`, `launch-or-focus`, `monitor-handler.sh`, `presentation-mode.sh`,
-`hypridle.conf`, eww, fzl) can keep one calling convention (old hyprlang syntax) while these
-dotfiles A/B the two engines via `hypr-engine` (`bin/.local/bin/hypr-engine`).
+`hypridle.conf`, eww, fzl) can keep one calling convention while these dotfiles A/B the two
+engines via `hypr-engine` (`bin/.local/bin/hypr-engine`). Since the 2026-07 flip that convention
+is the **native lua expression** (`hypr-dispatch 'hl.dsp.focus({ workspace = [[name:edit]] })'`):
+lua passes through verbatim, and the script translates *back* to hyprlang only on the legacy
+provider. Tested by `tests/hypr-dispatch.test.sh`.
 
 ## 1. The lua provider is official upstream
 
@@ -69,12 +72,13 @@ dotfiles A/B the two engines via `hypr-engine` (`bin/.local/bin/hypr-engine`).
   silently falls back to TOGGLE** — confirms the black-screen incident noted in
   hypr-dispatch:27-28 (`hl.dsp.dpms("on")` toggled instead of enabling). The
   `{ action = "on" }` form the script emits is correct.
-- **Bug found — `cyclenext prev`**: hypr-dispatch:31-32 emits
+- **Bug found — `cyclenext prev` (fixed by the flip)**: the pre-flip script emitted
   `hl.dsp.window.cycle_next({ prev = true })`, but upstream `hlWindowCycleNext` reads only
   `next`/`tiled`/`floating` keys (LuaBindingsDispatchers.cpp v0.56.0 L973-994 and same on main);
-  `prev` is silently ignored and `next` defaults to `true`, so "prev" cycles **forward**. The
-  wiki table agrees (`cycle_next({ next?, tiled?, floating?, window? })`). Fix: emit
-  `{ next = false }`. Caller affected: `hypr-common/.local/bin/hypr-cycle-or-group:14`.
+  `prev` is silently ignored and `next` defaults to `true`, so "prev" cycled **forward**. The
+  wiki table agrees (`cycle_next({ next?, tiled?, floating?, window? })`).
+  `hypr-common/.local/bin/hypr-cycle-or-group` now passes the correct
+  `hl.dsp.window.cycle_next({ next = false })` natively.
 - `workspace`/`focuswindow`/`focusmonitor` → `hl.dsp.focus({workspace|window|monitor})`,
   `moveworkspacetomonitor` → `hl.dsp.workspace.move({workspace, monitor})`,
   `changegroupactive b|f` → `hl.dsp.group.prev()/next()`, `exec` → `hl.dsp.exec_cmd(cmd, rules?)`
@@ -85,7 +89,8 @@ dotfiles A/B the two engines via `hypr-engine` (`bin/.local/bin/hypr-engine`).
 Needed: yes, while both engines are in rotation. The provider-dependent `hyprctl dispatch`
 semantics are real, upstream, and documented (wiki Using-hyprctl + Dispatchers). Undocumented
 parts this repo relies on: `hyprctl status`/`configProvider` (source-only), and the
-lua-string-literal quoting constraint is the script's own invention (lua `[[ ]]` has no
-escaping — handled at hypr-dispatch:14-20). Once hyprlang is dropped locally, callers could
-migrate to native `hl.dsp` strings and the shim deleted (upstream main already dropped hyprlang
-dispatch, so the shim's passthrough path is on borrowed time anyway).
+lua-string-literal quoting constraint (lua `[[ ]]` has no escaping — argument content must not
+contain `]`, enforced by the rigid translation regexes). Direction since the 2026-07 flip:
+callers speak native lua, the script translates lua→hyprlang only on the legacy provider. End
+state once hyprlang is dropped locally: `s/hypr-dispatch/hyprctl dispatch/` in callers and
+delete the script — no rewrite needed.
