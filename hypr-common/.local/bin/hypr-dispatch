@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# hyprctl dispatch that works under both config providers. Under the lua
+# provider (hypr-engine lua) `hyprctl dispatch` evaluates its argument as lua,
+# not hyprlang dispatcher syntax, so translate the dispatchers these dotfiles
+# use. Old hyprlang syntax in, e.g.: hypr-dispatch workspace name:edit
+source "$HOME/.local/bin/err-notify"
+set -euo pipefail
+
+if ! hyprctl status | grep -q 'configProvider: lua'; then
+  exec hyprctl dispatch "$@"
+fi
+
+# lua long-string literal; [[ ]] has no escaping, so ]] must not appear
+q() {
+  if [[ $1 == *"]]"* ]]; then
+    echo "hypr-dispatch: ']]' in argument not representable in lua string: $1" >&2
+    exit 2
+  fi
+  printf '[[%s]]' "$1"
+}
+
+case $1 in
+  workspace)              lua="hl.dsp.focus({ workspace = $(q "$2") })" ;;
+  focuswindow)            lua="hl.dsp.focus({ window = $(q "$2") })" ;;
+  focusmonitor)           lua="hl.dsp.focus({ monitor = $(q "$2") })" ;;
+  moveworkspacetomonitor) lua="hl.dsp.workspace.move({ workspace = $(q "$2"), monitor = $(q "$3") })" ;;
+  # togglable dispatchers take { action = "on"|"off"|"toggle" }; a bare string
+  # arg is silently ignored (caused black screen after resume: dpms on no-op'd)
+  dpms)                   lua="hl.dsp.dpms({ action = $(q "$2") })" ;;
+  cyclenext)
+    if [[ ${2:-} == prev ]]; then
+      lua="hl.dsp.window.cycle_next({ prev = true })"
+    else
+      lua="hl.dsp.window.cycle_next()"
+    fi
+    ;;
+  changegroupactive)
+    if [[ ${2:-f} == b ]]; then
+      lua="hl.dsp.group.prev()"
+    else
+      lua="hl.dsp.group.next()"
+    fi
+    ;;
+  exec)
+    if [[ $2 =~ ^\[monitor\ ([^]]+)\]\ (.*)$ ]]; then
+      lua="hl.dsp.exec_cmd($(q "${BASH_REMATCH[2]}"), { monitor = $(q "${BASH_REMATCH[1]}") })"
+    else
+      lua="hl.dsp.exec_cmd($(q "$2"))"
+    fi
+    ;;
+  *)
+    echo "hypr-dispatch: no lua translation for dispatcher '$1'" >&2
+    notify-send -u critical "hypr-dispatch" "no lua translation for dispatcher '$1'"
+    exit 2
+    ;;
+esac
+
+hyprctl dispatch "$lua"

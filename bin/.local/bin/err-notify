@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Source this at the top of any bash script to surface every unchecked
+# command failure as a critical desktop notification (plus stderr):
+#
+#   source "$HOME/.local/bin/err-notify"
+#
+# Reports script:line and the failing command. Deliberately does NOT set
+# -e/-u/pipefail: long-running event loops must keep running after a failed
+# command; scripts that want exit-on-error set those themselves. set -E makes
+# the trap fire inside functions too.
+set -E
+
+_err_notify() {
+  local status=$1 line=$2 cmd=$3 src=$4
+  local name=${src##*/}
+  echo "$name:$line: exit $status: $cmd" >&2
+  if command -v notify-send >/dev/null; then
+    notify-send -u critical "error: $name:$line" "exit $status: $cmd"
+  fi
+}
+
+trap '_err_notify "$?" "$LINENO" "$BASH_COMMAND" "${BASH_SOURCE[0]}"' ERR

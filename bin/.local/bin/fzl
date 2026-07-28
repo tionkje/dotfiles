@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+source "$HOME/.local/bin/err-notify"
 set -euo pipefail
 
 if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
@@ -15,7 +16,7 @@ if [[ "${1:-}" == "--launch" ]]; then
   else
     MON="$LAPTOP"
   fi
-  hyprctl dispatch exec "[monitor $MON] alacritty --class fzl-launcher -o 'window.startup_mode=\"Windowed\"' -o 'window.opacity=0.9' -e fzl"
+  hypr-dispatch exec "[monitor $MON] alacritty --class fzl-launcher -o 'window.startup_mode=\"Windowed\"' -o 'window.opacity=0.9' -e fzl"
   exit 0
 fi
 
@@ -90,7 +91,7 @@ cmd="${commands[$selected]}"
 if [[ "$cmd" == "SUBMENU_SES" ]]; then
   ses.ts
   bump_frequency "$selected"
-  hyprctl dispatch workspace name:edit
+  hypr-dispatch workspace name:edit
   exit 0
 fi
 

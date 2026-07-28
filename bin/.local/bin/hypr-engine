@@ -1,76 +1,76 @@
 #!/usr/bin/env bash
-# Switch the active Hyprland config engine between the legacy hyprlang (.conf)
-# and the new Lua (.lua) implementation. Manages symlinks under $HOME pointing
-# into either $DOTFILES/hypr-conf/ or $DOTFILES/hypr-lua/. Restart Hyprland to
-# apply (engine selection happens at startup, not on reload).
-
+source "$HOME/.local/bin/err-notify"
 set -euo pipefail
-trap 'echo "hypr-engine: error at ${BASH_SOURCE[0]}:$LINENO" >&2' ERR
 
-script_path=$(readlink -f "${BASH_SOURCE[0]}")
-DOTFILES=$(cd "$(dirname "$script_path")/../../.." && pwd)
+DOTFILES=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../../.." && pwd)
 
-HOME_DIR=${HOME:?HOME must be set}
-
-shared_files=(
-  ".config/hypr/monitor-handler.sh"
-  ".config/eww/eww.yuck"
-  ".local/bin/launch-or-focus"
-  ".local/bin/hypr-cycle-or-group"
-)
-
-usage() {
-  cat >&2 <<EOF
-usage: hypr-engine <command>
-
-  lua     activate hypr-lua package (Hyprland >=0.55 native engine)
-  conf    activate hypr-conf package (legacy hyprlang, deprecated)
-  status  print current engine (lua|conf|none)
-
-After switching, restart Hyprland: hyprctl dispatch exit
-EOF
-  exit 2
-}
-
-current_engine() {
-  if   [[ -L $HOME_DIR/.config/hypr/hyprland.lua  ]]; then echo lua
-  elif [[ -L $HOME_DIR/.config/hypr/hyprland.conf ]]; then echo conf
-  else echo none
+# The engine (lua vs hyprlang) is only re-evaluated at startup or on a
+# full-reset reload; a plain `hyprctl reload` (and autoreload) re-parses the
+# current engine's config and silently keeps the old provider.
+apply_live() {
+  local live dir sig
+  # Probe instead of trusting HYPRLAND_INSTANCE_SIGNATURE: after a compositor
+  # crash the env var in existing shells points at a dead socket (install.sh
+  # also runs this from a TTY with no instance at all). Fall back to scanning
+  # the runtime dir for a socket that answers.
+  if ! live=$(hyprctl status 2>&1); then
+    for dir in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypr"/*/; do
+      [[ -S $dir.socket.sock ]] || continue
+      sig=$(basename "$dir")
+      if live=$(HYPRLAND_INSTANCE_SIGNATURE=$sig hyprctl status 2>&1); then
+        export HYPRLAND_INSTANCE_SIGNATURE=$sig
+        break
+      fi
+    done
   fi
-}
-
-switch_to() {
-  local engine=$1 other
-  case $engine in
-    lua)  other=conf ;;
-    conf) other=lua  ;;
-    *) echo "hypr-engine: unknown engine '$engine'" >&2; exit 2 ;;
-  esac
-
-  local pkg=$DOTFILES/hypr-$engine
-  [[ -d $pkg ]] || { echo "hypr-engine: missing package $pkg" >&2; exit 1; }
-
-  # Create new engine's hyprland.* link FIRST so the file exists before we
-  # remove the other one. Avoids a gap where Hyprland could regenerate a
-  # default stub (it watches its config path and writes a stub when missing).
-  ln -sfn "$pkg/.config/hypr/hyprland.$engine" "$HOME_DIR/.config/hypr/hyprland.$engine"
-
-  local other_hypr=$HOME_DIR/.config/hypr/hyprland.$other
-  if [[ -L $other_hypr || -e $other_hypr ]]; then
-    rm -- "$other_hypr"
+  if [[ $live != *configProvider:* ]]; then
+    echo "hypr-engine: no reachable Hyprland instance ($live); engine applies on next start" >&2
+    return 0
   fi
-
-  local f
-  for f in "${shared_files[@]}"; do
-    mkdir -p "$(dirname "$HOME_DIR/$f")"
-    ln -sfn "$pkg/$f" "$HOME_DIR/$f"
-  done
-
-  echo "switched to $engine. restart hyprland to apply: hyprctl dispatch exit"
+  local provider=hyprlang
+  [[ $live == *"configProvider: lua"* ]] && provider=lua
+  local want=hyprlang
+  [[ $1 == lua ]] && want=lua
+  # Provider already matches: plain reload re-parses the config without the
+  # provider rebuild, which is all that's needed.
+  if [[ $provider == "$want" ]]; then
+    hyprctl reload
+    return 0
+  fi
+  # ponytail: upstream Hyprland 0.56.0 bug — `reload full-reset` while the lua
+  # provider is active SEGVs/aborts in CConfigValueBase::flushCaches(). Drop
+  # this guard once fixed upstream.
+  if [[ $provider == lua ]]; then
+    echo "hypr-engine: live lua->conf switch segfaults Hyprland 0.56.0; restart Hyprland to apply" >&2
+    return 0
+  fi
+  hyprctl reload full-reset
 }
 
 case ${1:-} in
-  lua|conf) switch_to "$1" ;;
-  status)   current_engine ;;
-  *)        usage ;;
+  lua)
+    # Hyprland prefers hyprland.lua over hyprland.conf at startup (verified in
+    # Hyprland's ConfigManager: it checks .lua first, falls back to .conf), so
+    # activating lua just adds the .lua overlay. Ensure the .conf fallback with
+    # a non-destructive stow (no -D → no unlink window): deliberately never
+    # unlink the running instance's active config, or Hyprland regenerates a
+    # default stub live and breaks the session.
+    stow --no-folding -d "$DOTFILES" -t "$HOME" hypr-conf
+    stow --no-folding -d "$DOTFILES" -t "$HOME" hypr-lua
+    apply_live lua
+    ;;
+  conf)
+    # Ensure the fallback, then drop the .lua overlay so startup uses .conf.
+    # rm -f, not stow -D: a running lua instance may have regenerated
+    # hyprland.lua as a regular-file stub, which stow refuses to delete.
+    stow --no-folding -d "$DOTFILES" -t "$HOME" hypr-conf
+    rm -f "$HOME/.config/hypr/hyprland.lua"
+    apply_live conf
+    ;;
+  status)
+    [[ -L $HOME/.config/hypr/hyprland.lua  ]] && echo lua  && exit 0
+    [[ -L $HOME/.config/hypr/hyprland.conf ]] && echo conf && exit 0
+    echo none
+    ;;
+  *) echo "usage: hypr-engine lua|conf|status" >&2; exit 2 ;;
 esac

@@ -1,4 +1,5 @@
 #!/bin/bash
+source "$HOME/.local/bin/err-notify"
 # Opens eww sidebar on the correct monitor:
 # - External monitor in normal mode
 # - Laptop (eDP-1) in presentation mode or when no external is connected
@@ -16,8 +17,13 @@ fi
 # eww uses GDK monitor names (model) not Wayland connector names
 SCREEN=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name == "'"$TARGET"'") | .model')
 
-eww kill 2>/dev/null
-pkill -f 'eww daemon'
+# Daemon not running is a normal state here, not an error worth notifying
+if ! eww kill 2>/dev/null; then
+  echo "eww-sidebar: no eww daemon answering, continuing" >&2
+fi
+if ! pkill -f 'eww daemon'; then
+  echo "eww-sidebar: no eww daemon process to kill, continuing" >&2
+fi
 while eww ping 2>/dev/null; do sleep 0.1; done
 setsid eww daemon &
 sleep 1

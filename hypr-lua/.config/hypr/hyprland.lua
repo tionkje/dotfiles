@@ -1,31 +1,22 @@
--- Migrated from hyprland.conf for Hyprland 0.55 (lua config).
--- To activate: rename this to `hyprland.lua` (Hyprland prefers .lua over .conf when both exist).
--- API stubs: /usr/share/hypr/stubs/hl.meta.lua
--- Original example: /usr/share/hypr/hyprland.lua
---
--- NOTE: A few mappings are best-guess from the stub (marked TODO). Verify with `hyprctl` after activation:
---   * `fullscreen_state = "0 2"` window rule action
---   * `group = "set always" / "deny"` window rule action
---   * `hl.dsp.window.fullscreen(1)` arg shape
---   * workspace_rule `monitor` field with comma-separated fallback (stub types it single string)
---   * `2560x1440@59.95Hz` mode string (the trailing "Hz" worked in hyprlang; lua may want it bare)
+-- Hyprland config, lua engine (Hyprland >=0.55). Activate with `hypr-engine lua`.
+-- API stubs: /usr/share/hypr/stubs/hl.meta.lua ; example: /usr/share/hypr/hyprland.lua
 
 
 ------------------
 ---- MONITORS ----
 ------------------
--- Translated from monitors.conf (which was `source =`d in the old setup).
-
-local monitors = {
-    { output = "",         mode = "preferred",        position = "auto-center-up",   scale = "auto" },
-    { output = "DP-3",     mode = "2560x1440@59.95Hz", position = "auto-center-up",   scale = 1 },
-    { output = "DP-5",     mode = "2560x1440@74.97Hz", position = "auto-center-up",   scale = 1 },
-    { output = "eDP-1",    mode = "preferred",        position = "auto-center-down", scale = 1 },
-    { output = "HDMI-A-1", mode = "2560x1440@59.95Hz", position = "auto-center-up",   scale = 1 },
-    { output = "DP-1",     mode = "2560x1440@59.95Hz", position = "auto-center-up",   scale = 1 },
-    { output = "DVI-I-1",  mode = "2560x1440@59.95Hz", position = "auto-center-up",   scale = 1 },
-}
-for _, m in ipairs(monitors) do hl.monitor(m) end
+-- Machine-local monitors live in ~/.config/hypr/monitors.lua (not stowed), the
+-- lua equivalent of the old `source = monitors.conf`. Existence check, not
+-- pcall: a broken monitors.lua must fail loudly under --verify-config rather
+-- than silently booting with zero monitors configured.
+local monitors_lua = os.getenv("HOME") .. "/.config/hypr/monitors.lua"
+local f = io.open(monitors_lua)
+if f then
+    f:close()
+    dofile(monitors_lua)
+else
+    hl.monitor({ output = "", mode = "preferred", position = "auto-center-up", scale = "auto" })
+end
 
 
 ---------------------
@@ -53,15 +44,22 @@ hl.env("HYPRCURSOR_SIZE", "24")
 -------------------
 
 hl.on("hyprland.start", function()
-    hl.exec_cmd([[alacritty --class term-tmux -e zsh -c "tmux a || tmux"]], { workspace = "name:edit", silent = true })
-    hl.exec_cmd("google-chrome-stable --class=chrome-work",                  { workspace = "name:work", silent = true })
-    hl.exec_cmd("google-chrome-beta --class=chrome-private",                 { workspace = "name:read", silent = true })
-    hl.exec_cmd([[xdg-open "slack://open?team=]] .. slack_team .. [["]],     { workspace = "name:talk", silent = true })
-    hl.exec_cmd("brave --class=brave-youtube",                               { workspace = "name:youtube", silent = true })
-    hl.exec_cmd("spotify",                                                   { workspace = "name:spotify", silent = true })
-    hl.exec_cmd("hypridle")
+    -- `silent` is part of the workspace rule value, not a rule key:
+    -- a separate `silent = true` throws `unknown effect 'silent'` and kills this callback
+    hl.exec_cmd([[alacritty --class term-tmux -e zsh -c "tmux a || tmux"]], { workspace = "name:edit silent" })
+    hl.exec_cmd("google-chrome-stable --class=chrome-work",                  { workspace = "name:work silent" })
+    hl.exec_cmd("google-chrome-beta --class=chrome-private",                 { workspace = "name:read silent" })
+    hl.exec_cmd([[xdg-open "slack://open?team=]] .. slack_team .. [["]],     { workspace = "name:talk silent" })
+    hl.exec_cmd("brave --class=brave-youtube",                               { workspace = "name:youtube silent" })
+    hl.exec_cmd("spotify",                                                   { workspace = "name:spotify silent" })
     hl.exec_cmd("hyprpaper")
-    hl.exec_cmd(os.getenv("HOME") .. "/.config/hypr/monitor-handler.sh")
+    -- setsid: monitor-handler.sh is a long-running event loop (conf used
+    -- `exec-once = setsid ...`)
+    hl.exec_cmd("setsid " .. os.getenv("HOME") .. "/.config/hypr/monitor-handler.sh")
+    -- Export the session env to systemd, then start the user session target.
+    -- This starts every WantedBy=graphical-session.target service (hypridle,
+    -- etc.) exactly once — do NOT also launch hypridle directly.
+    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP && systemctl --user start hyprland-session.target")
 end)
 
 
@@ -89,6 +87,14 @@ hl.window_rule({
 -- pavucontrol floating
 hl.window_rule({ match = { class = "^.*vucontrol.*$" }, float = true })
 
+-- Chrome/Brave notification popups: float, pin, don't steal focus
+hl.window_rule({
+    match       = { class = [[^([Gg]oogle-chrome|[Cc]hromium|[Bb]rave).*$]], initial_title = [[.*[Nn]otification.*]] },
+    float            = true,
+    pin              = true,
+    no_initial_focus = true,
+})
+
 -- No borders on workspaces with only 1 visible tiled window
 hl.window_rule({ match = { workspace = "w[vt1]" }, border_size = 0 })
 
@@ -107,6 +113,9 @@ hl.window_rule({
 })
 
 ---- Workspace rules ----
+-- Equal-size grid layout for incognito (registers "lua:equal")
+dofile(os.getenv("HOME") .. "/.config/hypr/equal-layout.lua")
+dofile(os.getenv("HOME") .. "/.config/hypr/aspect-layout.lua")
 -- NOTE: original used multiple `monitor:` clauses as fallbacks (`monitor:DP-3, monitor:HDMI-A-1`).
 -- Lua stub types `monitor` as a single string. Comma-separated may or may not be supported —
 -- if it isn't, fall back to using monitor-handler.sh to reassign at runtime (you already do that).
@@ -118,7 +127,8 @@ hl.workspace_rule({ workspace = "name:talk",         monitor = multi_monitor, pe
 hl.workspace_rule({ workspace = "name:youtube",      monitor = multi_monitor, persistent = true })
 hl.workspace_rule({ workspace = "name:spotify",      monitor = "eDP-1",       persistent = true })
 hl.workspace_rule({ workspace = "name:meet",         monitor = "eDP-1",       persistent = true })
-hl.workspace_rule({ workspace = "name:incognito",    monitor = multi_monitor, persistent = true })
+-- gaps_in = 0: aspect169 applies the global gaps itself (see aspect-layout.lua)
+hl.workspace_rule({ workspace = "name:incognito",    monitor = multi_monitor, persistent = true, layout = "lua:aspect169", gaps_in = 0 })
 hl.workspace_rule({ workspace = "name:presentation", monitor = multi_monitor })
 
 ---- Layer rules ----
@@ -249,6 +259,12 @@ hl.device({
 ---- KEYBINDINGS ----
 ---------------------
 
+-- Non-interactive bind commands: wrap in err-run so a failure raises a
+-- notification instead of vanishing into the compositor log. Interactive
+-- apps (terminal, hyprlock) and self-notifying scripts stay unwrapped.
+local function shq(cmd) return "'" .. cmd:gsub("'", [['\'']]) .. "'" end
+local function nexec(cmd, rules) return hl.dsp.exec_cmd("err-run " .. shq(cmd), rules) end
+
 -- Group manipulation
 hl.bind(mainMod .. " + G",           hl.dsp.group.toggle(), { description = "toggle group" })
 hl.bind(mainMod .. " + Tab",         hl.dsp.group.next(),   { description = "next in group" })
@@ -275,7 +291,7 @@ hl.bind(mainMod .. " + Q",         hl.dsp.window.close())
 hl.bind(mainMod .. " + C",         hl.dsp.window.close())
 hl.bind("ALT + F4",                hl.dsp.window.close())
 hl.bind(mainMod .. " + CTRL + SHIFT + C",
-    hl.dsp.exec_cmd("kill -9 $(hyprctl activewindow -j | jq '.pid')"))
+    nexec("kill -9 $(hyprctl activewindow -j | jq '.pid')"))
 
 hl.bind(mainMod .. " + M",         hl.dsp.exit())
 hl.bind(mainMod .. " + F",         hl.dsp.exec_cmd(fileManager))
@@ -342,20 +358,21 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Multimedia keys (volume / brightness — bindel = repeating + locked)
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl s 10%+"),                          { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 10%-"),                          { locked = true, repeating = true })
+hl.bind("XF86AudioRaiseVolume",  nexec("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume",  nexec("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
+hl.bind("XF86AudioMute",         nexec("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
+hl.bind("XF86AudioMicMute",      nexec("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp",   nexec("brightnessctl s 10%+"),                          { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", nexec("brightnessctl s 10%-"),                          { locked = true, repeating = true })
 
 -- Media keys (bindl = locked only)
-hl.bind("XF86AudioNext",  hl.dsp.exec_cmd("playerctl next"),       { locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = true })
+hl.bind("XF86AudioNext",  nexec("playerctl next"),       { locked = true })
+hl.bind("XF86AudioPause", nexec("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPlay",  nexec("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPrev",  nexec("playerctl previous"),   { locked = true })
 
--- Screenshots
+-- Screenshots — deliberately NOT nexec-wrapped: cancelling the region picker
+-- (ESC) exits non-zero and would raise a notification on every cancel.
 local screenshotDir = os.getenv("HOME") .. "/Pictures/Screenshots"
 hl.bind("PRINT",
     hl.dsp.exec_cmd("hyprshot -m region -z -r - | satty -f - --output-filename " .. screenshotDir ..

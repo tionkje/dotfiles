@@ -11,5 +11,18 @@ do
     # does not follow symlinked drop-in directories).
     stow --no-folding $folder
 done
+
+# hypr-engine manages the hypr config: it always ensures the hypr-conf fallback
+# (non-destructive stow, kept out of the STOW_FOLDERS loop so a reinstall never
+# unlinks the live-watched hyprland.conf) and toggles the hypr-lua overlay,
+# which Hyprland prefers when present. Re-assert the active engine across
+# reinstalls; default to conf on a fresh machine.
+current_engine=$($DOTFILES/bin/.local/bin/hypr-engine status)
+if [[ $current_engine == none ]]; then
+    current_engine=conf
+fi
+echo "hypr-engine $current_engine"
+$DOTFILES/bin/.local/bin/hypr-engine $current_engine
+
 popd
 

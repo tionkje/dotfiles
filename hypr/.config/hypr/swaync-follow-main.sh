@@ -1,6 +1,6 @@
 #!/bin/bash
+source "$HOME/.local/bin/err-notify"
 set -euo pipefail
-trap 'notify-send -u critical "Error: $(basename "$0")" "Line $LINENO failed (exit $?)"' ERR
 
 # Point swaync notifications + control center at whichever monitor currently
 # hosts the `work` workspace. That single rule covers normal mode, presentation

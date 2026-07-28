@@ -1,4 +1,5 @@
 #!/bin/bash
+source "$HOME/.local/bin/err-notify"
 STATE_FILE="/tmp/hypr-presentation-mode"
 LAPTOP="eDP-1"
 
@@ -14,11 +15,11 @@ if [[ -f "$STATE_FILE" ]]; then
   # === Toggle OFF ===
   # Move WS 1-5 back to external
   for ws in work edit read talk youtube; do
-    hyprctl dispatch moveworkspacetomonitor "name:$ws" "$EXT"
+    hypr-dispatch moveworkspacetomonitor "name:$ws" "$EXT"
   done
   # Focus work WS on external
-  hyprctl dispatch focusmonitor "$EXT"
-  hyprctl dispatch workspace name:work
+  hypr-dispatch focusmonitor "$EXT"
+  hypr-dispatch workspace name:work
   rm "$STATE_FILE"
   ~/.config/hypr/eww-sidebar.sh
   ~/.config/hypr/swaync-follow-main.sh
@@ -27,13 +28,13 @@ else
   # === Toggle ON ===
   # Move WS 1-5 to laptop
   for ws in work edit read talk youtube; do
-    hyprctl dispatch moveworkspacetomonitor "name:$ws" "$LAPTOP"
+    hypr-dispatch moveworkspacetomonitor "name:$ws" "$LAPTOP"
   done
   # Create empty presentation workspace on external
-  hyprctl dispatch focusmonitor "$EXT"
-  hyprctl dispatch workspace name:presentation
+  hypr-dispatch focusmonitor "$EXT"
+  hypr-dispatch workspace name:presentation
   # Focus back on laptop
-  hyprctl dispatch focusmonitor "$LAPTOP"
+  hypr-dispatch focusmonitor "$LAPTOP"
   touch "$STATE_FILE"
   ~/.config/hypr/eww-sidebar.sh
   ~/.config/hypr/swaync-follow-main.sh

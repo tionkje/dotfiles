@@ -1,4 +1,5 @@
 #!/bin/bash
+source "$HOME/.local/bin/err-notify"
 
 # Launch the passed in URL as a web app in the default browser (or chromium if the default doesn't support --app).
 # Use --profile work|private to select a specific Chrome profile/binary.
