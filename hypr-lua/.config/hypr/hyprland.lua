@@ -53,13 +53,13 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("brave --class=brave-youtube",                               { workspace = "name:youtube silent" })
     hl.exec_cmd("spotify",                                                   { workspace = "name:spotify silent" })
     hl.exec_cmd("hyprpaper")
-    -- setsid: monitor-handler.sh is a long-running event loop (conf used
-    -- `exec-once = setsid ...`)
-    hl.exec_cmd("setsid " .. os.getenv("HOME") .. "/.config/hypr/monitor-handler.sh")
     -- Export the session env to systemd, then start the user session target.
     -- This starts every WantedBy=graphical-session.target service (hypridle,
     -- etc.) exactly once — do NOT also launch hypridle directly.
-    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP && systemctl --user start hyprland-session.target")
+    -- monitor-handler must be `restart` (not `start`) and chained AFTER the env
+    -- import: a handler surviving a Hyprland restart would keep the dead
+    -- instance's HYPRLAND_INSTANCE_SIGNATURE and fight the new one over the bars.
+    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP && systemctl --user start hyprland-session.target && systemctl --user restart monitor-handler.service")
 end)
 
 

@@ -1,0 +1,6 @@
+[Unit]
+Description=Hyprland monitor/bar event handler
+
+[Service]
+ExecStart=%h/.config/hypr/monitor-handler.sh
+Restart=on-failure

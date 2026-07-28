@@ -22,9 +22,14 @@ assign_workspaces() {
 }
 
 reload_bars() {
-  ~/.config/waybar/reload.sh
-  sleep 1
-  ~/.config/hypr/eww-sidebar.sh
+  # flock: two triggers can fire at once (monitor event + wake from sleep);
+  # interleaved kill/start of waybar+eww leaves dead bars, so serialize
+  (
+    flock 9
+    ~/.config/waybar/reload.sh
+    sleep 1
+    ~/.config/hypr/eww-sidebar.sh
+  ) 9>"$XDG_RUNTIME_DIR/reload-bars.lock"
 }
 
 handle() {
