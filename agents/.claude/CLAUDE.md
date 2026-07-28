@@ -17,3 +17,4 @@
 - Do not add comments in shell commands that are not in a script. Copying the command into the shell does not work with comments.
 - Prefer rebasing over merging for branches not yet pushed to remote. And for repositories where i am the only contributor.
 - Follow ETC (Easy to Change) principles. If something is hard to change, it will not be changed. Make it easy to change.
+- If i ask for documentation, always provide a full URL in the resulting output. Links do not work as this is a TUI.

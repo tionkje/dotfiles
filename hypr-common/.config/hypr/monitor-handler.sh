@@ -1,20 +1,23 @@
 #!/bin/bash
+# Long-running event loop: err-notify surfaces failures without set -e, so a
+# failed command notifies but never kills the handler.
+source "$HOME/.local/bin/err-notify"
 
 assign_workspaces() {
   local monitor=$1
   if [[ "$monitor" != "eDP-1" ]]; then
     if [[ -f /tmp/hypr-presentation-mode ]]; then
-      hyprctl dispatch moveworkspacetomonitor name:presentation "$monitor"
+      hypr-dispatch moveworkspacetomonitor name:presentation "$monitor"
     else
-      hyprctl dispatch moveworkspacetomonitor name:work "$monitor"
-      hyprctl dispatch moveworkspacetomonitor name:edit "$monitor"
-      hyprctl dispatch moveworkspacetomonitor name:read "$monitor"
-      hyprctl dispatch moveworkspacetomonitor name:talk "$monitor"
-      hyprctl dispatch moveworkspacetomonitor name:youtube "$monitor"
-      hyprctl dispatch moveworkspacetomonitor name:incognito "$monitor"
+      hypr-dispatch moveworkspacetomonitor name:work "$monitor"
+      hypr-dispatch moveworkspacetomonitor name:edit "$monitor"
+      hypr-dispatch moveworkspacetomonitor name:read "$monitor"
+      hypr-dispatch moveworkspacetomonitor name:talk "$monitor"
+      hypr-dispatch moveworkspacetomonitor name:youtube "$monitor"
+      hypr-dispatch moveworkspacetomonitor name:incognito "$monitor"
     fi
-    hyprctl dispatch moveworkspacetomonitor name:spotify "eDP-1"
-    hyprctl dispatch moveworkspacetomonitor name:meet "eDP-1"
+    hypr-dispatch moveworkspacetomonitor name:spotify "eDP-1"
+    hypr-dispatch moveworkspacetomonitor name:meet "eDP-1"
   fi
 }
 
@@ -54,7 +57,9 @@ done &
 inotifywait -m -e modify -r ~/.config/eww/ |
   while read -r; do
     sleep 1
-    killall -SIGUSR2 waybar
+    if ! killall -SIGUSR2 waybar; then
+      echo "monitor-handler: waybar not running, skipping reload signal" >&2
+    fi
   done &
 
 # Re-evaluate sidebar on wake from sleep

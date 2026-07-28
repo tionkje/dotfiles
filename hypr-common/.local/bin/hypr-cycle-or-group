@@ -1,6 +1,6 @@
 #!/bin/bash
+source "$HOME/.local/bin/err-notify"
 set -euo pipefail
-trap 'echo "[hypr-cycle-or-group] error at line $LINENO" >&2' ERR
 
 # Direction: f (forward) or b (backward). Default forward.
 dir="${1:-f}"
@@ -11,9 +11,9 @@ case "$dir" in
 esac
 
 before=$(hyprctl activewindow -j | jq -r '.address // empty')
-hyprctl dispatch cyclenext "$cycle" >/dev/null
+hypr-dispatch cyclenext "$cycle" >/dev/null
 after=$(hyprctl activewindow -j | jq -r '.address // empty')
 
 if [[ "$before" == "$after" ]]; then
-  hyprctl dispatch changegroupactive "$group_dir" >/dev/null
+  hypr-dispatch changegroupactive "$group_dir" >/dev/null
 fi
