@@ -468,6 +468,8 @@ alias vim=nvim
 alias vi=nvim
 alias v=nvim
 alias lzd='lazydocker'
+export RIPGREP_CONFIG_PATH="$HOME/.config/ripgrep/config"
+alias ag="echo 'Try rg instead!!' && rg"
 #alias claude='~/.claude/local/claude'
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
