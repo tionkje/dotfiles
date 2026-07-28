@@ -15,11 +15,11 @@ if [[ -f "$STATE_FILE" ]]; then
   # === Toggle OFF ===
   # Move WS 1-5 back to external
   for ws in work edit read talk youtube; do
-    hypr-dispatch moveworkspacetomonitor "name:$ws" "$EXT"
+    hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:$ws]], monitor = [[$EXT]] })"
   done
   # Focus work WS on external
-  hypr-dispatch focusmonitor "$EXT"
-  hypr-dispatch workspace name:work
+  hypr-dispatch "hl.dsp.focus({ monitor = [[$EXT]] })"
+  hypr-dispatch 'hl.dsp.focus({ workspace = [[name:work]] })'
   rm "$STATE_FILE"
   ~/.config/hypr/eww-sidebar.sh
   ~/.config/hypr/swaync-follow-main.sh
@@ -28,13 +28,13 @@ else
   # === Toggle ON ===
   # Move WS 1-5 to laptop
   for ws in work edit read talk youtube; do
-    hypr-dispatch moveworkspacetomonitor "name:$ws" "$LAPTOP"
+    hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:$ws]], monitor = [[$LAPTOP]] })"
   done
   # Create empty presentation workspace on external
-  hypr-dispatch focusmonitor "$EXT"
-  hypr-dispatch workspace name:presentation
+  hypr-dispatch "hl.dsp.focus({ monitor = [[$EXT]] })"
+  hypr-dispatch 'hl.dsp.focus({ workspace = [[name:presentation]] })'
   # Focus back on laptop
-  hypr-dispatch focusmonitor "$LAPTOP"
+  hypr-dispatch "hl.dsp.focus({ monitor = [[$LAPTOP]] })"
   touch "$STATE_FILE"
   ~/.config/hypr/eww-sidebar.sh
   ~/.config/hypr/swaync-follow-main.sh

@@ -16,7 +16,7 @@ if [[ "${1:-}" == "--launch" ]]; then
   else
     MON="$LAPTOP"
   fi
-  hypr-dispatch exec "[monitor $MON] alacritty --class fzl-launcher -o 'window.startup_mode=\"Windowed\"' -o 'window.opacity=0.9' -e fzl"
+  hypr-dispatch "hl.dsp.exec_cmd([[alacritty --class fzl-launcher -o 'window.startup_mode=\"Windowed\"' -o 'window.opacity=0.9' -e fzl]], { monitor = [[$MON]] })"
   exit 0
 fi
 
@@ -91,7 +91,7 @@ cmd="${commands[$selected]}"
 if [[ "$cmd" == "SUBMENU_SES" ]]; then
   ses.ts
   bump_frequency "$selected"
-  hypr-dispatch workspace name:edit
+  hypr-dispatch 'hl.dsp.focus({ workspace = [[name:edit]] })'
   exit 0
 fi
 

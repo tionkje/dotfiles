@@ -7,17 +7,17 @@ assign_workspaces() {
   local monitor=$1
   if [[ "$monitor" != "eDP-1" ]]; then
     if [[ -f /tmp/hypr-presentation-mode ]]; then
-      hypr-dispatch moveworkspacetomonitor name:presentation "$monitor"
+      hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:presentation]], monitor = [[$monitor]] })"
     else
-      hypr-dispatch moveworkspacetomonitor name:work "$monitor"
-      hypr-dispatch moveworkspacetomonitor name:edit "$monitor"
-      hypr-dispatch moveworkspacetomonitor name:read "$monitor"
-      hypr-dispatch moveworkspacetomonitor name:talk "$monitor"
-      hypr-dispatch moveworkspacetomonitor name:youtube "$monitor"
-      hypr-dispatch moveworkspacetomonitor name:incognito "$monitor"
+      hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:work]], monitor = [[$monitor]] })"
+      hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:edit]], monitor = [[$monitor]] })"
+      hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:read]], monitor = [[$monitor]] })"
+      hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:talk]], monitor = [[$monitor]] })"
+      hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:youtube]], monitor = [[$monitor]] })"
+      hypr-dispatch "hl.dsp.workspace.move({ workspace = [[name:incognito]], monitor = [[$monitor]] })"
     fi
-    hypr-dispatch moveworkspacetomonitor name:spotify "eDP-1"
-    hypr-dispatch moveworkspacetomonitor name:meet "eDP-1"
+    hypr-dispatch 'hl.dsp.workspace.move({ workspace = [[name:spotify]], monitor = [[eDP-1]] })'
+    hypr-dispatch 'hl.dsp.workspace.move({ workspace = [[name:meet]], monitor = [[eDP-1]] })'
   fi
 }
 

@@ -5,15 +5,15 @@ set -euo pipefail
 # Direction: f (forward) or b (backward). Default forward.
 dir="${1:-f}"
 case "$dir" in
-  f) cycle="next"; group_dir="f" ;;
-  b) cycle="prev"; group_dir="b" ;;
+  f) cycle='hl.dsp.window.cycle_next()';                 group='hl.dsp.group.next()' ;;
+  b) cycle='hl.dsp.window.cycle_next({ next = false })'; group='hl.dsp.group.prev()' ;;
   *) echo "[hypr-cycle-or-group] usage: $0 [f|b]" >&2; exit 2 ;;
 esac
 
 before=$(hyprctl activewindow -j | jq -r '.address // empty')
-hypr-dispatch cyclenext "$cycle" >/dev/null
+hypr-dispatch "$cycle" >/dev/null
 after=$(hyprctl activewindow -j | jq -r '.address // empty')
 
 if [[ "$before" == "$after" ]]; then
-  hypr-dispatch changegroupactive "$group_dir" >/dev/null
+  hypr-dispatch "$group" >/dev/null
 fi

@@ -92,7 +92,7 @@
 
 (defwidget wso-window-row [w]
   (eventbox
-    :onclick {"hypr-dispatch focuswindow address:" + w.address + " && eww close workspace-overview workspace-overview-backdrop"}
+    :onclick {"hypr-dispatch 'hl.dsp.focus({ window = [[address:" + w.address + "]] })' && eww close workspace-overview workspace-overview-backdrop"}
     (box :class {w.focused ? "wso-window-row focused" : "wso-window-row"}
          :orientation "h" :space-evenly false :spacing 8
       (image :icon {w.icon} :image-width 26 :image-height 26)
