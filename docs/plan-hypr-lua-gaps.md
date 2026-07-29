@@ -121,7 +121,10 @@ boot):
 Still needs runtime verification with `hyprctl` after activation (semantics,
 not syntax):
 
-- [ ] `fullscreen(1)` actually maximizes (old `fullscreen, 1`)
+- [x] `fullscreen(1)` does NOT maximize — arg is ignored, always real fullscreen
+      (internal 2 + client 2). Fixed with
+      `fullscreen_state({ internal = 1, client = 0, action = "toggle" })`,
+      verified via `hyprctl eval` + `hyprctl activewindow -j`
 - [ ] `fullscreen_state = "0 2"` gives fake fullscreen on brave-youtube
 - [ ] `group = "set always"` groups spotify/read windows
 - [ ] comma-separated monitor actually falls back — low stakes,

@@ -344,7 +344,9 @@ hl.bind("ALT + Tab",         hl.dsp.exec_cmd("hypr-cycle-or-group f"))
 hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd("hypr-cycle-or-group b"))
 
 -- Fullscreen + lock
-hl.bind(mainMod .. " + space", hl.dsp.window.fullscreen(1)) -- TODO: verify arg shape; old `fullscreen, 1` = maximize
+-- fullscreen() ignores its arg and does real fullscreen (client told, covers layers);
+-- maximize like old `fullscreen, 1` = internal-only state 1, toggled
+hl.bind(mainMod .. " + space", hl.dsp.window.fullscreen_state({ internal = 1, client = 0, action = "toggle" }))
 hl.bind(mainMod .. " + L",     hl.dsp.exec_cmd("hyprlock"))
 
 -- Workspace scroll / arrow nav
