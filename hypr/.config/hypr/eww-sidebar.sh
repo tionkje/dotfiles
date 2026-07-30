@@ -21,11 +21,13 @@ SCREEN=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name == "'"$TARGET"'") | .
 if ! eww kill 2>/dev/null; then
   echo "eww-sidebar: no eww daemon answering, continuing" >&2
 fi
-if ! pkill -f 'eww daemon'; then
+# match '^eww ' not 'eww daemon': an `eww open` that raced the daemon
+# daemonizes itself with its original cmdline
+if ! pkill -f '^eww '; then
   echo "eww-sidebar: no eww daemon process to kill, continuing" >&2
 fi
 while eww ping 2>/dev/null; do sleep 0.1; done
 setsid eww daemon &
-sleep 1
+until eww ping 2>/dev/null; do sleep 0.1; done
 
 eww open sidebar --screen "$SCREEN"
