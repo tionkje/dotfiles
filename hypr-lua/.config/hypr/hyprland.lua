@@ -5,15 +5,15 @@
 ------------------
 ---- MONITORS ----
 ------------------
--- Machine-local monitors live in ~/.config/hypr/monitors.lua (not stowed), the
--- lua equivalent of the old `source = monitors.conf`. Existence check, not
--- pcall: a broken monitors.lua must fail loudly under --verify-config rather
--- than silently booting with zero monitors configured.
+-- monitors.lua (stowed, hypr-lua package) is data-only: it returns a list of
+-- monitor tables, serialized/rewritten by monitor-resolution.sh. Existence
+-- check, not pcall: a broken monitors.lua must fail loudly under
+-- --verify-config rather than silently booting with zero monitors configured.
 local monitors_lua = os.getenv("HOME") .. "/.config/hypr/monitors.lua"
 local f = io.open(monitors_lua)
 if f then
     f:close()
-    dofile(monitors_lua)
+    for _, m in ipairs(dofile(monitors_lua)) do hl.monitor(m) end
 else
     hl.monitor({ output = "", mode = "preferred", position = "auto-center-up", scale = "auto" })
 end
