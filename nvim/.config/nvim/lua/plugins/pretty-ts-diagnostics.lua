@@ -8,7 +8,14 @@ return {
 		local ts_clients = { ts_ls = true, tsserver = true, ["deno-ls"] = true, custom_ts_lsp = true }
 		local ts_sources = { tsserver = true, ts = true, typescript = true, ["deno-ts"] = true }
 		local cache = {}
-		local executable = "pretty-ts-errors-markdown"
+		local executable = vim.g.pretty_ts_errors_executable or "pretty-ts-errors-markdown"
+		-- Each invocation is a full node startup (~175ms, more under load).
+		-- Without a cap + in-flight dedup, rapid tsserver publishes while typing
+		-- spawn hundreds of node processes and hang the machine.
+		local MAX_JOBS = 4
+		local active_jobs = 0
+		local job_queue = {}
+		local in_flight = {} -- cache_key -> list of on_done callbacks
 
 		--- Strip bloat from CLI output, keep markdown code fences for syntax highlighting
 		local function clean_markdown(text)
@@ -23,8 +30,19 @@ return {
 			return vim.trim(text)
 		end
 
-		--- Async-format a single diagnostic and call on_done(formatted_message) when ready
-		local function format_async(lsp_diagnostic, on_done)
+		--- Resolve all waiters for a key. result is nil on failure so the
+		--- publish still goes through with the original message.
+		local function resolve(cache_key, result)
+			local waiters = in_flight[cache_key]
+			in_flight[cache_key] = nil
+			for _, cb in ipairs(waiters or {}) do
+				cb(result)
+			end
+		end
+
+		local run_job
+		run_job = function(lsp_diagnostic, cache_key)
+			active_jobs = active_jobs + 1
 			local json_str = vim.fn.json_encode(lsp_diagnostic)
 			local stdout_chunks = {}
 
@@ -39,19 +57,52 @@ return {
 					end
 				end,
 				on_exit = function(_, code)
-					if code == 0 and #stdout_chunks > 0 then
-						local raw = table.concat(stdout_chunks, "\n")
-						local cleaned = clean_markdown(raw)
-						if cleaned ~= "" then
-							on_done(cleaned)
-						end
+					active_jobs = active_jobs - 1
+					local next_job = table.remove(job_queue, 1)
+					if next_job then
+						run_job(next_job.diag, next_job.key)
 					end
+
+					local result = nil
+					if code == 0 and #stdout_chunks > 0 then
+						local cleaned = clean_markdown(table.concat(stdout_chunks, "\n"))
+						if cleaned ~= "" then
+							result = cleaned
+						end
+					else
+						vim.schedule(function()
+							vim.notify(executable .. " failed (exit " .. code .. ")", vim.log.levels.WARN)
+						end)
+					end
+					resolve(cache_key, result)
 				end,
 			})
 
 			if job_id > 0 then
 				vim.fn.chansend(job_id, json_str)
 				vim.fn.chanclose(job_id, "stdin")
+			else
+				active_jobs = active_jobs - 1
+				vim.schedule(function()
+					vim.notify("failed to start " .. executable, vim.log.levels.WARN)
+				end)
+				resolve(cache_key, nil)
+			end
+		end
+
+		--- Async-format a single diagnostic and call on_done(formatted_message) when ready.
+		--- Dedups concurrent requests for the same cache_key and caps concurrent jobs.
+		local function format_async(lsp_diagnostic, cache_key, on_done)
+			if in_flight[cache_key] then
+				table.insert(in_flight[cache_key], on_done)
+				return
+			end
+			in_flight[cache_key] = { on_done }
+
+			if active_jobs >= MAX_JOBS then
+				table.insert(job_queue, { diag = lsp_diagnostic, key = cache_key })
+			else
+				run_job(lsp_diagnostic, cache_key)
 			end
 		end
 
@@ -87,8 +138,10 @@ return {
 				local cache_key = tostring(diag.code or "") .. (diag.message or "")
 				if not cache[cache_key] then
 					pending = pending + 1
-					format_async(diag, function(formatted)
-						cache[cache_key] = formatted
+					format_async(diag, cache_key, function(formatted)
+						if formatted then
+							cache[cache_key] = formatted
+						end
 						pending = pending - 1
 						if pending == 0 then
 							vim.schedule(function()

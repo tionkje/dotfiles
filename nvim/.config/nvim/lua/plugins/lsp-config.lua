@@ -177,6 +177,10 @@ return { -- LSP Configuration & Plugins
 				--
 				-- But for many setups, the LSP (`tsserver`) will work just fine
 				ts_ls = {
+					-- Wait longer after typing stops before sending didChange,
+					-- so tsserver publishes diagnostics less often mid-edit
+					-- (default 150ms; each publish can trigger pretty-ts-errors jobs)
+					flags = { debounce_text_changes = 500 },
 					settings = {
 						typescript = {
 							inlayHints = {
@@ -426,6 +430,7 @@ return { -- LSP Configuration & Plugins
 		-- Setup the custom LSP with capabilities and custom handlers
 		lspconfig.custom_ts_lsp.setup({
 			capabilities = capabilities,
+			flags = { debounce_text_changes = 500 },
 			-- on_attach = function(client, bufnr)
 			-- 	vim.notify('Custom LSP attached to ' .. vim.api.nvim_buf_get_name(bufnr))
 			-- end,
