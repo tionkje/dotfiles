@@ -25,10 +25,13 @@ reload_bars() {
   # flock: two triggers can fire at once (monitor event + wake from sleep);
   # interleaved kill/start of waybar+eww leaves dead bars, so serialize
   (
-    flock 9
-    ~/.config/waybar/reload.sh
+    # -w 60: daemons used to inherit fd 9 and hold the lock forever, wedging
+    # every later reload; timeout turns a repeat of that into a notification
+    flock -w 60 9
+    # 9>&- : don't leak the lock fd into waybar/eww daemons
+    ~/.config/waybar/reload.sh 9>&-
     sleep 1
-    ~/.config/hypr/eww-sidebar.sh
+    ~/.config/hypr/eww-sidebar.sh 9>&-
   ) 9>"$XDG_RUNTIME_DIR/reload-bars.lock"
 }
 
