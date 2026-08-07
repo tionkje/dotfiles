@@ -3,6 +3,18 @@ set -euo pipefail
 trap 'notify-send -u critical "Error: $(basename "$0")" "Line $LINENO failed (exit $?)"' ERR
 
 PID_FILE="${XDG_RUNTIME_DIR:-/tmp}/eww-sleep-inhibit.pid"
+STATE_CSS="$HOME/.config/waybar/sleep-inhibit-state.css"
+
+update_waybar() {
+    if [ "$1" = on ]; then
+        echo 'window#waybar { background: #ff7800; }' > "$STATE_CSS"
+    else
+        : > "$STATE_CSS"
+    fi
+    # SIGUSR2 makes waybar reload its config and css. waybar may not be
+    # running (pkill exits 1); the state file is then picked up on next start.
+    pkill -SIGUSR2 -x waybar || true
+}
 
 is_inhibited() {
     [ -f "$PID_FILE" ] || return 1
@@ -16,6 +28,7 @@ if is_inhibited; then
     pid=$(cat "$PID_FILE")
     rm -f "$PID_FILE"
     kill "$pid"
+    update_waybar off
     notify-send "Sleep inhibit off" "System may sleep again"
 else
     rm -f "$PID_FILE"
@@ -30,5 +43,6 @@ else
             sleep infinity </dev/null &
     echo $! > "$PID_FILE"
     disown
+    update_waybar on
     notify-send "Sleep inhibit on" "System will stay awake"
 fi

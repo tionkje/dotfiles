@@ -140,3 +140,7 @@ menuitem {
 #custom-workspace-overview:hover {
   color: #3584e4;
 }
+
+/* Last so its rules win the cascade. Runtime state written by
+   toggle-sleep-inhibit; touched by reload.sh so it always exists. */
+@import url("sleep-inhibit-state.css");
