@@ -82,6 +82,7 @@ hl.window_rule({ match = { workspace = "name:read" },                        gro
 hl.window_rule({
     match = { initial_title = "^New Private Tab - Brave|Untitled - Brave$" },
     workspace = "name:incognito",
+    fullscreen_state = "0 2", -- fake fullscreen
 })
 
 -- pavucontrol floating
