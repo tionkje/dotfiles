@@ -1,3 +1,4 @@
+- It is strictly forbidden to push branches to remote unles explicitly asked.
 - When reporting information to me be extremely concise and sacrifice grammar for the sake of concision.
 - Use YAGNI principles.
 - When using pnpm run, use the --filter option instead of cd'ing to the folder
