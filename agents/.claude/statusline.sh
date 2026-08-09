@@ -136,6 +136,15 @@ if [ "$usage" != "null" ]; then
     fi
 fi
 
+# Model name, colored by cost tier (red=fable/mythos, yellow=opus, plain=rest)
+model=$(echo "$input" | jq -r '.model.display_name // empty')
+if [ -n "$model" ]; then
+    case "${model,,}" in
+        *fable*|*mythos*) model="${RED}${model}${RESET}" ;;
+        *opus*) model="${YELLOW}${model}${RESET}" ;;
+    esac
+fi
+
 # Build output with colors: cwd=blue, remote=magenta, branch=cyan
 out="[${BLUE}${cwd}${RESET}"
 [ -n "$remote" ] && out+=" | ${MAGENTA}${remote}${RESET}"
@@ -144,6 +153,7 @@ out="[${BLUE}${cwd}${RESET}"
 [ -n "$stash" ] && out+=" $stash"
 [ -n "$changes" ] && out+=" | $changes"
 [ -n "$context" ] && out+=" | $context"
+[ -n "$model" ] && out+=" | $model"
 out+="]"
 
 printf '%s' "$out"
