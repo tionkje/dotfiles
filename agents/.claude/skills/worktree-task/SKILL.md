@@ -1,6 +1,7 @@
 ---
 name: worktree-task
 description: Execute a task in an isolated git worktree, then rebase and fast-forward merge it back into a chosen starting branch with full cleanup. Use when the user wants to do work in a worktree and have it merged back automatically, says "run this in a worktree", "do this in a worktree and merge back", or invokes `/worktree-task`.
+disable-model-invocation: true
 ---
 
 # Worktree Task

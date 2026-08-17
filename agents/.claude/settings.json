@@ -50,7 +50,5 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "tui": "fullscreen",
-  "autoMemoryEnabled": false,
-  "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true
+  "autoMemoryEnabled": false
 }
