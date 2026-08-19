@@ -7,7 +7,6 @@
       "Bash(gh api:*)",
       "Bash(pnpm list:*)",
       "Bash(pnpm install:*)",
-      "Bash(pnpm run:*)",
       "Bash(pnpm turbo run:*)",
       "mcp__playwright",
       "WebSearch"
@@ -50,5 +49,38 @@
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "tui": "fullscreen",
-  "autoMemoryEnabled": false
+  "autoMemoryEnabled": false,
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(sops:*) writes/re-encryption of secrets outside apps/*/.env* declared locations",
+      "Ansible plays targeting apps/bdl/ansible/inventory.ini [bdl_2020] group or any production BDL device group"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: private (tionkje/basmonre, per gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: sops (seen in project usage); CI secrets referenced by name only: CONFIG, GITHUB_TOKEN, SERVER_PRIVATE_KEY, TURBO_TEAM, TURBO_TOKEN",
+      "**Default / protected branches**: main (default); no classic protected branches listed, rulesets not queryable here — treat main as protected pending confirmation; BDL2020 branch used for legacy 32-bit device deploys",
+      "**CI/CD deploy targets**: GitHub Actions workflows in .github/workflows/ (dlserv production deploy via dlserv@x.y.z tags; bdl_preview_deploy.yml and dlserv_preview_deploy.yml for preview instances); production deploys must go via these workflows, never direct file changes on the server",
+      "**Network posture**: None configured",
+      "**Source control**: github.com:tionkje/basmonre.git (origin) — this repo and its remote only",
+      "**Trusted internal domains**: bastiaandeknudt.be and its subdomains (bts.bastiaandeknudt.be, bts-preview.bastiaandeknudt.be) — seen as contacted hosts in this project's usage",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: dlserv (legacy production dashboard, Sapper + MongoDB), bdl (Raspberry Pi client service), bdl_dashboard, bdl_ll (Hono lifeline backend), bdl_tunnel_server / bdl_tunnel_client (SSH tunnel management)",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: apps/bdl/ansible/.envrc, apps/bdl_dashboard/.env(.local/.test), apps/bdl_ll/.env(.local/.test), apps/bdl_tunnel_server/.env(.test), apps/dlserv/.env(.example), packages/bdl_ui/.env.(development/production); CI secrets CONFIG, GITHUB_TOKEN, SERVER_PRIVATE_KEY, TURBO_TEAM, TURBO_TOKEN — share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace/host/container with 'prod' or 'production' as a whole word/segment; explicitly includes the dlserv production deploy target (dlserv@x.y.z) and existing production BDL devices referenced in CLAUDE.md",
+      "**Protected deployment namespaces / environments**: production deploy target for dlserv (dlserv@x.y.z tags); *_preview instances are not protected",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries 'prod' or 'production' as a whole word or name segment; apps/bdl/ansible/inventory.ini (device fleet config) treated as sensitive infra-as-config",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (IoT/industrial monitoring monorepo — BDL)",
+      "**Trusted repo**: /home/bastiaan/dev/basmonre_2 (github.com:tionkje/basmonre.git, private) — confidential material OK to commit here, but secrets/credentials are never cleared into the repo by its visibility",
+      "**Org-specific CLIs**: None configured",
+      "**routine under bastiaan/ prefix**: none identified"
+    ]
+  }
 }
