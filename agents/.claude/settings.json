@@ -23,7 +23,7 @@
     ],
     "defaultMode": "auto"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "fable",
   "statusLine": {
     "type": "command",
     "command": "/home/bastiaan/.claude/statusline.sh"
