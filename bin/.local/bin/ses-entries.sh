@@ -9,6 +9,10 @@ while IFS= read -r d; do
 done < <(find "$HOME/VIRTO" "$HOME/VIRTO/experiments" "$HOME/dev" \
   -mindepth 1 -maxdepth 1 -type d)
 
+for d in "$HOME"/VIRTO/vs360_monorepo*/.claude/worktrees/*/ "$HOME"/dev/basmonre*/.claude/worktrees/*/; do
+  [[ -d $d ]] && candidates+=("${d%/}")
+done
+
 {
   find "${candidates[@]}" -mindepth 1 -maxdepth 1 -printf '%A@\t%h\n'
   printf '0\t%s\n' "${candidates[@]}"
