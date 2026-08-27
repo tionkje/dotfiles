@@ -67,13 +67,17 @@ end)
 ---- WINDOW PLACEMENT & RULES ------
 -------------------------------------
 
+hl.window_rule({ sync_fullscreen = false })
+
 -- Send autostarted apps to their workspaces
+
 hl.window_rule({ match = { class = "term-tmux" },                            workspace = "name:edit silent" })
 hl.window_rule({ match = { class = "chrome-work" },                          workspace = "name:work silent" })
 hl.window_rule({ match = { class = "chrome-private" },                       workspace = "name:read silent" })
 hl.window_rule({ match = { class = "Slack" },                                workspace = "name:talk silent" })
 hl.window_rule({ match = { class = "brave-youtube" },                        workspace = "name:youtube silent" })
 hl.window_rule({ match = { class = "brave-youtube" },                        fullscreen_state = "0 2" }) -- fake fullscreen
+hl.window_rule({ match = { class = "brave-youtube" },                        sync_fullscreen = false })
 hl.window_rule({ match = { class = "^Spotify$" },                            workspace = "name:spotify silent" })
 hl.window_rule({ match = { class = "^Spotify$" },                            group = "set always" })
 hl.window_rule({ match = { class = [[^chrome-ma\.bastiaandeknudt\.be.*]] },  workspace = "name:spotify silent" })
@@ -347,7 +351,9 @@ hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd("hypr-cycle-or-group b"))
 -- Fullscreen + lock
 -- fullscreen() ignores its arg and does real fullscreen (client told, covers layers);
 -- maximize like old `fullscreen, 1` = internal-only state 1, toggled
-hl.bind(mainMod .. " + space", hl.dsp.window.fullscreen_state({ internal = 1, client = 0, action = "toggle" }))
+hl.bind(mainMod .. " + space", hl.dsp.window.fullscreen_state({ internal = 1, client = 1, action = "toggle" }))
+hl.bind(mainMod .. " + F11", hl.dsp.window.fullscreen_state({ internal = 2, client = 2, action = "toggle" }))
+
 hl.bind(mainMod .. " + L",     hl.dsp.exec_cmd("hyprlock"))
 
 -- Workspace scroll / arrow nav
