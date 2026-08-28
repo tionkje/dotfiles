@@ -351,7 +351,7 @@ hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd("hypr-cycle-or-group b"))
 -- Fullscreen + lock
 -- fullscreen() ignores its arg and does real fullscreen (client told, covers layers);
 -- maximize like old `fullscreen, 1` = internal-only state 1, toggled
-hl.bind(mainMod .. " + space", hl.dsp.window.fullscreen_state({ internal = 1, client = 1, action = "toggle" }))
+hl.bind(mainMod .. " + space", hl.dsp.window.fullscreen_state({ internal = 1, client = -1, action = "toggle" }))
 hl.bind(mainMod .. " + F11", hl.dsp.window.fullscreen_state({ internal = 2, client = 2, action = "toggle" }))
 
 hl.bind(mainMod .. " + L",     hl.dsp.exec_cmd("hyprlock"))
