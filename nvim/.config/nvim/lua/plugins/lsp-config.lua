@@ -20,7 +20,6 @@ return { -- LSP Configuration & Plugins
 		"hrsh7th/cmp-nvim-lsp",
 	},
 	config = function()
-		vim.lsp.set_log_level("warn")
 		-- Brief aside: **What is LSP?**
 		--
 		-- LSP is an initialism you've probably heard, but might not understand what it is.
