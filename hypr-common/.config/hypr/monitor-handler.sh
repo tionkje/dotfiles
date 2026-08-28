@@ -26,8 +26,10 @@ reload_bars() {
   # interleaved kill/start of waybar+eww leaves dead bars, so serialize
   (
     # -w 60: daemons used to inherit fd 9 and hold the lock forever, wedging
-    # every later reload; timeout turns a repeat of that into a notification
-    flock -w 60 9
+    # every later reload; timeout turns a repeat of that into a notification.
+    # || exit 1: err-notify doesn't stop the script, so without it a timeout
+    # would fall through and run the reload unserialized anyway
+    flock -w 60 9 || exit 1
     # 9>&- : don't leak the lock fd into waybar/eww daemons
     ~/.config/waybar/reload.sh 9>&-
     sleep 1
