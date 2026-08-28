@@ -519,3 +519,4 @@ export RUN_INFRA_SNAPSHOT_TESTS=true
 export PATH=/home/bastiaan/.opencode/bin:$PATH
 
 eval "$(zoxide init zsh)"
+export TURBO_CACHE=local:rw,remote:r
